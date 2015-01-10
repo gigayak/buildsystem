@@ -194,6 +194,10 @@ mkroot()
     create_bare_root "$_env" --no-repo
   else
     create_bare_root "$_env"
+    if [[ ! -e "$DIR/cache" ]]
+    then
+      mkdir -pv "$DIR/cache"
+    fi
     cp -r "${!_env}" "$DIR/cache/baseroot"
   fi
   populate_dynamic_fs_pieces "${!_env}"
