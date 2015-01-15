@@ -22,7 +22,7 @@ do
     | sed -nre 's@^\S+\s*=\s*(\S+)$@\1@gp')"
 
   echo "Checking if LXC container $n is up"
-  if (( "$(lxc-ls -a | sed -nre 's@^('"$n"')$@\1@gp' | wc -l)" > "0" ))
+  if (( "$(lxc-ls --active | sed -nre 's@^('"$n"')$@\1@gp' | wc -l)" > "0" ))
   then
     echo "Ignoring active container $n"
     active_lxc_roots+=("$t")
