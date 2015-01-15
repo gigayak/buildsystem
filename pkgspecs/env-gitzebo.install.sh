@@ -20,6 +20,11 @@ chmod 0700 /root/.ssh
 #ln -s {/opt/db,/root/.ssh}/authorized_keys
 ln -s {/opt/db,/etc/ssh}/ssh_host_key
 ln -s {/opt/db,/etc/ssh}/ssh_host_key.pub
+ln -s {/opt/db,/etc/ssh}/ssh_host_rsa_key
+ln -s {/opt/db,/etc/ssh}/ssh_host_rsa_key.pub
+ln -s {/opt/db,/etc/ssh}/ssh_host_dsa_key
+ln -s {/opt/db,/etc/ssh}/ssh_host_dsa_key.pub
+# TODO: ensure these keys are generated
 ln -s {/opt/db,/etc/ssh}/ssh_random_seed
 
 cat > /usr/bin/container.init <<'EOF'
