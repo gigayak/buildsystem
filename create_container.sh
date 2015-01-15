@@ -60,6 +60,9 @@ lxc.autodev = 1
 lxc.mount.auto = proc sys
 lxc.rootfs = $root
 
+lxc.pts = 1024
+lxc.tty = 32
+
 #lxc.id_map = u 0 100000 65536 # unsupported in this kernel or not set up?
 #lxc.id_map = g 0 100000 65536 # or perhaps not supported when run as root?
 
