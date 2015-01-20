@@ -102,7 +102,7 @@ populate_dynamic_fs_pieces()
   mount --bind /dev "$_root/dev"
 
   # Copy in our resolv.conf -- this may be a point of breakage
-  cp /etc/resolv.conf "$_root/etc/resolv.conf"
+  cp "$DIR/resolv.conf.tpl" "$_root/etc/resolv.conf"
 }
 
 depopulate_dynamic_fs_pieces()
