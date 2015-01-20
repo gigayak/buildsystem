@@ -86,6 +86,8 @@ def copy_link(s, t, f):
   print "Linking:", t, "->", link_target
   os.symlink(link_target, t)
 
+# Keys can be interpreted by using this page:
+#   http://andreafrancia.it/2010/03/understanding-the-output-of-rsync-itemize-changes.html
 ops = {
   '.d..t......': noop,
   '.d..T......': noop,
