@@ -22,6 +22,11 @@ do
     echo "Creating directory $mountsource"
     mkdir -p "$mountsource"
   fi
+  if [[ ! -d "$mountpoint" ]]
+  then
+    echo "Creating directory $mountpoint"
+    mkdir -p "$mountpoint"
+  fi
   if ! findmnt "$mountpoint"
   then
     echo "$mountsource -> $mountpoint"
