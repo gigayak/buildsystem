@@ -6,7 +6,6 @@ echo python-gitzebo # configured module
 
 echo rootfiles # .bashrc needed for HOME and the like
 
-#echo httpd # serve using Apache
-#echo mod_wsgi # WSGI used to link to Python
+echo go-git-webserver # to serve repos over dumb HTTPS
 
 echo openssh-server # needed to accept pushes and serve pulls

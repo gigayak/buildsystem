@@ -1,3 +1,3 @@
 #!/bin/bash
 set -Eeo pipefail
-echo 1.0
+echo 1.2

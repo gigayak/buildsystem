@@ -39,7 +39,6 @@ container()
   fi
 }
 
-#container gitzebo 01 192.168.122.5 # TODO: This should be uncommented.
-# Above is commented to prevent gitzebo and gitzebo-01 from conflicting.
+container gitzebo 01 192.168.122.5
 container dns     01 192.168.122.6
 container dns     02 192.168.122.7

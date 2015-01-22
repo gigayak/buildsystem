@@ -4,8 +4,7 @@ exit 1
 
 # TODO: Start automatically enumerating TODOs.
 
-# TODO: Move /tmp/tmp.UtA6KsuwAv's git webserver and container init patches to
-#       build scripts.
+# TODO: Ensure DNS servers can start without a running DNS server.  Bootstraps.
 
 # TODO: I need a way to allow a build (in a chroot) to request the build
 #       system to request a dependency build which will need to start outside

@@ -27,6 +27,40 @@ ln -s {/opt/db,/etc/ssh}/ssh_host_dsa_key.pub
 # TODO: ensure these keys are generated
 ln -s {/opt/db,/etc/ssh}/ssh_random_seed
 
+# This script periodically refreshes repository information to generate static
+# pack files.  This should not be necessary in a version with a smarter HTTPS
+# server.
+# TODO: ensure HTTPS server generates packfiles automatically in Go version.
+cat > /usr/bin/regenerate_packs <<'EOF'
+#!/bin/bash
+set -Eeo pipefail
+while true
+do
+  while read -r repo
+  do
+    cd "$repo" \
+      && git update-server-info \
+      || \
+    {
+      echo "Failed to update repo '$repo'" >&2
+      continue
+    }
+    echo \
+      "<meta name=\"go-import\" " \
+        "content=\"git.jgilik.com/$(basename "$repo" .git) git" \
+          "https://git.jgilik.com/$(basename "$repo")/\" />" \
+      > "$(dirname "$repo")/$(basename "$repo" .git)" \
+    || \
+    {
+      echo "Failed to create metadata file for repo '$repo'" >&2
+      continue
+    }
+  done < <(find /opt/git -mindepth 1 -maxdepth 1 -type d)
+  sleep 15
+done
+EOF
+chmod +x /usr/bin/regenerate_packs
+
 cat > /usr/bin/container.init <<'EOF'
 #!/bin/bash
 set -Eeo pipefail
@@ -74,6 +108,8 @@ term_handler()
     echo "Sending SIGTERM to $pid"
     kill -SIGTERM "$web_pid"
     /etc/init.d/sshd stop
+    kill -SIGTERM "$regen_pid"
+    kill -SIGTERM "$ssl_pid"
   fi
 }
 trap term_handler 15
@@ -88,10 +124,24 @@ gitzebo-dev-server &
 web_pid="$!"
 echo "Web server started with PID $web_pid"
 
+/usr/bin/regenerate_packs &
+regen_pid="$!"
+echo "Pack regenerator started with PID $regen_pid"
+
+/usr/bin/git-https-server &
+ssl_pid="$!"
+echo "HTTPS server started with PID $ssl_pid"
+
 toret=0
 retval=0
 wait "$web_pid" || retval=$?
 echo "Web server exited with return code $retval"
+(( "$retval" )) && toret=$retval
+wait "$regen_pid" || retval=$?
+echo "Pack regenerator exited with return code $retval"
+(( "$retval" )) && toret=$retval
+wait "$ssl_pid" || retval=$?
+echo "HTTPS server exited with return code $retval"
 (( "$retval" )) && toret=$retval
 wait "$ssh_pid" || retval=$?
 echo "SSH server exited with return code $retval"
