@@ -16,6 +16,9 @@ rm -rf "$DIR/cache/baseroot"
 # base
 pkgs=()
 pkgs+=("jpg-repo")
+pkgs+=("enable-dynamic-ca-certificates")
+pkgs+=("internal-ca-certificates")
+pkgs+=("certificate-authority")
 
 # pip
 pkgs+=("python-distribute")
@@ -27,6 +30,19 @@ pkgs+=("python-gitzebo")
 # go
 pkgs+=("go")
 pkgs+=("go-hello") # test package
+pkgs+=("go-git-webserver") # git HTTPS server
+
+# support for vim-go
+pkgs+=("ssh-dev-keys-client")
+pkgs+=("vim-pathogen")
+pkgs+=("vim-pathogen-config")
+pkgs+=("vim-go")
+
+# environments (container configurations, really)
+pkgs+=("env-ca")
+pkgs+=("env-go-dev")
+pkgs+=("env-gitzebo")
+pkgs+=("env-dns")
 
 for pkg in "${pkgs[@]}"
 do
