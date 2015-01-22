@@ -1,8 +1,17 @@
 #!/bin/bash
-echo "$(basename "$0"): not meant to execute." >&2
-exit 1
+set -Eeo pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# TODO: Start automatically enumerating TODOs.
+# TODO: This will only get the first line of a TODO.  Reimplement this sanely?
+grep \
+  -R \
+  -E \
+  -e '^\s*[#;]\s*TODO:?\s*(\S.*)' \
+  "$DIR" \
+  --exclude-dir="$DIR/cache" \
+  --line-number \
+| sed -re 's@^([^:]+:[0-9]+:)[^:]+:\s+(.*)$@\1 \2@g'
+exit $?
 
 # TODO: Ensure DNS servers can start without a running DNS server.  Bootstraps.
 
