@@ -3,8 +3,12 @@ set -Eeo pipefail
 set -x
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Compiler.
+# Compilers.
 echo go
+echo gcc
 
-# To extract source.
-echo tar
+# To download source.
+echo git
+
+# To make sure we trust the git server.
+echo internal-ca-certificates
