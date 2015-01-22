@@ -38,8 +38,6 @@ umount "$root/dev"
 umount "$root/proc"
 
 # Create base config.
-# TODO: randomize MAC address
-# TODO: assign IPs logically, rather than telling everyone they are at .3
 # TODO: escape or sanitize inputs, to prevent LXC injection :o
 cat > "$tmp/lxc.conf" <<EOF
 lxc.arch = i686
@@ -48,7 +46,7 @@ lxc.utsname = $name
 lxc.network.type = veth
 lxc.network.flags = up
 lxc.network.link = virbr0
-lxc.network.hwaddr = 4a:59:43:2f:d3:0d
+lxc.network.hwaddr = $(echo -n 00:60:2f; dd bs=1 count=3 if=/dev/random 2>/dev/null | hexdump -v -e '/1 ":%02x"')
 #lxc.network.hwaddr = 53:6C:79:2F:D3:0D # FAILS NEVER USE ODD NUMBER IN FIRST
 # OCTET FOR MORE INFORMATION:
 # http://comments.gmane.org/gmane.linux.kernel.containers.lxc.general/746
