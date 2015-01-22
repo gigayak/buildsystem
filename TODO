@@ -2,21 +2,27 @@
 echo "$(basename "$0"): not meant to execute." >&2
 exit 1
 
+# TODO: Start automatically enumerating TODOs.
+
+# TODO: Move /tmp/tmp.UtA6KsuwAv's git webserver and container init patches to
+#       build scripts.
+
 # TODO: I need a way to allow a build (in a chroot) to request the build
 #       system to request a dependency build which will need to start outside
 #       of the chroot context, as it will require a new root.
 
-# TODO: It looks more and more like the current method of passing build
-#       scripts to pkg.sh is crappy.  Instead of running those within the
-#       chroot, it may be desirable to have them be able to start outside of
-#       the chroot and tunnel in, to access stuff on the build host (source?).
-#       Or not?  Maybe not -- the isolation from the build host may be a great
-#       thing the moment I can containerize this all.
 
+# TODO: ssh dev keys package is fubar due to not packaging /root
 
-# TODO: I'm currently working on figuring out how to do persistent data for
-#       containers.  gitzebo requires a database and repository, and the dev
-#       and build environments should run off of a remote repository.  Thus,
-#       the gitzebo container needs to be configured to have persistent storage.
-#       Current game plan unfortunately only yields singly-homed storage, so
-#       I will need to think about distributed storage shortly after.
+# TODO: need to set up https access in gitzebo for go get to work
+
+# TODO: need to figure out how to package git parameters (user.name and email)
+#       (/root/.gitconfig)
+
+# TODO: move Selenium bank info project into Git
+# TODO: move Selenium bank info project into buildsystem
+# TODO: move Selenium bank info project into container
+
+# TODO: move certificate authority project into buildsystem
+# TODO: move certificate authority project into container
+# TODO: add web interface to certificate authority project
