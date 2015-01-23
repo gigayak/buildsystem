@@ -39,6 +39,9 @@ container()
   fi
 }
 
-container gitzebo 01 192.168.122.5
+# Everything requires the DNS servers.  Always boot these first.
 container dns     01 192.168.122.6
 container dns     02 192.168.122.7
+
+# Infrastructure services:
+container gitzebo 01 192.168.122.5

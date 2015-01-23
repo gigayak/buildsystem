@@ -101,8 +101,24 @@ populate_dynamic_fs_pieces()
   mount --bind /proc "$_root/proc"
   mount --bind /dev "$_root/dev"
 
+  # Choose which resolv.conf to populate.  We have two: one with a public DNS
+  # server which we can fail over onto if our DNS servers are down, and a much
+  # more mainstream one which points to our internal DNS servers.  This check
+  # should ensure that we populate resolv.conf with internal DNS servers unless
+  # they are not available.
+  local _resolv_src="$DIR/resolv.conf.nodns.tpl"
+  local _dns_ip
+  while read -r _dns_ip
+  do
+    if ping -c 1 "$_dns_ip" >/dev/null 2>&1
+    then
+      _resolv_src="$DIR/resolv.conf.tpl"
+    fi
+  done \
+  < <(grep -E -e '^nameserver' "$DIR/resolv.conf.tpl" | awk '{print $2}')
+
   # Copy in our resolv.conf -- this may be a point of breakage
-  cp "$DIR/resolv.conf.tpl" "$_root/etc/resolv.conf"
+  cp "$_resolv_src" "$_root/etc/resolv.conf"
 }
 
 depopulate_dynamic_fs_pieces()

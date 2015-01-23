@@ -13,8 +13,6 @@ grep \
 | sed -re 's@^([^:]+:[0-9]+:)[^:]+:\s+(.*)$@\1 \2@g'
 exit $?
 
-# TODO: Ensure DNS servers can start without a running DNS server.  Bootstraps.
-
 # TODO: I need a way to allow a build (in a chroot) to request the build
 #       system to request a dependency build which will need to start outside
 #       of the chroot context, as it will require a new root.
