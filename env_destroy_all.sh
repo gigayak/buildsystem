@@ -1,5 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+source "$DIR/cleanup.sh"
 
 unmount_chroot()
 {
@@ -35,7 +38,7 @@ do
   lxc-destroy --name="$n"
 done < <(lxc-ls -l | awk '{print $9}')
 
-for t in $(find /tmp -mindepth 1 -maxdepth 1 -iname 'tmp.*')
+for t in $(find "$_TEMP_ROOT" -mindepth 1 -maxdepth 1 -iname 'tmp.*')
 do
   for root in "${active_lxc_roots[@]}"
   do
@@ -45,7 +48,7 @@ do
       continue 2
     fi
   done
-  echo "Destroying /tmp chroot $t..."
+  echo "Destroying temporary chroot $t..."
   unmount_chroot "$t"
   rm -rf "$t"
 done
