@@ -8,6 +8,8 @@ then
 fi
 _CLEANUP_SH_INCLUDED=1
 
+_TEMP_ROOT=/mnt/vol_b/tmp
+
 exit_handlers=()
 register_exit_handler_front()
 {
@@ -103,7 +105,7 @@ make_temp_dir()
   fi
   local _env="$1"
 
-  local _dir="$(mktemp -d)"
+  local _dir="$(mktemp -d --tmpdir="$_TEMP_ROOT")"
   register_temp_file "$_dir"
   export "$_env"="$_dir"
   return 0
