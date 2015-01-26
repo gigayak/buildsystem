@@ -386,7 +386,20 @@ rsync \
 # Create package output...
 make_temp_dir pkgdir
 echo "Packaging to '$pkgdir'"
-"$DIR/copy_diff_files.py" "$dir" "$pkgdir" < "$diff"
+retval=0
+"$DIR/copy_diff_files.py" "$dir" "$pkgdir" < "$diff" \
+  || retval=$?
+if (( "$retval" ))
+then
+  unregister_temp_file "$snapshot"
+  unregister_temp_file "$dir"
+  unregister_temp_file "$diffdir"
+  echo "$(basename "$0"): copy_diff_files failed; debug using:" >&2
+  echo "$(basename "$0"): post-build snapshot: $snapshot" >&2
+  echo "$(basename "$0"): post-install snapshot: $dir" >&2
+  echo "$(basename "$0"): diff: $diff" >&2
+  exit 1
+fi
 
 cleanup_root "$pkgdir"
 

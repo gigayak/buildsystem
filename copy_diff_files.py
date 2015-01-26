@@ -86,15 +86,25 @@ def copy_link(s, t, f):
   print "Linking:", t, "->", link_target
   os.symlink(link_target, t)
 
+def warn_on_permissions(s, t, f):
+  """
+  Warn when permissions differ (as we're dropping them).
+  """
+  # TODO: Figure out why this happens during qemu install :(
+  print "WARNING: Permissions differ for file {0}".format(f)
+  print "This permission change will be lost!"
+
 # Keys can be interpreted by using this page:
 #   http://andreafrancia.it/2010/03/understanding-the-output-of-rsync-itemize-changes.html
 ops = {
   '.d..t......': noop,
   '.d..T......': noop,
+  '.d...p.....': warn_on_permissions,
   'cd+++++++++': copy_dir,
   '>f.s.......': copy_file,
   '.f..t......': noop,
   '>f..t......': copy_file,
+  '.f...p.....': warn_on_permissions,
   '.f..T......': noop,
   '>f..T......': copy_file,
   '>f.st......': copy_file,
