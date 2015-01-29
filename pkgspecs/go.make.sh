@@ -5,7 +5,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 #require ca-certificates wget
 pkg_name="go"
-pkg_version="1.4" # TODO: version crawler
+pkg_version="1.4.1" # TODO: version crawler
 echo "$pkg_version" > "/root/go.version"
 pkg_ext="tar.gz"
 pkg_url="https://storage.googleapis.com/golang/${pkg_name}${pkg_version}.src.${pkg_ext}"
