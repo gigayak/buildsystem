@@ -1,5 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
+source /cross-tools/env.sh
 
 cd /root
 version=6.0.0a

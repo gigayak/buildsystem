@@ -1,5 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
+source /cross-tools/env.sh
 
 cd /root
 # ISL >= 0.13 seems to be incompatible with CLooG:

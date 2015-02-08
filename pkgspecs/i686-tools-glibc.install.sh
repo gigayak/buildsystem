@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /cross-tools/env.sh
-cd /root/isl-*/
+cd /root/glibc-build
 make install

@@ -1,5 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
+source /cross-tools/env.sh
 
 cd /root
 version=0.28-1
@@ -9,9 +10,8 @@ wget "$url" -O "pkg-config-lite-$version.tar.gz"
 
 tar -zxf "pkg-config-lite-$version.tar.gz"
 cd "pkg-config-lite-$version"
-# --host is $CLFS_TARGET
 ./configure \
   --prefix=/cross-tools/i686 \
-  --host="i686-pc-linux-gnu" \
+  --host="$CLFS_TARGET" \
   --with-pc-path="/tools/i686/lib/pkgconfig:/tools/i686/share/pkgconfig"
 make
