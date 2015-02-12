@@ -16,6 +16,8 @@ export PATH='/cross-tools/i686/bin:/bin:/usr/bin'
 
 # Our scripts rely on these.
 export CLFS_HOST="$(echo "$MACHTYPE" | sed -e 's/-[^-]*/-cross/')"
+#export CLFS_HOST="$(uname -m)-cross-$(echo "$MACHTYPE" \
+#  | sed -re 's@^[^-]*-[^-]*-(.*)$@\1@g')"
 # From table at:
 #   http://www.clfs.org/view/CLFS-3.0.0-SYSVINIT/x86/final-preps/variables.html
 export CLFS_TARGET="i686-pc-linux-gnu"
