@@ -13,6 +13,8 @@ export TERM=screen
 export PS1='\u:\w\$ '
 export LC_ALL=POSIX
 export PATH='/cross-tools/i686/bin:/bin:/usr/bin'
+unset CFLAGS
+unset CXXFLAGS
 
 # Our scripts rely on these.
 export CLFS_HOST="$(echo "$MACHTYPE" | sed -e 's/-[^-]*/-cross/')"
