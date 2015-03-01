@@ -163,6 +163,15 @@ ensure_pkg_exists()
 
   echo "Making sure package '$_pkg' exists."
 
+  # Check our package root manually.
+  # TODO: Remove this performance hack.  We need a faster package manager...
+  #       THIS WILL BREAK WHEN WE TARGET MULTIPLE ARCHITECTURES!
+  if (( "$(find /var/www/html/repo -iname "$_pkg-*.rpm" | wc -l)" ))
+  then
+    echo "Found package '$_pkg' using a hack that will break cross-arch"
+    return 0
+  fi
+
   # Create a test root to use.
   if [[ -z "$ensure_pkg_exists_root" ]]
   then
@@ -437,3 +446,4 @@ then
 fi
 cp -fv "$tmprepo/"* "$repo/"
 createrepo --update "$repo"
+
