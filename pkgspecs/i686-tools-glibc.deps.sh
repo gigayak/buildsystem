@@ -2,5 +2,4 @@
 set -Eeo pipefail
 
 # Common directory structure.
-echo i686-cross-root
-echo i686-cross-env
+echo i686-tools-root

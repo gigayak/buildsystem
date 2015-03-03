@@ -36,7 +36,7 @@ export RANLIB="${CLFS_TARGET}-ranlib"
   --disable-profile \
   --enable-kernel=2.6.32 \
   --with-binutils=/cross-tools/i686/bin \
-  --with-headers=/cross-tools/i686/include \
+  --with-headers=/tools/i686/include \
   --enable-obsolete-rpc \
   --cache-file=config.cache
 

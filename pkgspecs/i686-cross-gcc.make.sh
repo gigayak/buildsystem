@@ -52,7 +52,7 @@ export LDFLAGS="-Wl,-rpath,/cross-tools/i686/lib"
   --target="$CLFS_TARGET" \
   --with-sysroot="$CLFS" \
   --with-local-prefix=/tools/i686 \
-  --with-native-system-header-dir=/cross-tools/i686/include \
+  --with-native-system-header-dir=/tools/i686/include \
   --disable-nls \
   --disable-static \
   --enable-languages=c,c++ \
