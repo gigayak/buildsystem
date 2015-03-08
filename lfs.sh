@@ -33,6 +33,11 @@ do
   pkgs+=("i686-tools-$p")
 done
 pkgs+=("i686-cross-bc")
+for p in \
+  bootscripts
+do
+  pkgs+=("i686-tools-$p")
+done
 
 for p in "${pkgs[@]}"
 do
