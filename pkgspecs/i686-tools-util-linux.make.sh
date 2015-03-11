@@ -28,6 +28,12 @@ cd util-linux-*/
 #
 # --disable-makeinstall-setuid prevents the sticky bit from being set for any
 # binaries.  Not sure what failures this would cause, though.
+#
+#
+# Options derived locally:
+#
+# --disable-kill prevents kill from building, which overlaps with coreutils.
+# Not doing this causes both packages to conflict from claiming the same files.
 ./configure \
   --prefix=/tools/i686 \
   --build="$CLFS_HOST" \
@@ -35,6 +41,7 @@ cd util-linux-*/
   --disable-makeinstall-chown \
   --disable-makeinstall-setuid \
   --without-python \
-  --without-systemdsystemunitdir
+  --without-systemdsystemunitdir \
+  --disable-kill
 
 make
