@@ -19,7 +19,7 @@ pkgs+=("i686-tools-env")
 for p in \
   file linux-headers m4 \
   ncurses pkg-config-lite gmp mpfr mpc isl cloog \
-  isl binutils gcc-static
+  isl binutils gcc-static bc
 do
   pkgs+=("i686-cross-$p")
 done
@@ -28,13 +28,7 @@ pkgs+=("i686-cross-gcc")
 for p in \
   gmp mpfr mpc isl cloog zlib binutils gcc ncurses bash bzip2 check coreutils \
   diffutils file findutils gawk gettext grep gzip make patch sed tar texinfo \
-  util-linux xz
-do
-  pkgs+=("i686-tools-$p")
-done
-pkgs+=("i686-cross-bc")
-for p in \
-  bootscripts
+  util-linux xz bootscripts e2fsprogs kmod shadow sysvinit eudev linux grub
 do
   pkgs+=("i686-tools-$p")
 done
