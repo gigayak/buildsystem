@@ -1,0 +1,26 @@
+#!/bin/bash
+set -Eeo pipefail
+source /tools/env.sh
+
+cd /root
+version=2.1
+#version=1.7 # :o
+echo "$version" > /root/version
+url="https://dev.gentoo.org/~blueness/eudev/eudev-2.1.tar.gz"
+wget "$url"
+
+tar -zxf "eudev-$version.tar.gz"
+cd eudev-*/
+
+./configure \
+  --prefix=/tools/i686 \
+  --build="$CLFS_HOST" \
+  --host="$CLFS_TARGET" \
+  --disable-introspection \
+  --disable-gtk-doc-html \
+  --disable-gudev \
+  --disable-keymap \
+  --with-firmware-path=/tools/i686/lib/firmware \
+  --enable-libkmod
+
+make
