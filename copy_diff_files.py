@@ -86,6 +86,28 @@ def copy_link(s, t, f):
   print "Linking:", t, "->", link_target
   os.symlink(link_target, t)
 
+def copy_device(s, t, f):
+  """
+  Copy a device inode.
+  """
+  # Prefix file with root in both cases.
+  s = os.path.join(s, f).strip()
+  t = os.path.join(t, f).strip()
+
+  # Create parent directories.
+  if not os.path.isdir(pardir(t)):
+    copy_dir(pardir(s), pardir(t))
+
+  # Copy major/minor dev numbers.
+  stat = os.stat(s)
+  #major = os.major(stat.st_dev)
+  #minor = os.minor(stat.st_dev)
+  mode = stat.st_mode
+  # TODO: possibly redundant, can st_dev be reused?
+  #dev = os.makedev(major, minor)
+  dev = stat.st_dev
+  os.mknod(t, mode, dev)
+
 def warn_on_permissions(s, t, f):
   """
   Warn when permissions differ (as we're dropping them).
@@ -111,6 +133,7 @@ ops = {
   '>f.sT......': copy_file,
   '>f+++++++++': copy_file,
   'cL+++++++++': copy_link,
+  'cD+++++++++': copy_device,
 }
 for line in sys.stdin:
   pieces = line.split(" ")
