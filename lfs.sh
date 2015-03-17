@@ -28,7 +28,9 @@ pkgs+=("i686-cross-gcc")
 for p in \
   gmp mpfr mpc isl cloog zlib binutils gcc ncurses bash bzip2 check coreutils \
   diffutils file findutils gawk gettext grep gzip make patch sed tar texinfo \
-  util-linux xz bootscripts e2fsprogs kmod shadow sysvinit eudev linux grub
+  util-linux xz bootscripts e2fsprogs kmod shadow sysvinit eudev linux grub \
+  gcc-aliases bash-aliases coreutils-aliases grep-aliases file-aliases \
+  sysvinit-aliases shadow-aliases linux-aliases linux-devices
 do
   pkgs+=("i686-tools-$p")
 done
