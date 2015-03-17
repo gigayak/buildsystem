@@ -100,11 +100,7 @@ def copy_device(s, t, f):
 
   # Copy major/minor dev numbers.
   stat = os.stat(s)
-  #major = os.major(stat.st_dev)
-  #minor = os.minor(stat.st_dev)
   mode = stat.st_mode
-  # TODO: possibly redundant, can st_dev be reused?
-  #dev = os.makedev(major, minor)
   dev = stat.st_dev
   os.mknod(t, mode, dev)
 
