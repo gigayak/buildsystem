@@ -38,7 +38,8 @@ _program_params=("$0" "$@")
 # Add special help flag by default.
 _flags+=("help")
 _flag_descriptions["help"]="Displays this help message."
-_flag_defaults["help"]="Display."
+_flag_defaults["help"]=""
+_flag_default_set["help"]="0"
 _flag_boolean["help"]="1"
 _flag_array["help"]="0"
 _flag_optional["help"]="1"
@@ -301,6 +302,10 @@ parse_flags()
     #   a=""
     #   [[ -z "$a" ]] && echo "yes" # echoes yes
     #   [ ! -n "$a" ]] && echo "yes" # silence
+    if (( "${_flag_default_set[$name]}" )) && [ ! -n "${!dest+1}" ]
+    then
+      export "$dest"="${_flag_defaults[$name]}"
+    fi
     if (( ! "${_flag_optional[$name]}" )) && [ ! -n "${!dest+1}" ]
     then
       echo "${FUNCNAME[0]}: required flag --$name missing" >&2

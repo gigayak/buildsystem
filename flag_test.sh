@@ -78,4 +78,45 @@ expect_success()
   expect_success "$retval" "retrieving array flags"
 )
 
+# Check that defaults are populated.
+(
+  source "$DIR/flag.sh"
+  add_flag --default="wat" d "flag with default"
+  _program_name="test_default"
+  _program_params=("$_program_name")
+  retval=0
+  parse_flags || retval=$?
+  expect_success "$retval" "parsing flags with default substitution"
+  retval=0
+  [[ "${F_d}" == "wat" ]] || retval=$?
+  expect_success "$retval" "retrieving default-substituted flag"
+)
+
+# Check that defaults are overridden.
+(
+  source "$DIR/flag.sh"
+  add_flag --default="wat" d "flag with default"
+  _program_name="test_default"
+  _program_params=("$_program_name" "--d=nope")
+  retval=0
+  parse_flags || retval=$?
+  expect_success "$retval" "parsing flags with default override"
+  retval=0
+  [[ "${F_d}" == "nope" ]] || retval=$?
+  expect_success "$retval" "retrieving default-overridden flag"
+)
+
+# Check that defaults are overridden, even with a null.
+(
+  source "$DIR/flag.sh"
+  add_flag --default="wat" d "flag with default"
+  _program_name="test_default"
+  _program_params=("$_program_name" "--d=")
+  retval=0
+  parse_flags || retval=$?
+  expect_success "$retval" "parsing flags with null default override"
+  retval=0
+  [[ "${F_d}" == "" ]] || retval=$?
+  expect_success "$retval" "retrieving null default-overridden flag"
+)
 
