@@ -39,4 +39,11 @@ rpm2cpio "${F_rpm}" \
     --preserve-modification-time \
     --verbose
 
-tar -czvf "${F_out}" *
+# HACK SCALE: MINOR
+#
+# Some RPMs don't contain any files.  We still expect that our program will
+# convert them to a .tar.gz successfully - but tar -czvf "${F_out}" * will fail
+# during wildcard expansion when no files are present.
+#
+# tar recurses through directories, though... so tar -czvf out.tar.gz . works.
+tar -czvf "${F_out}" .
