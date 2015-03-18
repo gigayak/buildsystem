@@ -69,7 +69,7 @@ convert_package()
     yum resolvedep "$req" -q -e 0 -d 0 2>/dev/null | cut -d':' -f'2-' \
       >> "$pkg.dependencies.unsorted"
   done < "$pkg.requirements"
-  sort "$pkg.dependencies.unsorted" | uniq > "$pkg.dependencies"
+  sort "$pkg.dependencies.unsorted" | uniq > "$pkg.dependencies.unstripped"
 
   # Process all requirements.
   local dep
@@ -77,10 +77,10 @@ convert_package()
   do
     local stripped_dep="$(yum info "$dep" \
       | sed -nre 's@^Name\s*:\s+(\S+)\s*$@\1@gp')"
-    echo "$stripped_dep" >> "$pkg.dependencies.stripped"
+    echo "$stripped_dep" >> "$pkg.dependencies"
     convert_package "$stripped_dep"
     cd "$WORKDIR"
-  done < "$pkg.dependencies"
+  done < "$pkg.dependencies.unstripped"
 
   # Finalize conversion.
   echo "Converting '$pkg' to TGZ"
