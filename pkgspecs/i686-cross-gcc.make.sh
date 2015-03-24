@@ -14,6 +14,7 @@ tar -zxf "gcc-$version.tar.gz"
 cd gcc-*/
 
 # Patch a ton of headers to point at /tools/lib instead of /lib
+# (equivalent to CLFS gcc-4.8.3-specs-1.patch, but version-independent)
 find gcc/config -iname '*.h' \
   | { \
     xargs -I{} grep --files-with-matches --extended-regexp '[":]/lib' {} \
