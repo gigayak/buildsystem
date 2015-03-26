@@ -28,7 +28,9 @@ then
   exit $?
 
 # python -> pip
-elif [[ "$name" == "python-"* ]]
+# Note: python-devel is not the "devel" package from PIP, it's a RHEL/CentOS
+#   RPM that needs conversion.
+elif [[ "$name" == "python-"* ]] && [[ "$name" != "python-devel" ]]
 then
   # Make sure to remove both the python- prefix and the version restrictions
   # TODO: obey version restrictions
