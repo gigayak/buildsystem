@@ -166,37 +166,14 @@ ensure_pkg_exists()
   # Check our package root manually.
   # TODO: Remove this performance hack.  We need a faster package manager...
   #       THIS WILL BREAK WHEN WE TARGET MULTIPLE ARCHITECTURES!
-  if (( "$(find /var/www/html/repo -iname "$_pkg-*.rpm" | wc -l)" ))
+  if (( "$(find /var/www/html/tgzrepo -iname "$_pkg.tar.gz" | wc -l)" ))
   then
     echo "Found package '$_pkg' using a hack that will break cross-arch"
     return 0
   fi
 
-  # Create a test root to use.
-  if [[ -z "$ensure_pkg_exists_root" ]]
-  then
-    if [[ "$pkgname" == "jpg-repo" ]]
-    then
-      mkroot ensure_pkg_exists_root --no-repo
-    else
-      mkroot ensure_pkg_exists_root
-    fi
-  fi
-  local _root="$ensure_pkg_exists_root"
-
-  # Check if the package exists.
-  local _exists=1
-  if [[ "$_pkg" == "python-"* && "$_pkg" != "python-devel" ]]
-  then
-    chroot "$_root" /bin/bash -c "yum list --disablerepo='*' --enablerepo=jpg '$_pkg'" || _exists=0
-  else
-    chroot "$_root" /bin/bash -c "yum list '$_pkg'" || _exists=0
-  fi
-  if (( ! "$_exists" ))
-  then
-    echo "Building nonexistent package '$_pkg'"
-    "$DIR/pkg.from_name.sh" --pkg_name="$_pkg"
-  fi
+  echo "Building nonexistent package '$_pkg'"
+  "$DIR/pkg.from_name.sh" --pkg_name="$_pkg"
 }
 
 install_deps()
@@ -210,7 +187,6 @@ install_deps()
   local _depfile="$1"
 
   local _dep
-  local _to_install=()
   while read -r _dep
   do
     if [[ -z "$_dep" ]]
@@ -218,15 +194,8 @@ install_deps()
       continue
     fi
     ensure_pkg_exists "$_dep"
-    _to_install+=("$_dep")
+    "$DIR/install_pkg.sh" --pkg_name="$_dep" --install_root="$dir"
   done < "$_depfile"
-
-  # Since things may have changed during the ensure_pkg_exists call,
-  # we'll reset our repository caches.  This will ensure that any new
-  # packages we built appear properly.
-  run_in_root <(echo "yum clean all")
-
-  run_in_root <(echo "yum -y --nogpgcheck install ${_to_install[@]}")
 }
 
 # Create a directory to store scratch files in.
@@ -260,7 +229,6 @@ done
 
 # non-build deps
 deplist=""
-depflags=()
 for deps in "${F_deps_script[@]}"
 do
   echo "Running dependency listing script"
@@ -276,7 +244,6 @@ do
         continue
       fi
       echo " - $dep"
-      depflags+=(--depends "$dep")
     done < <(echo "$deplist")
   fi
 done
@@ -347,10 +314,8 @@ do
   echo "Running extra options script"
   if [[ -e "$opts" ]]
   then
-    while read -r opt
-    do
-      depflags+=("$opt")
-    done < <(run_in_root "${opts}")
+    echo "$(basename "$0"): .opts files are dead; fpm no longer in use" >&2
+    exit 1
   fi
 done
 
@@ -412,38 +377,14 @@ fi
 
 cleanup_root "$pkgdir"
 
-# Generate RPM
-cd "$DIR"
-paths=()
-while read -r path
-do
-  paths+=("$(basename "$path")")
-done < <(find "$pkgdir" -mindepth 1 -maxdepth 1)
+# Generate package
+cd "$pkgdir"
 make_temp_dir tmprepo
-arch="$(architecture)"
-source=dir
-if (( ! "${#paths[@]}" ))
-then
-  source=empty
-fi
-fpm \
-  -t rpm \
-  -s "$source" \
-  -n "$pkgname" \
-  -v "$pkgversion" \
-  -C "$pkgdir/" \
-  -p "$tmprepo/$pkgname-$pkgversion-1.$arch.rpm" \
-  "${depflags[@]}" \
-  "${paths[@]}"
-
-# Update repository
-#repo="$DIR/repo"
-repo="/var/www/html/repo"
-if [[ ! -d "$repo" ]]
-then
-  mkdir -p "$repo"
-  createrepo "$repo"
-fi
-cp -fv "$tmprepo/"* "$repo/"
-createrepo --update "$repo"
-
+tar -czf "$tmprepo/$pkgname.tar.gz" .
+echo "$pkgversion" > "$tmprepo/$pkgname.version"
+echo "$deplist" | sort | uniq > "$tmprepo/$pkgname.dependencies"
+touch "$tmprepo/$pkgname.done"
+for n in tar.gz version dependencies done
+do
+  cp -fv "$tmprepo/$pkgname.$n" "/var/www/html/tgzrepo/$pkgname.$n"
+done

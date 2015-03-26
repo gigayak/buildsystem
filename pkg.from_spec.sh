@@ -4,6 +4,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "$DIR/flag.sh"
 add_flag --required pkg_name "Name of the package to build."
+add_flag --boolean --default=0 \
+  check_only "Only checks if we *can* build when passed."
 parse_flags
 
 pkgname="$F_pkg_name"
@@ -21,6 +23,12 @@ do
     exit 1
   fi
 done
+if (( "${F_check_only}" ))
+then
+  echo "$(basename "$0"): we can build $pkgname" >&2
+  echo "$(basename "$0"): --check_only passed; exiting" >&2
+  exit 0
+fi
 
 
 # Fire the packaging script.

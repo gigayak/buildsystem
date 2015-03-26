@@ -55,8 +55,14 @@ then
   "$DIR/pkg.from_go.sh" "--pkg_name=$stripped"
   exit $?
 
-# all else -> spec
-else
+# try a specced package
+elif "$DIR/pkg.from_spec.sh" "--pkg_name=$name" --check_only
+then
   "$DIR/pkg.from_spec.sh" "--pkg_name=$name"
+  exit $?
+
+# try yum conversion
+else
+  "$DIR/yum_to_tgz.sh" "--pkg_name=$name"
   exit $?
 fi

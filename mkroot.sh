@@ -19,8 +19,6 @@ source "$DIR/arch.sh"
 #   $ ls -1 "$dir" | wc -l
 #   27 # or however many
 #
-# We're following along with this article:
-# http://geek.co.il/2010/03/14/how-to-build-a-chroot-jail-environment-for-centos
 # TODO: make flag parsing in functions work, and apply it here
 create_bare_root()
 {
@@ -44,35 +42,13 @@ create_bare_root()
   local _root="${!env}"
   echo "${FUNCNAME[0]}: made temp dir '$_root'" >&2
 
-  # Populate bare minimum RPM database.
-  # TODO: Remove CentOS/RHEL dependency, replace with our own package system?
-  mkdir -p "$_root/var/lib/rpm"
-  rpm --rebuilddb --root="$_root"
-  mkdir -p "$_root/tmp"
-  cd "$_root/tmp"
-  local _baseurl="http://mirror.centos.org/centos/6/os/$(centos_dir)/Packages"
-  for arch in $(centos_compatible_architectures)
+  # Populate bare minimum packages to run.
+  local _pkg
+  for _pkg in rpm-build centos-release yum
   do
-    local _relrpm="centos-release-6-6.el6.centos.12.2.$arch.rpm"
-    local _retval=0
-    wget "$_baseurl/$_relrpm" || _retval=$?
-    if (( "$_retval" == "0" ))
-    then
-      break
-    fi
+    echo "${FUNCNAME[0]}: installing $_pkg" >&2
+    "$DIR/install_pkg.sh" --install_root="$_root" --pkg_name="$_pkg"
   done
-  if (( "$_retval" ))
-  then
-    echo "${FUNCNAME[0]}: unable to find compatible centos-release RPM" >&2
-    return 1
-  fi
-  rpm -i --root="$_root" --nodeps "$_relrpm"
-  yum --installroot="$_root" install -y rpm-build yum
-  if [[ "$_flag" != "--no-repo" ]]
-  then
-    yum --installroot="$_root" install -y --nogpgcheck \
-      http://192.168.0.102/repo/jpg-repo-1.0-1.i686.rpm
-  fi
 
   cd "$_original_dir"
 }
@@ -197,6 +173,8 @@ mkroot()
 
   # TODO: Check if $DIR is correct after other source files
   #       are imported :X
+  echo "${FUNCNAME[0]}: cached base root is temporarily disabled" >&2
+  echo "${FUNCNAME[0]}: see mkroot.sh for more details" >&2
   if [[ -d "$DIR/cache/baseroot" && "$2" != "--no-repo" ]]
   then
     make_temp_dir "$_env"

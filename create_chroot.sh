@@ -16,10 +16,12 @@ then
   pkg_args=""
   for pkg in "${pkgs[@]}"
   do
-    pkg_args="$pkg_args $(sq "$pkg")"
+    if [[ -z "$pkg" ]]
+    then
+      continue
+    fi
+    "$DIR/install_pkg.sh" --install_root="$dir" --pkg_name="$pkg"
   done
-  chroot "$dir" \
-    /bin/bash -c "yum -y --nogpgcheck install $pkg_args"
 fi
 
 dont_depopulate_dynamic_fs_pieces "$dir"

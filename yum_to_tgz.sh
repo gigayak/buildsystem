@@ -72,6 +72,7 @@ convert_package()
   sort "$pkg.dependencies.unsorted" | uniq > "$pkg.dependencies.unstripped"
 
   # Process all requirements.
+  touch "$pkg.dependencies"
   local dep
   while read -r dep
   do
