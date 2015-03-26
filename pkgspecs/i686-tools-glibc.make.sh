@@ -6,7 +6,7 @@ cd /root
 version="2.21"
 echo "$version" > /root/version
 url="http://ftp.gnu.org/gnu/glibc/glibc-$version.tar.gz"
-wget "$url"
+wget "$url" --progress=dot:giga
 tar -zxf "glibc-$version.tar.gz"
 cd glibc-*/
 
