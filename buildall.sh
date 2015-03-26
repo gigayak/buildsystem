@@ -2,13 +2,19 @@
 set -Eeo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+found=1
+if [[ ! -z "$1" ]]
+then
+  start_at="$1"
+  found=0
+fi
+
 # base
 pkgs=()
 #pkgs+=("jpg-repo")
-# Apparently the enable package was never checked in:
-#pkgs+=("enable-dynamic-ca-certificates")
-#pkgs+=("internal-ca-certificates")
-#pkgs+=("certificate-authority")
+pkgs+=("enable-dynamic-ca-certificates")
+pkgs+=("internal-ca-certificates")
+pkgs+=("certificate-authority")
 
 # pip
 #pkgs+=("python-distribute")
@@ -36,6 +42,17 @@ pkgs+=("env-dns")
 
 for pkg in "${pkgs[@]}"
 do
+  if (( ! "$found" ))
+  then
+    if [[ "$start_at" == "$pkg" ]]
+    then
+      found=1
+    else
+      echo "SKIPPING: $pkg"
+      continue
+    fi
+  fi
+
   echo "BUILDING: $pkg"
   retval=0
   "$DIR/pkg.from_name.sh" \
