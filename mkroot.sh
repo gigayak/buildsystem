@@ -173,16 +173,16 @@ mkroot()
 
   # TODO: Check if $DIR is correct after other source files
   #       are imported :X
-  echo "${FUNCNAME[0]}: cached base root is temporarily disabled" >&2
-  echo "${FUNCNAME[0]}: see mkroot.sh for more details" >&2
   if [[ -d "$DIR/cache/baseroot" && "$2" != "--no-repo" ]]
   then
+    echo "${FUNCNAME[0]}: creating root from baseroot cache" >&2
     make_temp_dir "$_env"
     cp -r "$DIR/cache/baseroot/"* "${!_env}"
     populate_dynamic_fs_pieces "${!_env}"
     return 0
   fi
 
+  echo "${FUNCNAME[0]}: creating root from packages" >&2
   if [[ "$2" == "--no-repo" ]]
   then
     create_bare_root "$_env" --no-repo
