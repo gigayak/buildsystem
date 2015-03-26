@@ -10,6 +10,9 @@ then
   waiting=1
 fi
 
+logdir="/mnt/vol_b/tmp/logs"
+mkdir -pv "$logdir"
+
 pkgs=()
 pkgs+=("i686-clfs-root")
 pkgs+=("i686-cross-root")
@@ -49,7 +52,9 @@ do
   fi
   echo "Building package '$p'"
   retval=0
-  "$DIR/pkg.from_name.sh" --pkg_name="$p" || retval=$?
+  "$DIR/pkg.from_name.sh" --pkg_name="$p" 2>&1 \
+    | tee "$logdir/$p.log" \
+    || retval=$?
   if (( "$retval" ))
   then
     echo "Building package '$p' failed with code $retval"
