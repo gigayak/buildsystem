@@ -2,27 +2,17 @@
 set -Eeo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-echo "Deleting old roots."
-"$DIR/env_destroy_all.sh"
-
-echo "Deleting repository."
-rm -rf /var/www/html/repo
-mkdir /var/www/html/repo
-createrepo /var/www/html/repo
-
-echo "Deleting base root cache."
-rm -rf "$DIR/cache/baseroot"
-
 # base
 pkgs=()
-pkgs+=("jpg-repo")
-pkgs+=("enable-dynamic-ca-certificates")
-pkgs+=("internal-ca-certificates")
-pkgs+=("certificate-authority")
+#pkgs+=("jpg-repo")
+# Apparently the enable package was never checked in:
+#pkgs+=("enable-dynamic-ca-certificates")
+#pkgs+=("internal-ca-certificates")
+#pkgs+=("certificate-authority")
 
 # pip
-pkgs+=("python-distribute")
-pkgs+=("python-pip")
+#pkgs+=("python-distribute")
+#pkgs+=("python-pip")
 pkgs+=("python-flask")
 pkgs+=("python-salt")
 pkgs+=("python-gitzebo")
