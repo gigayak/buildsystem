@@ -61,6 +61,12 @@ done
 EOF
 chmod +x /usr/bin/regenerate_packs
 
+# TODO: We don't yet have a user for unprivileged stuff, and SSHD wants one.
+# This disables the sandboxing that results in this requirement at the cost of
+# security - but should be okay for a little while.
+cp -v /etc/ssh/sshd_config{,.gitzebo}
+echo 'UsePrivilegeSeparation no' >> /etc/ssh/sshd_config.gitzebo
+
 cat > /usr/bin/container.init <<'EOF'
 #!/bin/bash
 set -Eeo pipefail
@@ -116,7 +122,7 @@ trap term_handler 15
 
 gitzebo-regenerate-keyfile
 
-/usr/sbin/sshd -D -e &
+/usr/sbin/sshd -D -e -f /etc/ssh/sshd_config.gitzebo &
 ssh_pid="$!"
 echo "SSH running on PID $ssh_pid"
 
