@@ -25,7 +25,7 @@ pkgs+=("python-gitzebo")
 
 # go
 pkgs+=("go")
-pkgs+=("go-hello") # test package
+#pkgs+=("go-hello") # test package
 pkgs+=("go-git-webserver") # git HTTPS server
 
 # support for vim-go
