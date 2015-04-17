@@ -10,6 +10,6 @@ cat > ${CLFS}/root/.bash_profile << "EOF"
 set +h
 PS1='\u:\w\$ '
 LC_ALL=POSIX
-PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin:/tools/sbin
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/i686/bin:/tools/i686/sbin
 export LC_ALL PATH PS1
 EOF
