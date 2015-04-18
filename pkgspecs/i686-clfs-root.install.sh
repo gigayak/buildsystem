@@ -8,9 +8,9 @@ mkdir -pv ${CLFS}/var/{lock,log,mail,spool}
 mkdir -pv ${CLFS}/var/{opt,cache,lib/{misc,locate},local}
 install -dv -m 0750 ${CLFS}/root
 install -dv -m 1777 ${CLFS}{/var,}/tmp
-# TODO: Is this symlink needed?  $PWD is not listed in the book here.
-#   http://www.clfs.org/view/CLFS-3.0.0-SYSVINIT/x86/boot/creatingdirs.html
-#ln -sv ../run ${CLFS}/var/run
+# This creates a link pointing at /run from /var/run.  ../run is relative to
+# ${CLFS}/var/, not to ${PWD}/.
+ln -sv ../run ${CLFS}/var/run
 mkdir -pv ${CLFS}/usr/{,local/}{bin,include,lib,sbin,src}
 mkdir -pv ${CLFS}/usr/{,local/}share/{doc,info,locale,man}
 mkdir -pv ${CLFS}/usr/{,local/}share/{misc,terminfo,zoneinfo}
