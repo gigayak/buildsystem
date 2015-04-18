@@ -14,3 +14,11 @@ wget "$url"
 
 cd bootscripts-cross-lfs-*/
 patch -Np1 -i "../bootscripts-cross-lfs-$version-$patch"
+
+while read -r path
+do
+  sed \
+    -r \
+    -e 's@(/tools)@\1/i686@g' \
+    -i "$path"
+done < <(grep /tools . --recursive --files-with-matches)
