@@ -8,7 +8,9 @@ then
 fi
 _CLEANUP_SH_INCLUDED=1
 
-_TEMP_ROOT=/mnt/vol_b/tmp
+_TEMP_ROOTS=()
+_TEMP_ROOTS+=(/mnt/vol_b/tmp)
+_TEMP_ROOTS+=(/tmp)
 
 exit_handlers=()
 register_exit_handler_front()
@@ -105,10 +107,21 @@ make_temp_dir()
   fi
   local _env="$1"
 
-  local _dir="$(mktemp -d --tmpdir="$_TEMP_ROOT")"
-  register_temp_file "$_dir"
-  export "$_env"="$_dir"
-  return 0
+  local _temp_root
+  for _temp_root in "${_TEMP_ROOTS[@]}"
+  do
+    if [[ ! -e "$_temp_root" ]]
+    then
+      continue
+    fi
+    local _dir="$(mktemp -d --tmpdir="$_temp_root")"
+    register_temp_file "$_dir"
+    export "$_env"="$_dir"
+    return 0
+  done
+
+  echo "${FUNCNAME[0]}: no suitable temproots found" >&2
+  return 1
 }
 
 run_exit_handlers()
