@@ -6,7 +6,8 @@ failures=0
 while read -r test_name
 do
   base_name="$(basename "$test_name")"
-  if "$test_name" 2>/dev/null | grep 'FAIL:' | sed -re 's/^/'"$base_name"': /g'
+  if ( "$test_name" 2>/dev/null || echo 'FAIL: test exited unexpectedly'; ) \
+    | grep 'FAIL:' | sed -re 's/^/'"$base_name"': /g'
   then
     failures="$(expr "$failures" + 1)"
   else
