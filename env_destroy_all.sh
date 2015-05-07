@@ -38,17 +38,25 @@ do
   lxc-destroy --name="$n"
 done < <(lxc-ls -l | awk '{print $9}')
 
-for t in $(find "$_TEMP_ROOT" -mindepth 1 -maxdepth 1 -iname 'tmp.*')
+for temp_root in "${_TEMP_ROOTS[@]}"
 do
-  for root in "${active_lxc_roots[@]}"
+  if [[ ! -e "$temp_root" ]]
+  then
+    continue
+  fi
+  echo "Cleaning temp root '$temp_root'"
+  while read -r t
   do
-    if [[ "$root" == "$t" ]]
-    then
-      echo "Ignoring root $t owned by active LXC session"
-      continue 2
-    fi
-  done
-  echo "Destroying temporary chroot $t..."
-  unmount_chroot "$t"
-  rm -rf "$t"
+    for root in "${active_lxc_roots[@]}"
+    do
+      if [[ "$root" == "$t" ]]
+      then
+        echo "Ignoring root $t owned by active LXC session"
+        continue 2
+      fi
+    done
+    echo "Destroying temporary chroot $t..."
+    unmount_chroot "$t"
+    rm -rf "$t"
+  done < <(find "$temp_root" -mindepth 1 -maxdepth 1 -iname 'tmp.*')
 done
