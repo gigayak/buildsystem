@@ -77,6 +77,8 @@ add_flag()
     case "$_optname" in
     --boolean)
       _boolean=1
+      _default=0
+      _has_default=1
       shift
       ;;
     --array)
@@ -88,6 +90,11 @@ add_flag()
       shift
       ;;
     --default)
+      if (( "$_boolean" ))
+      then
+        echo "${FUNCNAME[0]}: booleans default to false for now" >&2
+        return 1
+      fi
       if (( "$_has_default" ))
       then
         echo "${FUNCNAME[0]}: cannot set two defaults for flag" >&2
@@ -124,17 +131,14 @@ add_flag()
     esac
   done
 
+  # Remaining arguments: name and description
+  _name="$1"
+  _description="$2"
+
   # Sanity checks!  YAY!
-  if (( "$_optional" && ! "$_array" && ! "$_has_default" ))
+  if [[ -z "$_name" ]]
   then
-    echo "${FUNCNAME[0]}: must pass either --default=<dflt> or --required" >&2
-    return 1
-  fi
-  if (( "$_array" && "$_has_default" ))
-  then
-    echo "${FUNCNAME[0]}: cannot set a default for an array" >&2
-    # It's just really painful to serialize or deserialize arrays in bash.
-    # It's also likely a shellshock style vulnerability in the making.
+    echo "${FUNCNAME[0]}: no flag name given" >&2
     return 1
   fi
   if [[ "$_name" == "help" ]]
@@ -142,24 +146,26 @@ add_flag()
     echo "${FUNCNAME[0]}: cannot use reserved word 'help' as a flag name" >&2
     return 1
   fi
-
-  # Remaining arguments: name and description
-  _name="$1"
-  _description="$2"
-  if [[ -z "$_name" ]]
+  if (( "${_flag_exists[$_name]}" ))
   then
-    echo "${FUNCNAME[0]}: no flag name given" >&2
+    echo "${FUNCNAME[0]}: duplicate definition of flag --$_name" >&2
     return 1
   fi
   if [[ -z "$_description" ]]
   then
-    echo "${FUNCNAME[0]}: no flag description given" >&2
+    echo "${FUNCNAME[0]}: --$_name: no flag description given" >&2
     return 1
   fi
-
-  if (( "${_flag_exists[$_name]}" ))
+  if (( "$_optional" && ! "$_array" && ! "$_has_default" && ! "$_boolean" ))
   then
-    echo "${FUNCNAME[0]}: duplicate definition of flag --$_name" >&2
+    echo "${FUNCNAME[0]}: --$_name: must have default, required, or boolean" >&2
+    return 1
+  fi
+  if (( "$_array" && "$_has_default" ))
+  then
+    echo "${FUNCNAME[0]}: --$_name: cannot set a default for an array" >&2
+    # It's just really painful to serialize or deserialize arrays in bash.
+    # It's also likely a shellshock style vulnerability in the making.
     return 1
   fi
 

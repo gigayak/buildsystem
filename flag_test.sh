@@ -54,6 +54,31 @@ expect_success()
   expect_success "$retval" "properly provided required flag"
 )
 
+# Basic functionality of boolean flags.
+(
+  source "$DIR/flag.sh"
+  add_flag --boolean bool_flag "boolean flag"
+  _program_name="test_boolean_flag_true"
+  _program_params=("$_program_name" "--bool_flag")
+  retval=0
+  parse_flags || retval=$?
+  expect_success "$retval" "properly provided boolean flag"
+  (( "$F_bool_flag" )) || retval=$?
+  expect_success "$retval" "boolean flag evaluates true when present"
+)
+
+(
+  source "$DIR/flag.sh"
+  add_flag --boolean bool_flag "boolean flag"
+  _program_name="test_boolean_flag_true"
+  _program_params=("$_program_name")
+  retval=0
+  parse_flags || retval=$?
+  expect_success "$retval" "properly provided boolean flag"
+  (( ! "$F_bool_flag" )) || retval=$?
+  expect_success "$retval" "boolean flag evaluates false when missing"
+)
+
 # Check unknown flag.
 (
   source "$DIR/flag.sh"
