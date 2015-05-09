@@ -139,4 +139,18 @@ run_exit_handlers()
   done
 }
 
+recursive_umount()
+{
+  tgt="$1"
+  if [[ -z "$tgt" ]]
+  then
+    echo "Usage: ${FUNCNAME[0]} <directory to unmount>" >&2
+    return 1
+  fi
+
+  while read -r mountpoint
+  do
+    umount "$mountpoint"
+  done < <(grep -E '\s'"$tgt" /proc/mounts | awk '{print $2}')
+}
 trap run_exit_handlers EXIT
