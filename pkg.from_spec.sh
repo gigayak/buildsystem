@@ -4,7 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "$DIR/flag.sh"
 add_flag --required pkg_name "Name of the package to build."
-add_flag --boolean --default=0 \
+add_flag --boolean \
   check_only "Only checks if we *can* build when passed."
 parse_flags
 
