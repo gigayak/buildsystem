@@ -6,6 +6,6 @@ echo python-gitzebo # configured module
 
 echo rootfiles # .bashrc needed for HOME and the like
 
-echo go-git-webserver # to serve repos over dumb HTTPS
+echo go-https-fileserver # to serve repos over dumb HTTPS
 
 echo openssh-server # needed to accept pushes and serve pulls

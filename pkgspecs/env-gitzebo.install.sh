@@ -127,6 +127,10 @@ ssh_pid="$!"
 echo "SSH running on PID $ssh_pid"
 
 gitzebo-dev-server &
+https-fileserver \
+  --key=/opt/db/git.key \
+  --certificate=/opt/db/git.crt \
+  --dir=/opt/git
 web_pid="$!"
 echo "Web server started with PID $web_pid"
 
