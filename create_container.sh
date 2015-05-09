@@ -37,6 +37,11 @@ fi
 umount "$root/dev"
 umount "$root/proc"
 
+# Programs that drop permissions might freak out with the default permissions
+# for the chroot, because they're set to 700 by default...
+# TODO: does this belong elsewhere?
+chmod 755 "$root"
+
 # Create base config.
 # TODO: escape or sanitize inputs, to prevent LXC injection :o
 cat > "$tmp/lxc.conf" <<EOF
