@@ -46,5 +46,9 @@ container dns     02 192.168.122.7
 # Infrastructure services:
 container gitzebo 01 192.168.122.5
 
+# Package management:
+container repo    01 192.168.122.8
+container repo    02 192.168.122.9
+
 # Exit is somewhat ambiguous - make it clear.
 echo "All containers exist and are online."
