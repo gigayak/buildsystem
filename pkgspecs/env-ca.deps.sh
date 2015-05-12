@@ -1,5 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-echo gnutls
-echo gnutls-utils
+echo certificate-authority
 echo rootfiles
