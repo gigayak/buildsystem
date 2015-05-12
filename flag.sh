@@ -23,6 +23,7 @@ source "$DIR/escape.sh" # needed for some eval'ed array manipulation :[
 #   echo "Test flag value: $F_test_flag"
 
 _flags=()
+_usage_notes=()
 declare -A _flag_descriptions
 declare -A _flag_defaults
 declare -A _flag_default_set
@@ -189,6 +190,15 @@ usage()
 {
   echo "Usage: $_program_name <option>" >&2
   echo >&2
+
+  if (( "${#_usage_notes}" ))
+  then
+    for _note in "${_usage_notes[@]}"
+    do
+      echo "${_note}" >&2
+    done
+  fi
+
   echo "Options:" >&2
 
   local name
@@ -209,6 +219,20 @@ usage()
     fi
     echo -n ": " >&2
     echo "${_flag_descriptions[$name]}" >&2
+  done
+}
+
+# add_usage_note feeds in a usage note to tag the script with.
+# Usage: add_usage_note <<EOF
+# yadda yadda yadda
+# EOF
+add_usage_note()
+{
+  DONE=false
+  until "$DONE"
+  do
+    read -r _note || DONE=true
+    _usage_notes+=("$_note")
   done
 }
 

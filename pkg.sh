@@ -3,6 +3,12 @@ set -Eeo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "$DIR/flag.sh"
+add_usage_note <<EOF
+This script is used internally to take some package specs and turn them into
+usable binary packages.  It provides enough indirection to be able to change
+the packaging format of this distribution on a bit of a whim - which is helpful,
+as two such changes were planned from the original RPM target.
+EOF
 add_flag --required pkg_name "Name of the package to build."
 add_flag --array builddeps_script \
   "Name of the script that installs all build dependencies."
