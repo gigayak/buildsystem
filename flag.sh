@@ -229,11 +229,14 @@ usage()
 add_usage_note()
 {
   DONE=false
+  OLD_IFS="$IFS"
+  IFS="\n"
   until "$DONE"
   do
     read -r _note || DONE=true
     _usage_notes+=("$_note")
   done
+  IFS="$OLD_IFS"
 }
 
 parse_flags()
