@@ -16,6 +16,7 @@ container()
     | grep -e '^'"$container_name"'$'
   then
     echo "Skipping already-created container '$container_name'"
+    return
   else
     echo "Creating container '$container_name'"
     "$DIR/create_container.sh" \
