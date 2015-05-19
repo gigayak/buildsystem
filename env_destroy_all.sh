@@ -2,6 +2,7 @@
 set -Eeo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+source "$DIR/escape.sh"
 source "$DIR/cleanup.sh"
 
 unmount_chroot()
@@ -17,7 +18,9 @@ unmount_chroot()
 }
 
 active_lxc_roots=()
+active_lxc_names=()
 
+# Clean up LXC containers.
 while read -r n
 do
   echo "Finding root for LXC container $n"
@@ -30,6 +33,7 @@ do
   then
     echo "Ignoring active container $n"
     active_lxc_roots+=("$t")
+    active_lxc_names+=("$n")
     continue
   fi
 
@@ -38,6 +42,7 @@ do
   lxc-destroy --name="$n"
 done < <(lxc-ls -l | awk '{print $9}')
 
+# Clean up chroot directories.
 for temp_root in "${_TEMP_ROOTS[@]}"
 do
   if [[ ! -e "$temp_root" ]]
@@ -60,3 +65,65 @@ do
     rm -rf "$t"
   done < <(find "$temp_root" -mindepth 1 -maxdepth 1 -iname 'tmp.*')
 done
+
+# Clean up IPs.
+lease_file=/tmp/ip.ghetto.leases
+lease_file_new="$lease_file.new"
+rm -fv "$lease_file_new"
+touch "$lease_file_new"
+hosts_file=/root/localstorage/dns/dns/hosts.autogen
+hosts_file_new="$hosts_file.new"
+rm -fv "$hosts_file_new"
+touch "$hosts_file_new"
+while read -r lease
+do
+  ip="$(echo "$lease" | awk '{print $1}')"
+  owner_spec="$(echo "$lease" | awk '{print $2}')"
+  owner_type="$(echo "$owner_spec" | sed -nre 's@^([^:]+):.*$@\1@gp')"
+  if [[ -z "$owner_type" ]]
+  then
+    echo "Unrecognized IP owner type for IP owner '$owner_spec'" >&2
+    continue
+  fi
+  owner="$(echo "$owner_spec" | sed -nre 's@^[^:]+:(.*)$@\1@gp')"
+  if [[ -z "$owner" ]]
+  then
+    echo "No owner specified for IP $ip by owner spec '$owner_spec'" >&2
+    continue
+  fi
+
+  if [[ "$owner_type" == "lxc" ]]
+  then
+    for container in "${active_lxc_names[@]}"
+    do
+      if [[ "$container" == "$owner" ]]
+      then
+        retval=0
+        grep -E "^$(grep_escape "$ip")\s+" "$hosts_file" >> "$hosts_file_new" \
+          || retval=$?
+        if (( "$retval" ))
+        then
+          echo "Could not find hosts entry for container '$owner'" >&2
+          exit 1
+        fi
+        retval=0
+        grep -E "^$(grep_escape "$ip")\s+" "$lease_file" >> "$lease_file_new" \
+          || retval=$?
+        if (( "$retval" ))
+        then
+          echo "Could not find lease entry for container '$owner'" >&2
+          exit 1
+        fi
+        break
+      fi
+    done
+  elif [[ "$owner_type" == "chroot" ]]
+  then
+    echo -n ""
+  else
+    echo "Unknown owner type '$owner_type' - what the heck?" >&2
+  fi
+done < "$lease_file"
+mv -vf "$hosts_file_new" "$hosts_file"
+mv -vf "$lease_file_new" "$lease_file"
+"$DIR/reload_dnsmasq.sh"

@@ -34,6 +34,12 @@ then
   exit 1
 fi
 
+echo "$(basename "$0"): unmounting all mounts in $rootfs" >&2
 recursive_umount "$rootfs"
 
+echo "$(basename "$0"): destroying container with name '$name'" >&2
 lxc-destroy -n "$name"
+
+# TODO: clean up leases - this will be a pain if we run out of IP space
+
+echo "$(basename "$0"): container '$name' should be dead" >&2

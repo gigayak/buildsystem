@@ -6,7 +6,6 @@ container()
 {
   name="$1"
   replica_index="$2"
-  ip="$3"
 
   container_name="${name}-${replica_index}"
   package_name="env-${name}"
@@ -21,8 +20,7 @@ container()
     echo "Creating container '$container_name'"
     "$DIR/create_container.sh" \
       --name="$container_name" \
-      --pkg="$package_name" \
-      --ip="$ip"
+      --pkg="$package_name"
   fi
 
   if lxc-info -n "$container_name" \
@@ -41,15 +39,15 @@ container()
 }
 
 # Everything requires the DNS servers.  Always boot these first.
-container dns     01 192.168.122.6
-container dns     02 192.168.122.7
+container dns     01
+container dns     02
 
 # Infrastructure services:
-container gitzebo 01 192.168.122.5
+container gitzebo 01
 
 # Package management:
-container repo    01 192.168.122.8
-container repo    02 192.168.122.9
+container repo    01
+container repo    02
 
 # Exit is somewhat ambiguous - make it clear.
 echo "All containers exist and are online."

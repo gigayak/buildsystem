@@ -9,8 +9,10 @@ source "$DIR/flag.sh"
 
 add_flag --array pkg "Package name to install."
 add_flag --default="" name "Name of container to create -- default is random."
-add_flag --required ip "IP address to use.  Try 192.168.122.nnn."
 parse_flags
+
+ip="$("$DIR/create_ip.sh" --owner="lxc:$F_name")"
+echo "Will use IP address '$ip' for container"
 
 echo "Will install: ${F_pkg[@]}"
 
@@ -55,7 +57,7 @@ lxc.network.hwaddr = $("$DIR/create_mac.sh")
 #lxc.network.hwaddr = 53:6C:79:2F:D3:0D # FAILS NEVER USE ODD NUMBER IN FIRST
 # OCTET FOR MORE INFORMATION:
 # http://comments.gmane.org/gmane.linux.kernel.containers.lxc.general/746
-lxc.network.ipv4 = ${F_ip}/24 192.168.122.255
+lxc.network.ipv4 = ${ip}/24 192.168.122.255
 lxc.network.ipv4.gateway = 192.168.122.1
 #lxc.network.ipv4.gateway = auto # can't determine, probably due to no dhcp/etc
 
