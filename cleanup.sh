@@ -88,6 +88,7 @@ cleanup_temp_files()
     if [[ -d "$path" ]]
     then
       echo "${FUNCNAME[0]}: deleting directory: $path" >&2
+      recursive_umount "$path"
       rm -rf "$path"
       continue
     fi
