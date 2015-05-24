@@ -85,6 +85,9 @@ def copy_link(s, t, f):
   link_target = os.readlink(s)
   print "Linking:", t, "->", link_target
   os.symlink(link_target, t)
+  stat = os.lstat(s)
+  os.chmod(t, stat.st_mode)
+  os.chown(t, stat.st_uid, stat.st_gid)
 
 def copy_device(s, t, f):
   """
@@ -101,8 +104,11 @@ def copy_device(s, t, f):
   # Copy major/minor dev numbers.
   stat = os.stat(s)
   mode = stat.st_mode
-  dev = stat.st_dev
+  dev = stat.st_rdev
   os.mknod(t, mode, dev)
+  os.chmod(t, stat.st_mode)
+  os.chown(t, stat.st_uid, stat.st_gid)
+  print "Creating:", t, "as device major =", os.major(dev), "and minor =", os.minor(dev)
 
 def warn_on_permissions(s, t, f):
   """
