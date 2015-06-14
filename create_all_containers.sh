@@ -44,6 +44,8 @@ container dns     02
 
 # Infrastructure services:
 container gitzebo 01
+container proxy   01
+container proxy   02
 
 # Package management:
 container repo    01
