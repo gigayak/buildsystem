@@ -16,11 +16,18 @@ make ARCH=i386 CROSS_COMPILE=${CLFS_TARGET}- \
 mkdir -pv /tools/i686/boot
 
 # Install kernel image
-cp -v arch/i386/boot/bzImage /tools/i686/boot/vmlinuz-clfs-3.14.21
+#
+# WARNING: do not exceed old MS-DOS 8.3 naming: longer names will explode
+# the ISOLINUX bootloader.  Additionally, there seem to be heuristics about
+# compression based on the filename being "vmlinuz" or "vmlinux", so it's
+# probably good to avoid messing with this filename.
+cp -v arch/i386/boot/bzImage /tools/i686/boot/vmlinuz
 
 # Install map of function entry points
-cp -v System.map /tools/i686/boot/System.map-3.14.21
+#
+# WARNING: MS-DOS 8.3 naming may be required here.
+cp -v System.map /tools/i686/boot/System.map
 
 # Save off configuration files
-cp -v .config /tools/i686/boot/kernel.config-3.14.21
-cp -v /root/kernel.config.default /tools/i686/boot/kernel.config-3.14.21.default
+cp -v .config /tools/i686/boot/kernel.config
+cp -v /root/kernel.config.default /tools/i686/boot/kernel.config.default
