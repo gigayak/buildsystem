@@ -74,9 +74,14 @@ repo_get()
   retval=0
   # -q0- redirects to stdout, per:
   #   http://fischerlaender.de/webdev/redirecting-wget-to-stdout
+  local _url="${_REPO_URL}/$_path"
   wget \
     -qO- \
-    "${_REPO_URL}/$_path"
+    "$_url" \
+  || {
+    echo "${FUNCNAME[0]}: error code '$?' fetching '$_url'" >&2
+    return 1
+  }
 }
 
 resolve_deps()
