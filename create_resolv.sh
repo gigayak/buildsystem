@@ -17,6 +17,18 @@ EOF
 
 found_servers=0
 
+# HACK SCALE: MAJOR
+#
+# When in lfs.stage3.sh, we have no access to ping, nslookup, or anything of
+# the sort.  However, we're pretty much guaranteed that /etc/resolv.conf has
+# the correct nameservers populated, as we will not have a local repo cache.
+if [[ -e "/tools" ]]
+then
+  echo "$(basename "$0"): using /etc/resolv.conf instead of generating it" >&2
+  cat /etc/resolv.conf
+  exit 0
+fi
+
 # HACK SCALE: MINOR
 #
 # We don't really know how many DNS servers to expect, and we can't just poll
