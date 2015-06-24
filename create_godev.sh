@@ -91,6 +91,11 @@ cd "src/git.jgilik.com"
 git clone root@git.jgilik.com:$pkg_name.git
 cd "$GOPATH/src"
 
+# We want to be able to check out the directory at this point, as source exists.
+# Since we can't disable cleanup within a chroot, we can just force a return
+# code of zero to ensure we don't choke if the build fails.
+trap 'exit 0' EXIT ERR
+
 # We probably want to make sure that the environment builds the program quickly
 # when it finally does come up...
 go get -v -d -t "./..."
