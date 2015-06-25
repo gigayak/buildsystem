@@ -43,8 +43,16 @@ create_bare_root()
   echo "${FUNCNAME[0]}: made temp dir '$_root'" >&2
 
   # Populate bare minimum packages to run.
+  # TODO: Need a way of determining whether we need i686-tools or just bare OS
+  local _pkgs=()
+  if which yum >/dev/null 2>&1
+  then
+    _pkgs=(rpm-build centos-release yum)
+  else
+    _pkgs=(filesystem-skeleton i686-tools2-bash{,-aliases,-profile})
+  fi
   local _pkg
-  for _pkg in rpm-build centos-release yum
+  for _pkg in "${_pkgs[@]}"
   do
     echo "${FUNCNAME[0]}: installing $_pkg" >&2
     "$DIR/install_pkg.sh" --install_root="$_root" --pkg_name="$_pkg"
@@ -74,27 +82,20 @@ populate_dynamic_fs_pieces()
 
   # Copy in procfs and devfs -- this is a security hole, but so's building
   # as root
+  if [[ ! -d "$_root/proc" ]]
+  then
+    mkdir "$_root/proc"
+    chmod 555 "$_root/proc"
+  fi
   mount --bind /proc "$_root/proc"
+  if [[ ! -d "$_root/dev" ]]
+  then
+    mkdir "$_root/dev"
+    chmod 555 "$_root/dev"
+  fi
   mount --bind /dev "$_root/dev"
 
-  # Choose which resolv.conf to populate.  We have two: one with a public DNS
-  # server which we can fail over onto if our DNS servers are down, and a much
-  # more mainstream one which points to our internal DNS servers.  This check
-  # should ensure that we populate resolv.conf with internal DNS servers unless
-  # they are not available.
-  local _resolv_src="$DIR/resolv.conf.nodns.tpl"
-  local _dns_ip
-  while read -r _dns_ip
-  do
-    if ping -c 1 "$_dns_ip" >/dev/null 2>&1
-    then
-      _resolv_src="$DIR/resolv.conf.tpl"
-    fi
-  done \
-  < <(grep -E -e '^nameserver' "$DIR/resolv.conf.tpl" | awk '{print $2}')
-
-  # Copy in our resolv.conf -- this may be a point of breakage
-  cp "$_resolv_src" "$_root/etc/resolv.conf"
+  "$DIR/create_resolv.sh" > "$_root/etc/resolv.conf"
 }
 
 depopulate_dynamic_fs_pieces()
