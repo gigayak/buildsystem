@@ -142,16 +142,60 @@ run_exit_handlers()
 
 recursive_umount()
 {
-  tgt="$1"
-  if [[ -z "$tgt" ]]
+  local _tgt="$1"
+  if [[ -z "$_tgt" ]]
   then
     echo "Usage: ${FUNCNAME[0]} <directory to unmount>" >&2
     return 1
   fi
 
-  while read -r mountpoint
+  echo "${FUNCNAME[0]}: recursively unmounting $(sq "$_tgt")" >&2
+
+  local _failed=0
+  local _mountpoint
+  while read -r _mountpoint
   do
-    umount "$mountpoint"
-  done < <(grep -E '\s'"$tgt" /proc/mounts | awk '{print $2}')
+    echo "${FUNCNAME[0]}: unmounting $(sq "$_mountpoint")" >&2
+    local _retval=0
+    umount "$_mountpoint" || _retval=$?
+    if (( "$_retval" ))
+    then
+      echo "${FUNCNAME[0]}: umount $(sq "$_mountpoint") failed /w $retval">&2
+      _failed=1
+    fi
+    if mountpoint "$_mountpoint" >/dev/null @>&1
+    then
+      # HACK SCALE: MINOR
+      #
+      # umount -l is "lazy unmount".  It detaches the given mount point from the
+      # filesystem, and leaves it to be reaped later.  It has the advantage of
+      # always succeeding, even when the destination filesystem is busy.
+      #
+      # umount's manpage makes no reference to a return code when umount fails
+      # due to a busy filesystem, so we don't know if umount || umount -l will
+      # work.
+      #
+      # Since we use bind-mounts on /dev/, the alternative is to have an rm -rf
+      # on a chroot delete all of the devices in /dev/.
+      #
+      # This kills the system. A reboot is usually necessary afterwards :(
+      echo "${FUNCNAME[0]}: doing lazy unmount on $(sq "$_mountpoint")" >&2
+      umount -l "$_mountpoint"
+      _failed=1
+    fi
+  done < <(grep -E '\s'"$_tgt" /proc/mounts \
+    | awk '{print $2}'\
+    | sed -re 's@\\040\(deleted\)$@@g')
+  # The last sed -re invocation deals with ssome strange edge case where the
+  # kernel marks a mount point as deleted (albeit still active).  You can still
+  # unmount these by using the original path, but awk ignores the \040
+  # delimeter, so this shenanigan fixes the problem of ...\040(deleted) not
+  # being found in the mount table :)
+  if (( "$_failed" ))
+  then
+    echo "${FUNCNAME[0]}: failed to deal with $(sq "$_tgt")" >&2
+    return 1
+  fi
+  return 0
 }
 trap run_exit_handlers EXIT
