@@ -57,6 +57,18 @@ then
   "$DIR/pkg.from_go.sh" "--pkg_name=$stripped"
   exit $?
 
+# tools -> tools2
+elif [[ "$name" == *"-tools2-"* ]]
+then
+  "$DIR/pkg.tools_to_tools2.sh" --pkg_name="$name"
+  exit $?
+
+# try a bootstrap package
+elif [[ -e "$DIR/pkgspecs/$name.bootstrap.sh" ]]
+then
+  "$DIR/pkg.from_bootstrap.sh" "--pkg_name=$name"
+  exit $?
+
 # try a specced package
 elif "$DIR/pkg.from_spec.sh" "--pkg_name=$name" --check_only
 then
