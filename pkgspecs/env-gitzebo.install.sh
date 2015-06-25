@@ -105,20 +105,26 @@ then
   ln -s {/opt/db,/root/.ssh}/authorized_keys
 fi
 
-
+stop_all()
+{
+  kill -SIGTERM "$web_pid"
+  kill -SIGTERM "$admin_pid"
+  /etc/init.d/sshd stop
+  kill -SIGTERM "$regen_pid"
+  kill -SIGTERM "$ssl_pid"
+}
 term_handler()
 {
   echo "Caught SIGTERM, shutting down"
-  if [[ ! -z "$pid" ]]
-  then
-    echo "Sending SIGTERM to $pid"
-    kill -SIGTERM "$web_pid"
-    /etc/init.d/sshd stop
-    kill -SIGTERM "$regen_pid"
-    kill -SIGTERM "$ssl_pid"
-  fi
+  stop_all
 }
 trap term_handler 15
+err_handler()
+{
+  echo "Something went wrong in the main thread, shutting down."
+  stop_all
+}
+trap err_handler EXIT ERR
 
 gitzebo-regenerate-keyfile
 
@@ -127,10 +133,13 @@ ssh_pid="$!"
 echo "SSH running on PID $ssh_pid"
 
 gitzebo-dev-server &
+admin_pid="$!"
+echo "Gitzebo frontend started with PID $admin_pid"
+
 https-fileserver \
   --key=/opt/db/git.key \
   --certificate=/opt/db/git.crt \
-  --dir=/opt/git
+  --dir=/opt/git &
 web_pid="$!"
 echo "Web server started with PID $web_pid"
 
