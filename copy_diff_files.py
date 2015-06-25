@@ -85,9 +85,6 @@ def copy_link(s, t, f):
   link_target = os.readlink(s)
   print "Linking:", t, "->", link_target
   os.symlink(link_target, t)
-  stat = os.lstat(s)
-  os.chmod(t, stat.st_mode)
-  os.chown(t, stat.st_uid, stat.st_gid)
 
 def copy_device(s, t, f):
   """
@@ -135,6 +132,7 @@ ops = {
   '>f.sT......': copy_file,
   '>f+++++++++': copy_file,
   'cL+++++++++': copy_link,
+  'cLc.T......': copy_link,
   'cD+++++++++': copy_device,
 }
 for line in sys.stdin:
