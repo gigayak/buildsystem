@@ -172,9 +172,18 @@ ensure_pkg_exists()
   # Check our package root manually.
   # TODO: Remove this performance hack.  We need a faster package manager...
   #       THIS WILL BREAK WHEN WE TARGET MULTIPLE ARCHITECTURES!
-  if (( "$(find /var/www/html/tgzrepo -iname "$_pkg.tar.gz" | wc -l)" ))
+  if [[ -e "/var/www/html/tgzrepo" ]] \
+    && (( "$(find /var/www/html/tgzrepo -iname "$_pkg.tar.gz" | wc -l)" ))
   then
     echo "Found package '$_pkg' using a hack that will break cross-arch"
+    return 0
+  fi
+
+  # Check upstream repository manually.
+  # TODO: Centralize the repository URL(s) somehow...
+  if wget -q -O - "https://repo.jgilik.com/$_pkg.done"
+  then
+    echo "Found package '$_pkg' using a wget hack that will break on Pi"
     return 0
   fi
 
@@ -334,6 +343,18 @@ make_temp_dir diffdir
 diff="$diffdir/${pkgname}.diff"
 # devfs/procfs would cause problems with rsync; unmount them.
 depopulate_dynamic_fs_pieces "$dir"
+# HACK SCALE: MAJOR
+#
+# Some files really need to exist for a Linux distribution, or even chroot,
+# to work.  For example, /proc exists in all of our chroots.  Since we won't
+# be able to see that these were "added" during installation (as they already
+# existed), we'll allow them to be explicitly packaged through an annoyingly
+# hacky path: being listed in /root/extra_installed_paths.  We have to save
+# off this file before it evaporates when we cleanup_root, though!
+if [[ -e "$dir/root/extra_installed_paths" ]]
+then
+  cp "$dir/root/extra_installed_paths" "$diffdir/extra_installed_paths"
+fi
 cleanup_root "$dir"
 # We'll use a dry run of rsync --archive without --times to
 # evaluate what changed.  --times is removed to prevent us from
@@ -379,6 +400,39 @@ then
   echo "$(basename "$0"): post-install snapshot: $dir" >&2
   echo "$(basename "$0"): diff: $diff" >&2
   exit 1
+fi
+
+# HACK SCALE: MAJOR
+#
+# This takes our list of explicitly declared files and directories to install,
+# and explicitly installs them.  This is useful for installing stuff like
+# /proc or /bin/sh, which tend to exist in a functional chroot, and thus won't
+# see differences in some cases.
+if [[ -e "$diffdir/extra_installed_paths" ]]
+then
+  while read -r path
+  do
+    if [[ -z "$path" ]]
+    then
+      continue
+    fi
+    if [[ -d "$dir/$path" ]]
+    then
+      echo "Copying explicitly declared directory: $path"
+      uid="$(stat -c '%U' "$dir/$path")"
+      gid="$(stat -c '%G' "$dir/$path")"
+      perms="$(stat -c '%a' "$dir/$path")"
+      mkdir "$pkgdir/$path"
+      chown "$uid:$gid" "$pkgdir/$path"
+      chmod "$perms" "$pkgdir/$path"
+    else
+      echo "$pkgdir/$path was explicitly declared, but is not a directory or" >&2
+      echo "does not exist at all." >&2
+      echo "Explicit declarations are a hack with limited scope." >&2
+      echo "Update pkg.sh to fit your use case." >&2
+      exit 1
+    fi
+  done < "$diffdir/extra_installed_paths"
 fi
 
 cleanup_root "$pkgdir"
