@@ -76,7 +76,7 @@ if grep -E "^\S+\s+$(grep_escape "$F_owner")$" "$F_lease_file" >/dev/null 2>&1
 then
   ip="$(grep -E "^\S+\s+$(grep_escape "$F_owner")$" "$F_lease_file" \
     | cut -d' ' -f1)"
-  echo "$(basename "$0"): found existing lease at $ip" >&2
+  echo "$(basename "$0"): found existing lease at $ip for '$F_owner'" >&2
   echo "$ip"
   exit 0
 fi
@@ -84,7 +84,7 @@ fi
 # Bail out if only reading leases.
 if (( "$F_read_only" ))
 then
-  echo "$(basename "$0"): in read-only mode, did not find any IP" >&2
+  echo "$(basename "$0"): in read-only mode, did not find IP for '$F_owner'" >&2
   exit 1
 fi
 
