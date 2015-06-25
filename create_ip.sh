@@ -258,4 +258,9 @@ echo "$(basename "$0"): doing a super hacky DNS update to register '$host'" >&2
 shared_host="$(echo "$host" | sed -nre 's@^([a-zA-Z0-9_-]+)-[0-9]+$@\1@gp')"
 echo "$ip $host $host.jgilik.com $shared_host $shared_host.jgilik.com" \
   >> /root/localstorage/dns/dns/hosts.autogen
+# HACK: Some of my code relies on git.jgilik.com and should be ashamed.
+if [[ "$shared_host" == "gitzebo" ]]
+then
+  echo "$ip git git.jgilik.com" >> /root/localstorage/dns/dns/hosts.autogen
+fi
 "$DIR/reload_dnsmasq.sh"
