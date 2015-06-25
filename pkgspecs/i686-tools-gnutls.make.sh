@@ -14,7 +14,8 @@ cd "gnutls-$version"
 ./configure \
   --prefix=/tools/i686 \
   --build="${CLFS_HOST}" \
-  --host="${CLFS_TARGET}"
+  --host="${CLFS_TARGET}" \
+  --with-default-trust-store-dir=/tools/i686/etc/ssl/certs
 make
 
 # Do not allow info files to be installed.
