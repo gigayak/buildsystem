@@ -1,6 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
+# TODO: Mark me as a RHEL-specific package.
+# TODO: Provide a build that will work for JPGL.
+
 cat > /etc/pki/ca-trust/source/anchors/machine-audio-research-ca.pem <<'EOF'
 -----BEGIN CERTIFICATE-----
 MIIKADCCBeigAwIBAgIBATANBgkqhkiG9w0BAQsFADCBnjE+MDwGA1UEAxM1TWFj
