@@ -1,1 +1,4 @@
-i686-tools.deps.sh
+#!/bin/bash
+set -Eeo pipefail
+
+echo i686-tools-glibc
