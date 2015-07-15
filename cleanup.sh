@@ -8,6 +8,8 @@ then
 fi
 _CLEANUP_SH_INCLUDED=1
 
+source "$DIR/escape.sh" # used by recursive_umount
+
 _TEMP_ROOTS=()
 _TEMP_ROOTS+=(/mnt/vol_b/tmp)
 _TEMP_ROOTS+=(/tmp)
@@ -163,7 +165,7 @@ recursive_umount()
       echo "${FUNCNAME[0]}: umount $(sq "$_mountpoint") failed /w $retval">&2
       _failed=1
     fi
-    if mountpoint "$_mountpoint" >/dev/null @>&1
+    if mountpoint -q -- "$_mountpoint" >/dev/null 2>&1
     then
       # HACK SCALE: MINOR
       #
