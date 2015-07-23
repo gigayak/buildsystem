@@ -43,15 +43,15 @@ fi
 
 logdir="$storage_root/logs"
 mkdir -pv "$logdir"
-rm -fv "$logdir/console.log"
-rm -fv "$logdir/lxc.log"
+rm -fv "$logdir/${F_name}.console.log"
+rm -fv "$logdir/${F_name}.lxc.log"
 
 echo "Starting container '${F_name}'"
 lxc-start \
   --name="${F_name}" \
   --daemon \
-  --console-log="$logdir/console.log" \
-  --logfile="$logdir/lxc.log" \
+  --console-log="$logdir/${F_name}.console.log" \
+  --logfile="$logdir/${F_name}.lxc.log" \
   --logpriority=WARN \
   "/usr/bin/container.init" \
   || retval=$?
