@@ -1,4 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 
-echo gnutls
+echo gnutls # to generate certs
+echo coreutils # basename et al
