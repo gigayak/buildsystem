@@ -41,13 +41,18 @@ set_config()
   echo "Setting 'CONFIG_$key' to '$val'"
 
   pattern='^(CONFIG_'"$key"'=).*$'
-  # TODO: Escape $val here!
-  replace='\1'"$val"
-  expr="s@$pattern@$replace@g"
-  echo "sed expr: $expr" # TODO: delme
-  mv .config .config.tmp
-  sed -re "$expr" .config.tmp > .config
-  rm .config.tmp
+  if grep -E "$pattern" .config
+  then
+    # TODO: Escape $val here!
+    replace='\1'"$val"
+    expr="s@$pattern@$replace@g"
+    echo "sed expr: $expr" # TODO: delme
+    mv .config .config.tmp
+    sed -re "$expr" .config.tmp > .config
+    rm .config.tmp
+  else
+    echo "CONFIG_${key}=$val" >> .config
+  fi
   return 0
 }
 
