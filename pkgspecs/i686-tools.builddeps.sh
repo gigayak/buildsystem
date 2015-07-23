@@ -29,6 +29,12 @@ then
   echo flex
 fi
 
+# Busybox wants to statically link in glibc.
+if [[ "$PKG_NAME" == "i686-tools-busybox" ]]
+then
+  echo "i686-tools-glibc"
+fi
+
 # Add all cross-compilation toolchain packages in as build-time dependencies.
 for p in \
   file linux-headers m4 ncurses pkg-config-lite gmp mpfr mpc isl cloog \
