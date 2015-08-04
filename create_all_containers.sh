@@ -31,9 +31,6 @@ container()
     echo "Launching container '$container_name'"
     "$DIR/launch_container.sh" \
       --name="$container_name"
-    # TODO: launch_container.sh needs to be replica aware for localstorage/logs
-    #       reasons.  At the moment, all replicas compete for the same files,
-    #       which is silly.
   fi
 }
 
