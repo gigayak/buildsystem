@@ -2,6 +2,7 @@
 set -Eeo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+source "$DIR/escape.sh"
 source "$DIR/flag.sh"
 add_usage_note <<EOF
 This script is used internally to take some package specs and turn them into
@@ -128,6 +129,9 @@ run_in_root()
   then
     retval="$(cat "$dir/root/FAILED")"
     echo "${FUNCNAME[0]}: script '$script' failed with code $retval" >&2
+    dont_depopulate_dynamic_fs_pieces "$dir"
+    unregister_temp_file "$dir"
+    echo "${FUNCNAME[0]}: directory $(sq "$dir") saved for inspection" >&2
     return 1
   fi
   return 0
