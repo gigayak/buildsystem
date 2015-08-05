@@ -34,17 +34,20 @@ for p in \
   util-linux xz bootscripts e2fsprogs kmod shadow sysvinit eudev linux grub \
   gcc-aliases bash-aliases coreutils-aliases grep-aliases file-aliases \
   sysvinit-aliases shadow-aliases linux-aliases linux-devices \
-  linux-credentials linux-fstab linux-log-directories bash-profile iproute2 \
-  dhcp dhcp-config dropbear dropbear-config
+  linux-credentials linux-fstab-cd linux-fstab-hd linux-log-directories \
+  bash-profile iproute2 dhcp dhcp-config dropbear dropbear-config nettle gnutls \
+  internal-ca-certificates wget rsync buildsystem linux-mountpoints initrd \
+  linux-firmware jpgl-installer
 do
   pkgs+=("i686-tools-$p")
+  pkgs+=("i686-tools2-$p")
 done
 
 for p in "${pkgs[@]}"
 do
   if (( "$waiting" ))
   then
-    if [[ "$p" == "$start_from" ]]
+    if [[ "$p" == "$start_from" || "$p" == "i686-tools-$start_from" ]]
     then
       waiting=0
     else
