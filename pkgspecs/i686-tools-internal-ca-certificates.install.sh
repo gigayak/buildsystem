@@ -61,4 +61,7 @@ hc3Ekx13T+TlLchIipENa7ZAtt0=
 -----END CERTIFICATE-----
 EOF
 
-update-ca-trust extract
+# TODO: Shouldn't we extract the certificates at this point?
+# This would accomplish it in /:
+#   update-ca-trust extract
+# But we need it done in $CLFS/tools/i686...
