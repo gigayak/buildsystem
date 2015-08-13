@@ -243,6 +243,15 @@ do
   then
     echo "Running builddeps script"
     run_in_root "${builddeps}" >> "$workdir/builddeps.txt"
+    echo "Found build dependencies:"
+    while read -r dep
+    do
+      if [[ -z "$dep" ]]
+      then
+        continue
+      fi
+      echo " - $dep"
+    done < <(echo "$workdir/builddeps.txt")
   fi
 done
 
@@ -254,7 +263,7 @@ do
   if [[ -e "$deps" ]]
   then
     deplist="$(run_in_root "${deps}")"
-    echo "Found dependencies:"
+    echo "Found runtime dependencies:"
     while read -r dep
     do
       echo "$dep" >> "$workdir/builddeps.txt"
@@ -268,6 +277,7 @@ do
 done
 
 
+echo "Installing all dependencies."
 if [[ -e "$workdir/builddeps.txt" ]]
 then
   install_deps "$workdir/builddeps.txt"
