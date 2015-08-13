@@ -37,8 +37,9 @@ fi
 
 # Add all cross-compilation toolchain packages in as build-time dependencies.
 for p in \
-  file linux-headers m4 ncurses pkg-config-lite gmp mpfr mpc isl cloog \
+  file m4 ncurses pkg-config-lite gmp mpfr mpc isl cloog \
   binutils gcc bc
 do
   echo "i686-cross-$p"
 done
+echo "i686-tools-linux-headers"
