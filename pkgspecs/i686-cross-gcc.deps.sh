@@ -24,4 +24,4 @@ echo i686-tools-glibc
 # We'll use these Linux headers when compiling.  May as well require them.
 # (They're required to build - so this could maybe be moved to builddeps, but
 # is required to be a dependency somewhere in the build process.)
-echo i686-cross-linux-headers
+echo i686-tools-linux-headers

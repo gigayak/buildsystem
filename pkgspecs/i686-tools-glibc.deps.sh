@@ -2,3 +2,4 @@
 set -Eeo pipefail
 
 echo i686-tools-root
+echo i686-tools-linux-headers
