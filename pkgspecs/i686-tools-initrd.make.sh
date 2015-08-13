@@ -2,7 +2,7 @@
 set -Eeo pipefail
 
 mkdir -pv /root/initrd
-for p in root env busybox eudev
+for p in root busybox eudev
 do
   /usr/bin/buildsystem/install_pkg.sh \
     --install_root=/root/initrd \
