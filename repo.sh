@@ -74,9 +74,11 @@ repo_get()
   retval=0
   # -q0- redirects to stdout, per:
   #   http://fischerlaender.de/webdev/redirecting-wget-to-stdout
+  # --retry-connrefused should help in some of the worst network flakiness.
   local _url="${_REPO_URL}/$_path"
   wget \
     -qO- \
+    --retry-connrefused \
     "$_url" \
   || {
     echo "${FUNCNAME[0]}: error code '$?' fetching '$_url'" >&2
@@ -116,6 +118,7 @@ resolve_deps()
   touch "$old_deps"
   # Start with package requested.
   echo "$pkg_name" > "$new_deps"
+  echo "${FUNCNAME[0]}: resolving dependencies for '$pkg_name'" >&2
   touch "$ordered_deps"
 
   while read -r new_dep
@@ -148,7 +151,6 @@ resolve_deps()
 
     # Here's where we actually commit it to the ordered list.
     echo "$new_dep" >> "$ordered_deps"
-    echo "${FUNCNAME[0]}: found dependency '$new_dep'" >&2
 
     # Process all of its sub-dependencies.
     deps_path="$scratch/tmp.deps"
@@ -181,6 +183,7 @@ resolve_deps()
         mv -f "$tmp_deps" "$ordered_deps"
       # Otherwise, it's new to us - mark it as such, and we iterate deeper.
       else
+        echo "${FUNCNAME[0]}: found dependency '$dep' (from '$new_dep')" >&2
         # This line is a little subtle - note that the outermost loop is reading
         # from the file we're appending to here.
         #
