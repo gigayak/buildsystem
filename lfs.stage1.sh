@@ -18,15 +18,19 @@ pkgs+=("i686-clfs-root")
 pkgs+=("i686-cross-root")
 pkgs+=("i686-cross-env")
 pkgs+=("i686-tools-root")
+pkgs+=("i686-tools2-root")
 pkgs+=("i686-tools-env")
+pkgs+=("i686-tools-linux-headers")
+pkgs+=("i686-tools2-linux-headers")
 for p in \
-  file linux-headers m4 \
+  file m4 \
   ncurses pkg-config-lite gmp mpfr mpc isl cloog \
   isl binutils gcc-static bc
 do
   pkgs+=("i686-cross-$p")
 done
 pkgs+=("i686-tools-glibc")
+pkgs+=("i686-tools2-glibc")
 pkgs+=("i686-cross-gcc")
 for p in \
   gmp mpfr mpc isl cloog zlib binutils gcc ncurses bash bzip2 check coreutils \
@@ -36,12 +40,14 @@ for p in \
   sysvinit-aliases shadow-aliases linux-aliases linux-devices \
   linux-credentials linux-fstab-cd linux-fstab-hd linux-log-directories \
   bash-profile iproute2 dhcp dhcp-config dropbear dropbear-config nettle gnutls \
-  internal-ca-certificates wget rsync buildsystem linux-mountpoints initrd \
-  linux-firmware jpgl-installer
+  internal-ca-certificates wget rsync buildsystem linux-mountpoints busybox \
+  initrd linux-firmware jpgl-installer
 do
   pkgs+=("i686-tools-$p")
   pkgs+=("i686-tools2-$p")
 done
+# Needed by all tools3 packages.
+pkgs+=("filesystem-skeleton")
 
 for p in "${pkgs[@]}"
 do

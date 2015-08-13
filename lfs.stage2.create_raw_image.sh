@@ -136,7 +136,7 @@ mount "$loop_dev" /mnt/guest/clfs-root
 # Extract all of the packages into our guest filesystem.
 pkgs=()
 for pkg in \
-  root env glibc gmp mpfr mpc isl cloog zlib binutils gcc ncurses bash bzip2 \
+  root glibc gmp mpfr mpc isl cloog zlib binutils gcc ncurses bash bzip2 \
   check coreutils diffutils file findutils gawk gettext grep gzip make patch \
   sed tar texinfo util-linux xz bootscripts e2fsprogs kmod shadow sysvinit \
   eudev linux grub gcc-aliases bash-aliases coreutils-aliases grep-aliases \
