@@ -99,7 +99,7 @@ trap 'exit 0' EXIT ERR
 # We probably want to make sure that the environment builds the program quickly
 # when it finally does come up...
 go get -v -d -t "./..."
-go install "./..."
+go install -v "./..."
 EOF_CHROOT
 
 # Make sure root logs in directly into the workspace.
