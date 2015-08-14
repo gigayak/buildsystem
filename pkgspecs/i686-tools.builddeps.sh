@@ -23,7 +23,7 @@ then
 fi
 
 # GRUB wants flex and bison.
-if [[ "$PKG_NAME" == "i686-tools-grub" ]]
+if [[ "$PKG_NAME" == "i686-tools-grub" || "$PKG_NAME" == "i686-tools-iproute2" ]]
 then
   echo bison
   echo flex
