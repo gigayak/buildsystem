@@ -107,6 +107,8 @@ cat > "$root/etc/profile.d/go-workspace.sh" <<EOF_WORKSPACE
 #!/bin/bash
 export GOPATH="/root/workspace"
 export PATH="\$PATH:/root/workspace/bin"
+export EDITOR="vim"
+alias vi=vim
 cd "/root/workspace/src/git.jgilik.com/$pkg_name"
 EOF_WORKSPACE
 
