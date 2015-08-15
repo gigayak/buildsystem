@@ -58,7 +58,7 @@ mac_address="$1"
 ip_address="$2"
 
 # Create image.
-qemu-img create -f raw /root/jpgl.raw.img 4G
+qemu-img create -f raw /root/jpgl.raw.img 16G
 
 # Create partition table!
 # Per http://superuser.com/a/518556
