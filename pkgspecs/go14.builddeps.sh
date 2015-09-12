@@ -4,8 +4,6 @@ set -Eeo pipefail
 echo wget # to fetch package
 echo tar # to extract package
 
-echo go14 # used to build go >= 1.5
-
 # Development tools, to build with
 cat <<EOF
 autoconf
