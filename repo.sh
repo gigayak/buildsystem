@@ -43,6 +43,22 @@ set_repo_remote_url()
   export _REPO_URL="$1"
 }
 
+# _REPO_GET dictates which binary is used to fetch from repositories.
+# It's expected to be similar to wget.
+if [[ -z "$_REPO_GET" ]]
+then
+  # sget can use client certificates, but is built in-house.  As such,
+  # we prefer it, but require wget to bootstrap (as some HTTP client is
+  # needed to build Go and family, which are required to build sget).
+  retval=0
+  sget --help >/dev/null 2>&1 || retval=$?
+  if (( "$retval" != "127" ))
+  then
+    export _REPO_GET=sget
+  else
+    export _REPO_GET=wget
+  fi
+fi
 
 
 # Gets a file from the repository and outputs it to stdout.
@@ -76,8 +92,8 @@ repo_get()
   #   http://fischerlaender.de/webdev/redirecting-wget-to-stdout
   # --retry-connrefused should help in some of the worst network flakiness.
   local _url="${_REPO_URL}/$_path"
-  wget \
-    -qO- \
+  "$_REPO_GET" \
+    -q -O- \
     --retry-connrefused \
     "$_url" \
   || {

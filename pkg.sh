@@ -4,6 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "$DIR/escape.sh"
 source "$DIR/flag.sh"
+source "$DIR/repo.sh"
 add_usage_note <<EOF
 This script is used internally to take some package specs and turn them into
 usable binary packages.  It provides enough indirection to be able to change
@@ -185,7 +186,7 @@ ensure_pkg_exists()
 
   # Check upstream repository manually.
   # TODO: Centralize the repository URL(s) somehow...
-  if wget -q -O - "https://repo.jgilik.com/$_pkg.done"
+  if "$_REPO_GET" -q -O- "https://repo.jgilik.com/$_pkg.done"
   then
     echo "Found package '$_pkg' using a wget hack that will break on Pi"
     return 0
