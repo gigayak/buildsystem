@@ -97,7 +97,7 @@ then
   mount --bind /root/localstorage/certificate-authority/ca "$ca_root"
 fi
 
-ssl_cert()
+ssl_server_cert()
 {
   key_name="$1"
   shift
@@ -132,12 +132,38 @@ ssl_cert()
     "$tgt_path/$key_name.crt"
 }
 
+ssl_client_cert()
+{
+  if (( "$#" != "3" ))
+  then
+    echo "Usage: ${FUNCNAME[0]} <username> <fqdn> <client name>" >&2
+    return
+  fi
+  username="$1"
+  fqdn="$2"
+  client_name="$3"
+  key_path="$ca_root/keys/client.$username@$fqdn.key"
+  crt_path="$ca_root/certificates/client.$username@$fqdn.crt"
+  if [[ -e "$key_path" && -e "$crt_path" ]]
+  then
+    echo "${FUNCNAME[0]}: found SSL cert $username@$fqdn, skipping" >&2
+    return 0
+  fi
+  echo -e "no cert found:\nkey_path: $key_path\ncrt_path: $crt_path"
+  chroot "$root" ca_generate_client_certificate \
+    "$username" "$fqdn" "$client_name"
+}
+
 
 ssh_rsa_key godev
 ssh_rsa_key gitzebo
 ssh_dsa_key gitzebo
-ssl_cert gitzebo
-ssl_cert proxy '*.jgilik.com'
-ssl_cert repo
+ssl_server_cert gitzebo
+ssl_server_cert proxy '*.jgilik.com'
+ssl_server_cert repo
+ssl_server_cert www
+ssl_client_cert jgilik oven.home.jgilik.com "John Gilik / Desktop"
+ssl_client_cert jgilik hp11.home.jgilik.com "John Gilik / HP11 Chromebook"
+ssl_client_cert system dl380.home.jgilik.com "System / DL380"
 
 echo "$(basename "$0"): successfully created all keys and certs" >&2
