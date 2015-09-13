@@ -31,7 +31,7 @@ ddiff()
     "$1/" "$2/"
 }
 
-export copy_diff_files="$DIR/copy_diff_files.py"
+export copy_diff_files="$DIR/copy_diff_files.sh"
 
 (
   make_temp_dir pre

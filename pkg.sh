@@ -403,7 +403,7 @@ rsync \
 make_temp_dir pkgdir
 echo "Packaging to '$pkgdir'"
 retval=0
-"$DIR/copy_diff_files.py" "$dir" "$pkgdir" < "$diff" \
+"$DIR/copy_diff_files.sh" "$dir" "$pkgdir" < "$diff" \
   || retval=$?
 if (( "$retval" ))
 then
