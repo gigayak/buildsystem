@@ -49,20 +49,21 @@ copy_dir()
 
 copy_file()
 {
+  copy_dir "$(dirname "$@")"
   cp -v "$src/$@" "$tgt/$@"
 }
 
 copy_link()
 {
-  echo "Received link spec '$@'" >&2
   link_name="$(echo "$@" \
     | sed -nre 's@^(.*) -> .*$@\1@gp')"
-  echo "Link name: '$link_name'" >&2
+  copy_dir "$(dirname "$link_name")"
   cp -dv "$src/$link_name" "$tgt/$link_name"
 }
 
 copy_device()
 {
+  copy_dir "$(dirname "$@")"
   dev_type="$(stat -c '%A' "$src/$@" \
     | sed -re 's@^(.).*$@\1@g')"
   major="$(stat -c '%t' "$src/$@")"

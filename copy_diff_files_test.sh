@@ -38,8 +38,9 @@ export copy_diff_files="$DIR/copy_diff_files.sh"
   make_temp_dir post
   make_temp_dir pkg
   mkdir -pv "$post/etc/silliness"
-  ddiff "$post" "$pre" | "$copy_diff_files" "$post" "$pkg"
-  start_case "basic directory creation"
+  start_case "basic directory case - file copying"
+  ddiff "$post" "$pre" | "$copy_diff_files" "$post" "$pkg" && pass || fail
+  start_case "basic directory case - existence check"
   [[ -d "$pkg/etc/silliness" ]] && pass || fail
   run_exit_handlers
 )
@@ -49,8 +50,9 @@ export copy_diff_files="$DIR/copy_diff_files.sh"
   make_temp_dir post
   make_temp_dir pkg
   touch "$post/test_file"
-  ddiff "$post" "$pre" | "$copy_diff_files" "$post" "$pkg"
-  start_case "basic file creation"
+  start_case "basic file case - file copying"
+  ddiff "$post" "$pre" | "$copy_diff_files" "$post" "$pkg" && pass || fail
+  start_case "basic file case - existence check"
   [[ -f "$pkg/test_file" ]] && pass || fail
   run_exit_handlers
 )
@@ -61,10 +63,11 @@ export copy_diff_files="$DIR/copy_diff_files.sh"
   make_temp_dir pkg
   mknod "$post/null" c 1 3
   chmod 666 "$post/null"
-  ddiff "$post" "$pre" | "$copy_diff_files" "$post" "$pkg"
-  start_case "basic character device creation existence check"
+  start_case "basic character device case - file copying"
+  ddiff "$post" "$pre" | "$copy_diff_files" "$post" "$pkg" && pass || fail
+  start_case "basic character device case - existence check"
   [[ -c "$pkg/null" ]] && pass || fail
-  start_case "basic character device major/minor check"
+  start_case "basic character device case - major/minor check"
   [[ "$(stat -c '%t,%T' "$pkg/null")" == "1,3" ]] && pass || fail
   start_case "basic character device creation permissions check"
   [[ "$(stat -c '%a' "$pkg/null")" == "666" ]] && pass || fail
@@ -76,11 +79,28 @@ export copy_diff_files="$DIR/copy_diff_files.sh"
   make_temp_dir post
   make_temp_dir pkg
   ln -sv "/path/does/not/exist" "$post/symlink"
-  ddiff "$post" "$pre" | "$copy_diff_files" "$post" "$pkg"
-  start_case "basic symlink creation existence check"
+  start_case "basic symlink case - file copying"
+  ddiff "$post" "$pre" | "$copy_diff_files" "$post" "$pkg" && pass || fail
+  start_case "basic symlink case - existence check"
   [[ -L "$pkg/symlink" ]] && pass || fail
-  start_case "basic symlink creation target check"
+  start_case "basic symlink case - target check"
   [[ "$(readlink "$pkg/symlink")" == "/path/does/not/exist" ]] \
     && pass || fail
+  run_exit_handlers
+)
+
+(
+  make_temp_dir pre
+  make_temp_dir post
+  make_temp_dir pkg
+  mkdir -pv "$pre/etc/test"
+  mkdir -pv "$post/etc/test"
+  touch "$post/etc/test/test_file"
+  start_case "parent directory case - file copying"
+  ddiff "$post" "$pre" | "$copy_diff_files" "$post" "$pkg" && pass || fail
+  start_case "parent directory case - directory creation check"
+  [[ -d "$pkg/etc/test" ]] && pass || fail
+  start_case "parent directory case - child file creation check"
+  [[ -f "$pkg/etc/test/test_file" ]] && pass || fail
   run_exit_handlers
 )
