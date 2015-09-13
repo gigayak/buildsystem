@@ -41,6 +41,7 @@ export copy_diff_files="$DIR/copy_diff_files.sh"
   ddiff "$post" "$pre" | "$copy_diff_files" "$post" "$pkg"
   start_case "basic directory creation"
   [[ -d "$pkg/etc/silliness" ]] && pass || fail
+  run_exit_handlers
 )
 
 (
@@ -51,6 +52,7 @@ export copy_diff_files="$DIR/copy_diff_files.sh"
   ddiff "$post" "$pre" | "$copy_diff_files" "$post" "$pkg"
   start_case "basic file creation"
   [[ -f "$pkg/test_file" ]] && pass || fail
+  run_exit_handlers
 )
 
 (
@@ -66,6 +68,7 @@ export copy_diff_files="$DIR/copy_diff_files.sh"
   [[ "$(stat -c '%t,%T' "$pkg/null")" == "1,3" ]] && pass || fail
   start_case "basic character device creation permissions check"
   [[ "$(stat -c '%a' "$pkg/null")" == "666" ]] && pass || fail
+  run_exit_handlers
 )
 
 (
@@ -79,4 +82,5 @@ export copy_diff_files="$DIR/copy_diff_files.sh"
   start_case "basic symlink creation target check"
   [[ "$(readlink "$pkg/symlink")" == "/path/does/not/exist" ]] \
     && pass || fail
+  run_exit_handlers
 )
