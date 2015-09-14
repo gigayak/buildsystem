@@ -9,6 +9,6 @@ wget "http://downloads.sourceforge.net/project/tcl/Tcl/$version/tcl$version-src.
 tar -zxf *.tar.gz
 cd /root/*/
 cd unix
-./configure
+./configure --prefix=/tools/i686
 make
 
