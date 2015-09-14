@@ -86,20 +86,38 @@ repo_get()
     return 0
   fi
 
-  # register temporary file for cleanup
-  retval=0
-  # -q0- redirects to stdout, per:
-  #   http://fischerlaender.de/webdev/redirecting-wget-to-stdout
-  # --retry-connrefused should help in some of the worst network flakiness.
-  local _url="${_REPO_URL}/$_path"
-  "$_REPO_GET" \
-    -q -O- \
-    --retry-connrefused \
-    "$_url" \
-  || {
-    echo "${FUNCNAME[0]}: error code '$?' fetching '$_url'" >&2
-    return 1
-  }
+  if [[ ! -z "$_REPO_LOCAL_PATH" && -e "$_REPO_LOCAL_PATH" ]]
+  then
+    retval=0
+    # -q0- redirects to stdout, per:
+    #   http://fischerlaender.de/webdev/redirecting-wget-to-stdout
+    # --retry-connrefused should help in some of the worst network flakiness.
+    local _url="${_REPO_URL}/$_path"
+    "$_REPO_GET" \
+      -q -O- \
+      --retry-connrefused \
+      "$_url" \
+    > "$_REPO_LOCAL_PATH/$_path" \
+    || {
+      echo "${FUNCNAME[0]}: error code '$?' fetching '$_url'" >&2
+      return 1
+    }
+    cat "$_REPO_LOCAL_PATH/$_path"
+  else
+    retval=0
+    # -q0- redirects to stdout, per:
+    #   http://fischerlaender.de/webdev/redirecting-wget-to-stdout
+    # --retry-connrefused should help in some of the worst network flakiness.
+    local _url="${_REPO_URL}/$_path"
+    "$_REPO_GET" \
+      -q -O- \
+      --retry-connrefused \
+      "$_url" \
+    || {
+      echo "${FUNCNAME[0]}: error code '$?' fetching '$_url'" >&2
+      return 1
+    }
+  fi
 }
 
 resolve_deps()
