@@ -19,9 +19,15 @@ then
   echo "HACK TIME: creating repository directory"
   mkdir -pv "/var/www/html/tgzrepo"
 fi
+if grep ' /tmp ' /proc/mounts > /dev/null 2>&1
+then
+  echo "HACK TIME: unmounting /tmp, it isn't big enough"
+  umount /tmp
+fi
 
 pkgs=()
 pkgs+=("i686-tools3-tcl")
+pkgs+=("i686-tools3-expect")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
