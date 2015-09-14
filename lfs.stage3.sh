@@ -28,6 +28,7 @@ fi
 pkgs=()
 pkgs+=("i686-tools3-tcl")
 pkgs+=("i686-tools3-expect")
+pkgs+=("i686-tools3-dejagnu")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
