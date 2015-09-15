@@ -5,7 +5,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/repo.sh"
 source "$DIR/flag.sh"
 add_flag --required pkg_name "Name of the package to install."
-add_flag --default="" installed_list "List of already-installed packages."
+add_flag --default="" installed_list \
+  "Directory containing filelists of packages which have already been installed."
 # TODO: Deprecate local cache until invalidation works.
 add_flag --default="/var/www/html/tgzrepo" repo_path "Path to find packages."
 add_flag --default="https://repo.jgilik.com" repo_url "URL to find packages."

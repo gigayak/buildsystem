@@ -28,7 +28,7 @@ set_repo_remote_url "$F_repo_url"
 pkglist="$F_install_root/.installed_pkgs"
 if [[ ! -e "$pkglist" ]]
 then
-  touch "$pkglist"
+  mkdir -pv "$pkglist"
 fi
 
 # We need somewhere for transient data to be stored...
@@ -48,9 +48,7 @@ do
 
   # TODO: Should this check exist?  resolve_deps also excludes already-
   #    installed packages.
-  found=1
-  grep -E "^$(grep_escape "$dep")\$" "$pkglist" >/dev/null 2>&1 || found=0
-  if (( "$found" ))
+  if [[ -e "$pkglist/$dep" ]]
   then
     echo "$(basename "$0"): found package '$dep'; skipping" >&2
     continue
@@ -64,6 +62,6 @@ do
     exit 1
   fi
   tar -zxf "$pkgpath" --directory "$F_install_root"
-  echo "$dep" >> "$pkglist"
+  tar -tzf "$pkgpath" > "$pkglist/$dep"
 done < "$ordered_deps"
 

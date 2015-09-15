@@ -126,7 +126,8 @@ resolve_deps()
   installed_list="$2"
   if [[ -z "$pkg_name" ]]
   then
-    echo "Usage: ${FUNCNAME[0]} <pkg name> [<list of installed pkgs>]" >&2
+    echo "Usage: ${FUNCNAME[0]} <pkg name>" \
+      "[<dir containing filelists of installed pkgs>]" >&2
     return 1
   fi
 
@@ -174,11 +175,7 @@ resolve_deps()
 
     # Avoid reprocessing an already-installed dependency.  This likely helps
     # save a good amount of time.
-    if [[ -e "$installed_list" ]] \
-    && grep \
-      -E "^$(grep_escape "$new_dep")\$" \
-      "$installed_list" \
-      >/dev/null 2>&1
+    if [[ -e "$installed_list/$new_dep" ]]
     then
       continue
     fi
