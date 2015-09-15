@@ -30,6 +30,9 @@ pkgs+=("i686-tools3-tcl")
 pkgs+=("i686-tools3-expect")
 pkgs+=("i686-tools3-dejagnu")
 pkgs+=("i686-tools3-perl")
+pkgs+=("i686-yak-linux-headers")
+pkgs+=("i686-yak-man-pages")
+pkgs+=("i686-yak-glibc")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
