@@ -440,6 +440,19 @@ then
       mkdir "$pkgdir/$path"
       chown "$uid:$gid" "$pkgdir/$path"
       chmod "$perms" "$pkgdir/$path"
+    elif [[ -f "$dir/$path" ]]
+    then
+      echo "Copying explicitly declared file: $path"
+      uid="$(stat -c '%U' "$dir/$path")"
+      gid="$(stat -c '%G' "$dir/$path")"
+      perms="$(stat -c '%a' "$dir/$path")"
+      if [[ ! -d "$(dirname "$pkgdir/$path")" ]]
+      then
+        mkdir -pv "$(dirname "$pkgdir/$path")"
+      fi
+      cp -f "$dir/$path" "$pkgdir/$path"
+      chown "$uid:$gid" "$pkgdir/$path"
+      chmod "$perms" "$pkgdir/$path"
     else
       echo "$pkgdir/$path was explicitly declared, but is not a directory or" >&2
       echo "does not exist at all." >&2
