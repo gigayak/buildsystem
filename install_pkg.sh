@@ -62,6 +62,6 @@ do
     exit 1
   fi
   tar -zxf "$pkgpath" --directory "$F_install_root"
-  tar -tzf "$pkgpath" > "$pkglist/$dep"
+  tar -tzf "$pkgpath" | sed 's/^\.\///g' > "$pkglist/$dep"
 done < "$ordered_deps"
 
