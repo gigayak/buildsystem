@@ -56,12 +56,19 @@ do
 
   echo "$(basename "$0"): installing package '$dep'" >&2
   pkgpath="$scratch/$dep.tar.gz"
+  versionpath="$scratch/$dep.version"
   if ! repo_get "$dep.tar.gz" > "$pkgpath"
   then
     echo "$(basename "$0"): could not find package '$dep'" >&2
     exit 1
   fi
+  if ! repo_get "$dep.version" > "$versionpath"
+  then
+    echo "$(basename "$0"): could not find package version '$dep.version'" >&2
+    exit 1
+  fi
   tar -zxf "$pkgpath" --directory "$F_install_root"
   tar -tzf "$pkgpath" | sed 's/^\.\///g' > "$pkglist/$dep"
+  cp "$versionpath" "$pkglist/$dep.version"
 done < "$ordered_deps"
 
