@@ -30,9 +30,14 @@ pkgs+=("i686-tools3-tcl")
 pkgs+=("i686-tools3-expect")
 pkgs+=("i686-tools3-dejagnu")
 pkgs+=("i686-tools3-perl")
+pkgs+=("i686-tools3-texinfo")
+pkgs+=("i686-tools3-gdb")
 pkgs+=("i686-yak-linux-headers")
 pkgs+=("i686-yak-man-pages")
 pkgs+=("i686-yak-glibc")
+pkgs+=("i686-tools3-gcc")
+pkgs+=("i686-yak-m4")
+pkgs+=("i686-yak-gmp")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
@@ -47,6 +52,3 @@ do
   fi
   echo "$(basename "$0"): successfully built package '$p'" >&2
 done
-
-source "$DIR/repo.sh"
-echo "_REPO_GET=$_REPO_GET"
