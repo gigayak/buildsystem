@@ -32,3 +32,9 @@ exit $?
 # TODO: move certificate authority project into buildsystem
 # TODO: move certificate authority project into container
 # TODO: add web interface to certificate authority project
+
+# TODO: set up /etc/services and /etc/protocols per:
+#       http://tldp.org/LDP/lfs/5.0/html/chapter06/lfs-utils.html
+
+# TODO: build a glibc configuration package per:
+#       http://www.clfs.org/view/CLFS-3.0.0-SYSVINIT/x86/final-system/glibc.html
