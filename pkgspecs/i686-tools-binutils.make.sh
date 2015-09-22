@@ -19,7 +19,7 @@ cd binutils-build/
   --build="$CLFS_HOST" \
   --host="$CLFS_TARGET" \
   --target="$CLFS_TARGET" \
-  --with-lib-path="/tools/lib" \
+  --with-lib-path="/tools/i686/lib" \
   --disable-nls \
   --enable-shared \
   --disable-multilib
