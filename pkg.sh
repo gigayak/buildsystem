@@ -431,7 +431,15 @@ then
     then
       continue
     fi
-    if [[ -d "$dir/$path" ]]
+    if [[ -L "$dir/$path" ]]
+    then
+      echo "Copying explicitly declared symlink: $path"
+      if [[ ! -d "$(dirname "$pkgdir/$path")" ]]
+      then
+        mkdir -pv "$(dirname "$pkgdir/$path")"
+      fi
+      ln -sv "$(readlink "$dir/$path")" "$pkgdir/$path"
+    elif [[ -d "$dir/$path" && ! -L "$dir/$path" ]]
     then
       echo "Copying explicitly declared directory: $path"
       uid="$(stat -c '%U' "$dir/$path")"
@@ -440,7 +448,7 @@ then
       mkdir -pv "$pkgdir/$path"
       chown "$uid:$gid" "$pkgdir/$path"
       chmod "$perms" "$pkgdir/$path"
-    elif [[ -f "$dir/$path" ]]
+    elif [[ -f "$dir/$path" && ! -L "$dir/$path" ]]
     then
       echo "Copying explicitly declared file: $path"
       uid="$(stat -c '%U' "$dir/$path")"
@@ -454,8 +462,8 @@ then
       chown "$uid:$gid" "$pkgdir/$path"
       chmod "$perms" "$pkgdir/$path"
     else
-      echo "$pkgdir/$path was explicitly declared, but is not a directory or" >&2
-      echo "does not exist at all." >&2
+      echo "$pkgdir/$path was explicitly declared, but is not a directory" >&2
+      echo "or does not exist at all." >&2
       echo "Explicit declarations are a hack with limited scope." >&2
       echo "Update pkg.sh to fit your use case." >&2
       exit 1
