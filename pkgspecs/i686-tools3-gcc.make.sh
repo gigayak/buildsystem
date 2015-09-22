@@ -15,11 +15,3 @@ cp -v /.installed_pkgs/i686-tools2-gcc /root/extra_installed_paths
 # packages, with an LDD path in /tools.  This form will actually link
 # against the main glibc - so it should be used for all non-stage2
 # packages (aside from glibc).
-
-# Per CLFS book:
-#   Now we adjust GCC's specs so that they point to the new dynamic
-#   linker.
-gcc -dumpspecs | \
-perl -p -e 's@/tools/i686/lib/ld@/lib/ld@g;' \
-     -e 's@\*startfile_prefix_spec:\n@$_/usr/lib/ @g;' > \
-     $(dirname $(gcc --print-libgcc-file-name))/specs
