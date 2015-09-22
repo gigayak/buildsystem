@@ -437,7 +437,7 @@ then
       uid="$(stat -c '%U' "$dir/$path")"
       gid="$(stat -c '%G' "$dir/$path")"
       perms="$(stat -c '%a' "$dir/$path")"
-      mkdir "$pkgdir/$path"
+      mkdir -pv "$pkgdir/$path"
       chown "$uid:$gid" "$pkgdir/$path"
       chmod "$perms" "$pkgdir/$path"
     elif [[ -f "$dir/$path" ]]
