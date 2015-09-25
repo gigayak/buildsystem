@@ -10,7 +10,7 @@ wget "$url"
 
 tar -jxf "sysvinit-$version.tar.bz2"
 patch="tools_updates-1.patch"
-url="https://clfs.org/files/patches/3.0.0/SYSVINIT/sysvinit-$version-$patch"
+url="http://clfs.org/files/patches/3.0.0/SYSVINIT/sysvinit-$version-$patch"
 wget "$url"
 cd sysvinit-*/
 # Per CLFS book:
