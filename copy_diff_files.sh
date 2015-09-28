@@ -73,6 +73,12 @@ copy_device()
   chmod "$perms" "$tgt/$@"
 }
 
+error()
+{
+  echo "Failed: $@" >&2
+  exit 1
+}
+
 # This function takes a line of diff output and multiplexes to an appropriate packaging
 # function.
 parse_line()
@@ -104,6 +110,7 @@ parse_line()
     "cL+++++++++") copy_link "$@" ;;
     "cLc.T......") copy_link "$@" ;;
     "cD+++++++++") copy_device "$@" ;;
+    ">f.sTp.....") error "File was modified: $@" ;;
     *)
       echo "${FUNCNAME[0]}: invalid diff changespec '$change_spec'" >&2
       return 1
