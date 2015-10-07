@@ -25,6 +25,8 @@ then
   umount /tmp
 fi
 
+start_at="$@"
+
 pkgs=()
 pkgs+=("i686-tools3-tcl")
 pkgs+=("i686-tools3-expect")
@@ -38,10 +40,42 @@ pkgs+=("i686-yak-glibc")
 pkgs+=("i686-tools3-gcc")
 pkgs+=("i686-yak-m4")
 pkgs+=("i686-yak-gmp")
+pkgs+=("i686-yak-mpfr")
+pkgs+=("i686-yak-mpc")
+pkgs+=("i686-yak-isl")
+pkgs+=("i686-yak-cloog")
+pkgs+=("i686-yak-zlib")
+pkgs+=("i686-yak-flex")
+pkgs+=("i686-yak-bison")
+pkgs+=("i686-yak-binutils")
+pkgs+=("i686-yak-gcc")
+pkgs+=("i686-yak-sed")
+pkgs+=("i686-yak-pkg-config-lite")
+pkgs+=("i686-yak-ncurses")
+pkgs+=("i686-yak-shadow")
+pkgs+=("i686-yak-util-linux")
+pkgs+=("i686-yak-autoconf")
+pkgs+=("i686-yak-automake")
+pkgs+=("i686-yak-libtool")
+pkgs+=("i686-yak-gettext")
+pkgs+=("i686-yak-procps-ng")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
 do
+  if [[ ! -z "$start_at" ]]
+  then
+    if [[ \
+      "$p" == "$start_at" \
+      || "$p" == "i686-tools3-$start_at" \
+      || "$p" == "i686-yak-$start_at" \
+    ]]
+    then
+      start_at=""
+    else
+      continue
+    fi
+  fi
   echo "$(basename "$0"): building package '$p'" >&2
   retval=0
   "$build" --pkg_name="$p" || retval=$?
