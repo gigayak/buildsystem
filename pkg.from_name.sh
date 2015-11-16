@@ -75,8 +75,18 @@ then
   "$DIR/pkg.from_spec.sh" "--pkg_name=$name"
   exit $?
 
-# try yum conversion
-else
-  "$DIR/yum_to_tgz.sh" "--pkg_name=$name"
+# try yum conversion on CentOS hosts
+elif which yum >/dev/null 2>&1
+then
+  "$DIR/pkg.from_yum.sh" "--pkg_name=$name"
+  exit $?
+
+# try apt conversion on Ubuntu hosts
+elif which apt-get >/dev/null 2>&1
+then
+  "$DIR/pkg.from_apt.sh" "--pkg_name=$name"
   exit $?
 fi
+
+echo "$(basename "$0"): could not find a builder for package '$name'" >&2
+exit 1

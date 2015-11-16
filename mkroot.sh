@@ -45,9 +45,18 @@ create_bare_root()
   # Populate bare minimum packages to run.
   # TODO: Need a way of determining whether we need i686-tools or just bare OS
   local _pkgs=()
+  # CentOS host
+  # TODO: Check how hard bootstrap on Fedora / Scientific / Redhat would be.
   if which yum >/dev/null 2>&1
   then
     _pkgs=(rpm-build centos-release yum)
+  # Ubuntu host
+  # TODO: Check if this works with Debian.
+  elif which apt-get >/dev/null 2>&1
+  then
+    _pkgs=(apt apt-transport-https ca-certificates)
+  # Assuming anything else is a Gigayak host.
+  # TODO: Do a secondary check and chuck a wobbly if not on Gigayak here.
   else
     _pkgs=(filesystem-skeleton i686-tools2-bash{,-aliases,-profile})
   fi
