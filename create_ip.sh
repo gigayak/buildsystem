@@ -140,7 +140,7 @@ ip_to_dec()
     echo "${FUNCNAME[0]}: failed to parse byte 4 of IP '$_ip'" >&2
     return 1
   fi
-  dec="$(awk "BEGIN { print $_ipa*2^24 + $_ipb*2^16 + $_ipc*2^8 + $_ipd*2^0 }")"
+  dec="$(echo "$_ipa*2^24 + $_ipb*2^16 + $_ipc*2^8 + $_ipd*2^0" | bc)"
   if [[ -z "$dec" ]] || (( ! "$dec" ))
   then
     echo "${FUNCNAME[0]}: failed to convert IP '$_ip' to decimal" >&2
@@ -157,25 +157,25 @@ dec_to_ip()
     echo "Usage: ${FUNCNAME[0]} <ip in decimal form>" >&2
     return 1
   fi
-  _ipa="$(awk "BEGIN { print int($_dec / 2^24) }")"
+  _ipa="$(echo "$_dec / 2^24" | bc)"
   if [[ -z "$_ipa" ]]
   then
     echo "${FUNCNAME[0]}: failed to convert byte 1 of IP '$_dec'" >&2
     return 1
   fi
-  _ipb="$(awk "BEGIN { print int($_dec / 2^16) % 256 }")"
+  _ipb="$(echo "$_dec / 2^16 % 256" | bc)"
   if [[ -z "$_ipb" ]]
   then
     echo "${FUNCNAME[0]}: failed to convert byte 2 of IP '$_dec'" >&2
     return 1
   fi
-  _ipc="$(awk "BEGIN { print int($_dec / 2^8) % 256 }")"
+  _ipc="$(echo "$_dec / 2^8 % 256" | bc)"
   if [[ -z "$_ipc" ]]
   then
     echo "${FUNCNAME[0]}: failed to convert byte 3 of IP '$_dec'" >&2
     return 1
   fi
-  _ipd="$(awk "BEGIN { print int($_dec / 2^0) % 256 }")"
+  _ipd="$(echo "$_dec / 2^0 % 256" | bc)"
   if [[ -z "$_ipd" ]]
   then
     echo "${FUNCNAME[0]}: failed to convert byte 4 of IP '$_dec'" >&2
@@ -188,13 +188,12 @@ dec_to_ip()
 subnet_start_dec="$(ip_to_dec "$subnet_start")"
 # Advance by 2 reserved IPs: first IP is reserved as network identifier, second
 # is reserved by us for a default gateway.
-valid_start_dec="$(awk "BEGIN { print $subnet_start_dec + 2 }")"
+valid_start_dec="$(echo "$subnet_start_dec + 2" | bc)"
 valid_start="$(dec_to_ip "$valid_start_dec")"
 # -1 here is because the size includes the IP at subnet_start
-subnet_end_dec="$(awk \
-  "BEGIN { print $subnet_start_dec + 2^(32-$subnet_size) - 1 }")"
+subnet_end_dec="$(echo "$subnet_start_dec + 2^(32-$subnet_size) - 1" | bc)"
 # Retreat by 1 reserved IP: last IP is reserved as broadcast address.
-valid_end_dec="$(awk "BEGIN { print $subnet_end_dec - 1 }")"
+valid_end_dec="$(echo "$subnet_end_dec - 1" | bc)"
 valid_end="$(dec_to_ip "$valid_end_dec")"
 echo "$(basename "$0"): will choose IP between $valid_start and $valid_end" >&2
 
@@ -213,7 +212,7 @@ random_ip_dec()
     echo "Usage: ${FUNCNAME[0]} <start IP in decimal> <end IP in decimal>" >&2
     return 1
   fi
-  awk "BEGIN { print $_start + ($RANDOM*32768 + $RANDOM) % ($_end - $_start) }"
+  echo "$_start + ($RANDOM*32768 + $RANDOM) % ($_end - $_start)" | bc
 }
 while true
 do
