@@ -21,9 +21,6 @@ args+=(--install_script="$DIR/go.install.sh")
 args+=(--version_script="$DIR/go.version.sh")
 args+=(--deps_script="$DIR/go.deps.sh")
 args+=(--opts_script="$DIR/go.opts.sh")
-# TODO: This is likely the last place we use --env and --file.  DELME?
-#args+=(--env="PKG_PATH=$(basename "$pkg_path")")
-#args+=(--file="/root/src.tar=$tar_path")
 
 "$DIR/pkg.sh" \
   "${args[@]}"

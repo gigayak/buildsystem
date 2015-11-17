@@ -11,7 +11,7 @@ parse_flags
 outdir="${F_repo_path}"
 make_temp_dir workdir
 
-convert_yum_package()
+convert_apt_package()
 {
   local pkg="$1"
   if [[ -z "$pkg" ]]
@@ -19,6 +19,7 @@ convert_yum_package()
     echo "${FUNCNAME[0]}: no package name provided" >&2
     return 1
   fi
+  echo "${FUNCNAME[0]}: attempting to convert Apt package '$pkg' to TGZ" >&2
 
   if [[ -e "$outdir/$pkg.done" ]]
   then
@@ -41,53 +42,42 @@ convert_yum_package()
   mkdir -pv "$WORKDIR"
 
   cd "$WORKDIR"
-  yumdownloader "$pkg"
-  local rpm="$(find "$WORKDIR" -iname "$pkg-*.rpm")"
-  if [[ -z "$rpm" ]]
+  apt-get download "$pkg"
+  local deb="$(find "$WORKDIR" -iname "${pkg}_*.deb")"
+  if [[ -z "$deb" ]]
   then
-    echo "${FUNCNAME[0]}: failed to find RPM we just downloaded" >&2
+    echo "${FUNCNAME[0]}: failed to find .deb we just downloaded" >&2
     return 1
   fi
 
   # Make note of the version.
-  rpm \
-    -qp "$rpm" \
-    --queryformat='%{VERSION}-%{RELEASE}' \
-    | sed -re 's@\.el[0-9]+.*$@@g' \
+  dpkg -I "$deb" \
+    | sed -nre 's@^ Version: (.*)$@\1@gp' \
     > "$pkg.version"
 
-  # Resolve all requirements.
-  rpm -qp "$rpm" --requires > "$pkg.requirements"
-  requirement_count="$(wc -l "$pkg.requirements" | cut -d' ' -f1)"
-  echo "Examining $requirement_count requirements."
-  requirement_index=0
-  local req
-  while read -r req
-  do
-    requirement_index="$(expr "$requirement_index" '+' 1)"
-    echo "Inspecting $req ($requirement_index / $requirement_count)"
-    yum resolvedep "$req" -q -e 0 -d 0 2>/dev/null | cut -d':' -f'2-' \
-      >> "$pkg.dependencies.unsorted"
-  done < "$pkg.requirements"
-  sort "$pkg.dependencies.unsorted" | uniq > "$pkg.dependencies.unstripped"
+  # Resolve all dependencies.
+  dpkg -I "$deb" \
+    | sed -nre 's@^ Depends: (.*)$@\1@gp' \
+    | sed -re 's@, @\n@g' \
+    | sed -re 's@ \|.*$@@g' \
+    | sed -re 's@ \([^)]+\)@@g' \
+    > "$pkg.dependencies"
 
   # Process all requirements.
-  touch "$pkg.dependencies"
   local dep
   while read -r dep
   do
-    local stripped_dep="$(yum info "$dep" \
-      | sed -nre 's@^Name\s*:\s+(\S+)\s*$@\1@gp')"
-    echo "$stripped_dep" >> "$pkg.dependencies"
-    convert_yum_package "$stripped_dep"
+    convert_apt_package "$dep"
     cd "$WORKDIR"
-  done < "$pkg.dependencies.unstripped"
+  done < "$pkg.dependencies"
 
   # Finalize conversion.
   echo "Converting '$pkg' to TGZ"
-  "$DIR/rpm_to_tar.sh" \
-    --rpm="$rpm" \
-    --out="$WORKDIR/$pkg.tar.gz"
+  mkdir "$WORKDIR/out"
+  cd "$WORKDIR/out"
+  dpkg --extract "$deb" "$WORKDIR/out"
+  tar -czf "$WORKDIR/$pkg.tar.gz" .
+  cd "$WORKDIR"
   touch "$pkg.done"
 
   # Publish TGZ and support files.
@@ -98,4 +88,4 @@ convert_yum_package()
   done
 }
 
-convert_yum_package "${F_pkg_name}"
+convert_apt_package "${F_pkg_name}"

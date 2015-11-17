@@ -24,36 +24,30 @@ add_flag --required version_script \
   "Name of the script that determines the version of the installed package."
 add_flag --array opts_script \
   "Name of the script that provides additional flags for fpm (--provides)."
-add_flag --array env \
-  "An environment variable to export, in form 'KEY=value' with uppercase key."
-add_flag --array file \
-  "Add a file to the chroot, in form '/chroot/dest=/host/src'"
 parse_flags
 
 pkgname="$F_pkg_name"
 export PKG_NAME="$pkgname"
 version="$F_version_script"
 
-# Export all requested environment variables
-env_string="" # Used to propagate into chroot
-for var in "${F_env[@]}"
-do
-  name="$(echo "$var" | sed -nre 's@^([^=]+)=.*$@\1@p')"
-  value="$(echo "$var" | sed -nre 's@^[^=]+=(.*)$@\1@p')"
-  if [[ -z "$name" ]]
-  then
-    echo "$(basename "$0"): invalid key in --env option '$var'" >&2
-    exit 1
-  fi
-  ucname="$(echo "$name" | tr '[:lower:]' '[:upper:]')"
-  if [[ "$ucname" != "$name" ]]
-  then
-    echo "$(basename "$0"): --env must be given all-caps name" >&2
-    echo "$(basename "$0"): ('$name' is not all-caps)" >&2
-  fi
-  export "$name"="$value"
-  env_string="$env_string $name=$(sq "$value")"
-done
+# Manually export a select set of environment variables.
+# These are all hacks to accomplish something dirty.
+host_os="unknown"
+if \
+  rpm -q redhat-release >/dev/null 2>&1 \
+  || rpm -q centos-release >/dev/null 2>&1
+then
+  host_os="redhat"
+elif lsb_release -d | grep -i ubuntu >/dev/null 2>&1
+then
+  host_os="ubuntu"
+fi
+env_string=""
+env_string="$env_string HOST_OS=$host_os"
+# TODO: Migrate to something other than /root...
+#     (First step is to make all instances of "/root" be "$WORKSPACE".)
+env_string="$env_string BUILDTOOLS=/root"
+env_string="$env_string WORKSPACE=/root"
 echo "Propagating following environment variables:"
 echo "$env_string"
 
@@ -223,19 +217,21 @@ make_temp_dir workdir
 
 base="${SPECS}/${pkgname}" 
 
-# Populate the directory with any and all files requested.
-for spec in "${F_file[@]}"
-do
-  dest_path="$(echo "$spec" | sed -nre 's@^([^=]+)=.*$@\1@p')"
-  src_path="$(echo "$spec" | sed -nre 's@^[^=]+=(.*)$@\1@p')"
-  if [[ -z "$dest_path" || -z "$src_path" ]]
-  then
-    echo "$(basename "$0"): invalid --file spec '$spec'" >&2
-    exit 1
-  fi
-  # TODO: if this hack exists for too long, should mkdir -p dirname
-  cp -v "$src_path" "$dir/$dest_path"
-done
+# Populate directory with tools used in build scripts.
+# TODO: Find a better way to install tools - perhaps allowing builddeps
+#     script to rely on dependencies it declares by installing each builddep
+#     the moment it is declared?
+# TODO: Stop relying on /root/ as a general place to pollute with build temp
+#     material.
+if [[ -e "$DIR/buildtools" ]]
+then
+  mkdir -pv "$dir/root"
+  while read -r filename
+  do
+    filename="$(basename "$filename")"
+    cp -v "$DIR/buildtools/$filename" "$dir/root/$filename"
+  done < <(find "$DIR/buildtools" -mindepth 1 -maxdepth 1 -type f)
+fi
 
 # build-only deps
 for builddeps in "${F_builddeps_script[@]}"
