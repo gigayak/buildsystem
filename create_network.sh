@@ -22,7 +22,47 @@ TODO: Default to eth0, allow it to be configured.
 EOF
 parse_flags
 
-bridge()
+# Ensure a network bridge exists and is up.
+# CentOS-specific implementation.
+create_centos_bridge()
+{
+  local _bridge_name="$1"
+  local _ip="$2"
+  local _netmask="$3"
+  if [[ -z "$_bridge_name" || -z "$_ip" || -z "$_netmask" ]]
+  then
+    echo "Usage: ${FUNCNAME[0]} <bridge name> <ip> <netmask>" >&2
+    return 1
+  fi
+
+  if ip link show "$_bridge_name" >/dev/null 2>&1
+  then
+    echo "${FUNCNAME[0]}: bridge $(sq "$_bridge_name") already exists" >&2
+    return 0
+  else
+    echo "${FUNCNAME[0]}: creating bridge $(sq "$_bridge_name")" >&2
+    # TODO: can this be done in a non-persistent way?
+    cat >> "/etc/sysconfig/network-scripts/ifcfg-$_bridge_name" <<EOF
+DEVICE="$_bridge_name"
+TYPE="Bridge"
+BOOTPROTO="static"
+IPADDR="$_ip"
+NETMASK="$_netmask"
+EOF
+  fi
+  # Ensure bridge up.
+  if (( ! "$(<"/sys/class/net/$_bridge_name/carrier")" ))
+  then
+    echo "${FUNCNAME[0]}: bringing bridge $(sq "$_bridge_name") up" >&2
+    ifup "$_bridge_name"
+  else
+    echo "${FUNCNAME[0]}: bridge $(sq "$_bridge_name") already up" >&2
+  fi
+}
+
+# Ensure a network bridge exists and is up.
+# Ubuntu-specific implementation.
+create_ubuntu_bridge()
 {
   local _bridge_name="$1"
   local _ip="$2"
@@ -34,37 +74,67 @@ bridge()
   fi
 
   # Ensure bridge exists.
+  # Following along with these links:
+  #   https://help.ubuntu.com/community/NetworkConnectionBridge
   if ip link show "$_bridge_name" >/dev/null 2>&1
   then
     echo "${FUNCNAME[0]}: bridge $(sq "$_bridge_name") already exists" >&2
   else
     echo "${FUNCNAME[0]}: creating bridge $(sq "$_bridge_name")" >&2
-    # TODO: This is RHEL-specific!
-    cat >> "/etc/sysconfig/network-scripts/ifcfg-$_bridge_name" <<EOF
-DEVICE="$_bridge_name"
-TYPE="Bridge"
-BOOTPROTO="static"
-IPADDR="$_ip"
-NETMASK="$_netmask"
-EOF
-    ifup "$_bridge_name"
+    brctl addbr "$_bridge_name"
+    local _prefix_len="$(netmask_to_prefix_length "$_netmask")"
+    ip address add "$_ip"/"$_prefix_len" dev "$_bridge_name"
+  fi
+}
+
+netmask_to_prefix_length()
+{
+  local _prefix="$1"
+
+  # Convert all bytes to binary
+  local _bin=""
+  local _byte
+  while read -r _byte
+  do
+    _bin="${_bin}$(printf '%08d' "$(echo "obase=2;$_byte" | bc)")"
+  done < <(echo "$@" | tr '.' '\n')
+
+  # Count how many leading 1's exist to yield prefix length
+  echo -n "$_bin" \
+    | sed -nre 's@^(1*)([^1].*)?$@\1@gp' \
+    | wc -c
+}
+
+bridge()
+{
+  local _bridge_name="$1"
+  local _ip="$2"
+  local _netmask="$3"
+  if [[ -z "$_bridge_name" || -z "$_ip" || -z "$_netmask" ]]
+  then
+    echo "Usage: ${FUNCNAME[0]} <bridge name> <ip> <netmask>" >&2
+    return 1
   fi
 
-  # Ensure bridge up.
-  if (( ! "$(<"/sys/class/net/$_bridge_name/carrier")" ))
+  if which yum >/dev/null 2>&1
   then
-    echo "${FUNCNAME[0]}: bringing bridge $(sq "$_bridge_name") up" >&2
-    ifup "$_bridge_name"
-  else
-    echo "${FUNCNAME[0]}: bridge $(sq "$_bridge_name") already up" >&2
+    create_centos_bridge "$@"
+  elif which apt-get >/dev/null 2>&1
+  then
+    create_ubuntu_bridge "$@"
   fi
 }
 
 bridge virbr0 192.168.122.1 255.255.255.0
-ext_if=eth1 # Which external interface to NAT to
+# TODO: Which interface to NAT to should be a configuration option....
+ext_if=eth0 # Which external interface to NAT to
 ext_ip="$(ip addr show primary dev "$ext_if" scope global \
   | sed -nre 's@^.*inet ([0-9.]+)\/.*$@\1@gp')"
-proxy_ip="$(awk '/lxc:proxy-01/ {print $1}' /tmp/ip.ghetto.leases)"
+proxy_ip=""
+if [[ -e /tmp/ip.ghetto.leases ]]
+then
+  proxy_ip="$(awk '/lxc:proxy-01/ {print $1}' /tmp/ip.ghetto.leases)"
+fi
 make_temp_dir temp
 rules="$temp/iptables.rules.nat"
 cat > "$rules" <<EOF

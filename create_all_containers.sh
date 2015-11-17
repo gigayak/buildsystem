@@ -2,6 +2,9 @@
 set -Eeo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# To check if env-... packages for containers exist.
+source "$DIR/repo.sh"
+
 container()
 {
   name="$1"
@@ -9,6 +12,12 @@ container()
 
   container_name="${name}-${replica_index}"
   package_name="env-${name}"
+
+  if ! repo_get "${package_name}.done"
+  then
+    echo "Could not find container environment package '$package_name'" >&2
+    "$DIR/pkg.from_name.sh" --pkg_name="${package_name}"
+  fi
 
   if lxc-ls -l \
     | awk '{print $9}' \
@@ -34,6 +43,9 @@ container()
   fi
 }
 
+# Network must be up before containers are created.
+"$DIR/create_network.sh"
+
 # Everything requires the DNS servers.  Always boot these first.
 container dns     01
 container dns     02
@@ -42,6 +54,9 @@ container dns     02
 container gitzebo 01
 container proxy   01
 container proxy   02
+
+# Network scripts will set up port forwarding to proxies if they exist.
+"$DIR/create_network.sh"
 
 # Package management:
 container repo    01
