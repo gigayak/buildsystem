@@ -1,11 +1,12 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # Need $CLFS in install.
-echo i686-tools-env
+dep i686-tools-env
 
 # Need to clone upstream repo.
-echo git
+dep git
 
 # Make required to install.
-echo automake
+dep automake

@@ -1,18 +1,19 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # To fetch packages in deps/builddeps scripts.
-echo wget
-echo internal-ca-certificates
+dep wget
+dep internal-ca-certificates
 
 # Used in flag parsing. (Provides /usr/bin/getopt.)
-echo util-linux-ng
+dep util-linux-ng
 
 # Used for string transmogrification throughout.
-echo sed
+dep sed
 
-echo findutils
-echo grep
+dep findutils
+dep grep
 
 # Used to identify changed files.
-echo rsync
+dep rsync

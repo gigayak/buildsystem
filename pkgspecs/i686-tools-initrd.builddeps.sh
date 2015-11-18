@@ -1,10 +1,11 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # To download required packages into initrd chroot.
-echo buildsystem
+dep buildsystem
 
 # To package everything up.
-echo gzip
-echo tar
-echo cpio
+dep gzip
+dep tar
+dep cpio

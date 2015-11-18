@@ -1,1 +1,3 @@
 gcc gcc-4.9
+tar tar
+tar gzip

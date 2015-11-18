@@ -1,3 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-echo util-linux-ng # getopt
+source "$BUILDTOOLS/all.sh"
+dep util-linux-ng # getopt

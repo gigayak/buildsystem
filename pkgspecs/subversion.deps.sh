@@ -1,8 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
-echo apr
-echo apr-util
-echo sqlite3
-echo zlib
-echo gnutls
-echo serf
+source "$BUILDTOOLS/all.sh"
+dep apr
+dep apr-util
+dep sqlite3
+dep zlib
+dep gnutls
+dep serf

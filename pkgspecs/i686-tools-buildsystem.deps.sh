@@ -1,16 +1,17 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo i686-tools-env
+dep i686-tools-env
 
 # To fetch packages in deps/builddeps scripts.
-echo i686-tools-wget
+dep i686-tools-wget
 
 # Used for string transmogrification throughout.
-echo i686-tools-sed
+dep i686-tools-sed
 
-echo i686-tools-findutils
-echo i686-tools-grep
+dep i686-tools-findutils
+dep i686-tools-grep
 
 # Used to identify changed files.
-echo i686-tools-rsync
+dep i686-tools-rsync

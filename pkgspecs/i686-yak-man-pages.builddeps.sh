@@ -1,6 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo i686-tools2-wget
-echo i686-tools2-tar
-echo i686-tools2-make
+dep i686-tools2-wget
+dep i686-tools2-tar
+dep i686-tools2-make

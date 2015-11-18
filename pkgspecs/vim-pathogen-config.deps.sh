@@ -1,3 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-echo vim-pathogen
+source "$BUILDTOOLS/all.sh"
+dep vim-pathogen

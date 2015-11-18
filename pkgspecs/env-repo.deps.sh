@@ -1,3 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-echo go-https-fileserver
+source "$BUILDTOOLS/all.sh"
+dep go-https-fileserver

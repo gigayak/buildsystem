@@ -1,6 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # ./configure asked for headers, so assume we link the following:
-echo zlib
-echo glib2-devel
+dep zlib
+dep glib2-devel

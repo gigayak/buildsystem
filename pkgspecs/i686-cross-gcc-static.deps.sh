@@ -1,19 +1,20 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # Environment variables controlling the build.
-echo i686-cross-env
+dep i686-cross-env
 
 # Shared directories we install things into.
-echo i686-cross-root
-echo i686-tools-root
+dep i686-cross-root
+dep i686-tools-root
 
 # All the cross compilation libraries!
-echo i686-cross-gmp
-echo i686-cross-mpfr
-echo i686-cross-mpc
-echo i686-cross-isl
-echo i686-cross-cloog
+dep i686-cross-gmp
+dep i686-cross-mpfr
+dep i686-cross-mpc
+dep i686-cross-isl
+dep i686-cross-cloog
 
 # And binutils, which will be used to generate our output binaries.
-echo i686-cross-binutils
+dep i686-cross-binutils

@@ -1,7 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
-echo wget
-echo tar
-echo gcc
-echo sqlite-devel
-echo zlib-devel
+source "$BUILDTOOLS/all.sh"
+dep wget
+dep tar
+dep gcc
+dep sqlite-devel
+dep zlib-devel

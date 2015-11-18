@@ -1,7 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
-echo wget
-echo tar
-echo gcc
+source "$BUILDTOOLS/all.sh"
+dep wget
+dep tar
+dep gcc
 
-echo db4-devel
+dep db4-devel

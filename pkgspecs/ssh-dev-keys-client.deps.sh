@@ -1,4 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo rootfiles
+dep rootfiles

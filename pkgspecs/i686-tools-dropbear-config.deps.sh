@@ -1,3 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-echo i686-tools-dropbear
+source "$BUILDTOOLS/all.sh"
+dep i686-tools-dropbear

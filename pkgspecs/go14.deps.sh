@@ -1,5 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # /bin/hostname needed
-echo net-tools
+dep net-tools

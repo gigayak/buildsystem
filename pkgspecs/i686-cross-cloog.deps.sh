@@ -1,10 +1,11 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # Shared directory structure.
-echo i686-cross-root
-echo i686-cross-env
+dep i686-cross-root
+dep i686-cross-env
 
 # Libraries we link against.
-echo i686-cross-gmp
-echo i686-cross-isl
+dep i686-cross-gmp
+dep i686-cross-isl

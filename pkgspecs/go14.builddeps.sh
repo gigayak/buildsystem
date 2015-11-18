@@ -1,8 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo wget # to fetch package
-echo tar # to extract package
+dep wget # to fetch package
+dep tar # to extract package
 
 # Development tools, to build with
 cat <<EOF

@@ -1,5 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo ruby
-echo rubygems
+dep ruby
+dep rubygems

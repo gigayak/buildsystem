@@ -1,9 +1,10 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # Gonna need our environment.
-echo i686-tools-root
-echo i686-tools-env
+dep i686-tools-root
+dep i686-tools-env
 
 # Gonna need gnutls.
-echo i686-tools-gnutls
+dep i686-tools-gnutls

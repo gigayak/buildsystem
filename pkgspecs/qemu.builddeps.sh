@@ -1,16 +1,17 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # To get and extract the source.
-echo wget
-echo tar
+dep wget
+dep tar
 
 # To build the source.
-echo libtool
-echo gcc
-echo gcc-c++
-echo automake
-echo autoconf
+dep libtool
+dep gcc
+dep gcc-c++
+dep automake
+dep autoconf
 
 # Needed headers.
-echo zlib-devel
+dep zlib-devel

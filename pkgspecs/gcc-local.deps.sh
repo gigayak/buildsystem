@@ -1,11 +1,12 @@
 #!/bin/bash
 set -Eeo pipefail
-echo binutils
-echo glibc
-echo glibc-headers
-echo glibc-devel
+source "$BUILDTOOLS/all.sh"
+dep binutils
+dep glibc
+dep glibc-headers
+dep glibc-devel
 
-echo gmp
-echo mpfr
-echo zlib
-echo libmpc
+dep gmp
+dep mpfr
+dep zlib
+dep libmpc

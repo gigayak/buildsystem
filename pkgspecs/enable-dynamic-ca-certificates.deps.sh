@@ -1,4 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo ca-certificates
+dep ca-certificates

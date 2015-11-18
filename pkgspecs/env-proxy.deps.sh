@@ -1,6 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo go-proxy
+dep go-proxy
 
-echo internal-ca-certificates
+dep internal-ca-certificates

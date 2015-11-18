@@ -1,9 +1,10 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # To download and extract.
-echo wget
-echo tar
+dep wget
+dep tar
 
 # To build.
-echo gcc
+dep gcc

@@ -1,8 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
-echo wget
-echo tar
-echo gcc
-echo scons
+source "$BUILDTOOLS/all.sh"
+dep wget
+dep tar
+dep gcc
+dep scons
 
-echo openssl-devel
+dep openssl-devel

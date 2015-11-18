@@ -1,14 +1,15 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # Download and extract source.
-echo wget
-echo tar
+dep wget
+dep tar
 
 # Needed for Link Time Optimization (--enable-lto)
-echo zlib-devel
+dep zlib-devel
 
 # Build source with host GCC.
 # This should be the last appearance of the CentOS GCC package.
-echo gcc
-echo gcc-c++
+dep gcc
+dep gcc-c++

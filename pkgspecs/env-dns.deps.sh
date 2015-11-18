@@ -1,3 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-echo dnsmasq
+source "$BUILDTOOLS/all.sh"
+dep dnsmasq

@@ -1,4 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
-echo gnutls
-echo db4
+source "$BUILDTOOLS/all.sh"
+dep gnutls
+dep db4

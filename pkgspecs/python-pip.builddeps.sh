@@ -1,5 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo wget
-echo python-distribute
+dep wget
+dep python-distribute

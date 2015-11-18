@@ -1,10 +1,11 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo wget # to fetch package
-echo tar # to extract package
+dep wget # to fetch package
+dep tar # to extract package
 
-echo go14 # used to build go >= 1.5
+dep go14 # used to build go >= 1.5
 
 # Development tools, to build with
 cat <<EOF

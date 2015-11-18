@@ -1,13 +1,14 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # Get.
-echo wget
-echo tar
+dep wget
+dep tar
 
 # Build.
-echo gcc
+dep gcc
 
 # Headers.
-echo kernel-devel
-echo libuuid-devel
+dep kernel-devel
+dep libuuid-devel

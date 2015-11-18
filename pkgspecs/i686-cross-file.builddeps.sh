@@ -1,11 +1,12 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # To pull down sources
-echo wget
-echo tar
+dep wget
+dep tar
 
 # To build sources
-echo gcc
-echo autoconf
-echo automake
+dep gcc
+dep autoconf
+dep automake

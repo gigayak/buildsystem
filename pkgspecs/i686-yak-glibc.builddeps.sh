@@ -1,9 +1,10 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # To download and extract.
-echo i686-tools2-wget
-echo i686-tools2-tar
+dep i686-tools2-wget
+dep i686-tools2-tar
 
 # To build.
-echo i686-tools2-gcc
+dep i686-tools2-gcc

@@ -1,4 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
-echo git
-echo internal-ca-certificates
+source "$BUILDTOOLS/all.sh"
+dep git
+dep internal-ca-certificates

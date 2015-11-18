@@ -1,11 +1,12 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 # To download source:
-echo git
-echo internal-ca-certificates
+dep git
+dep internal-ca-certificates
 
 # To build:
-echo go
-echo go14
-echo gcc
-echo i686-cross-gcc
+dep go
+dep go14
+dep gcc
+dep i686-cross-gcc

@@ -1,5 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # Include all /tools/ packages we've compiled so far as dependencies.
 for p in \
@@ -29,7 +30,7 @@ do
     continue
   fi
 
-  echo "i686-tools-$p"
+  dep "i686-tools-$p"
 
   if [[
     ( \

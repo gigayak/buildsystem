@@ -1,18 +1,19 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo wget
-echo tar
-echo gcc
-echo openssl-devel
-echo libcurl-devel
-echo expat-devel
-echo perl-devel
-echo tcl-devel
-echo gettext
+dep wget
+dep tar
+dep gcc
+dep openssl-devel
+dep libcurl-devel
+dep expat-devel
+dep perl-devel
+dep tcl-devel
+dep gettext
 
 # git has waaaay too much documentation
-echo asciidoc
+dep asciidoc
 
 # XML documentation seems to fail out-of-box:
 #   https://bugzilla.redhat.com/show_bug.cgi?id=1143060

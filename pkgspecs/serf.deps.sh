@@ -1,5 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-echo apr
-echo apr-util
-echo openssl
+source "$BUILDTOOLS/all.sh"
+dep apr
+dep apr-util
+dep openssl

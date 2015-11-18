@@ -1,16 +1,17 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo i686-tools2-wget
-echo i686-tools2-tar
-echo i686-tools3-gcc
+dep i686-tools2-wget
+dep i686-tools2-tar
+dep i686-tools3-gcc
 
 # TODO: Check whether this block is necessary.
-echo i686-yak-gmp
-echo i686-yak-mpfr
-echo i686-yak-mpc
-echo i686-yak-isl
-echo i686-yak-cloog
+dep i686-yak-gmp
+dep i686-yak-mpfr
+dep i686-yak-mpc
+dep i686-yak-isl
+dep i686-yak-cloog
 
-echo i686-yak-m4
-echo i686-tools3-perl
+dep i686-yak-m4
+dep i686-tools3-perl

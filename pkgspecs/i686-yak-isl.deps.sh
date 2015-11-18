@@ -1,6 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
-echo i686-yak-glibc
-echo i686-yak-gmp
-echo i686-yak-mpfr
-echo i686-yak-mpc
+source "$BUILDTOOLS/all.sh"
+dep i686-yak-glibc
+dep i686-yak-gmp
+dep i686-yak-mpfr
+dep i686-yak-mpc

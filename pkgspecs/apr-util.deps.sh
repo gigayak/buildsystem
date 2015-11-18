@@ -1,3 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-echo apr
+source "$BUILDTOOLS/all.sh"
+dep apr

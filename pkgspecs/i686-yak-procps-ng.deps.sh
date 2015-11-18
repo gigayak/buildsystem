@@ -1,3 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-echo i686-yak-ncurses
+source "$BUILDTOOLS/all.sh"
+dep i686-yak-ncurses

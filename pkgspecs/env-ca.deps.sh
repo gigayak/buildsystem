@@ -1,4 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
-echo certificate-authority
-echo rootfiles
+source "$BUILDTOOLS/all.sh"
+dep certificate-authority
+dep rootfiles

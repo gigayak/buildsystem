@@ -1,5 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo gnutls # to generate certs
-echo coreutils # basename et al
+dep gnutls # to generate certs
+dep coreutils # basename et al

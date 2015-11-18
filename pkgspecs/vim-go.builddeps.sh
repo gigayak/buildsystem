@@ -1,4 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
-echo wget # to download source
-echo tar # to extract source
+source "$BUILDTOOLS/all.sh"
+dep wget # to download source
+dep tar # to extract source

@@ -1,6 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo ruby-devel
-echo gcc
-echo wget
+dep ruby-devel
+dep gcc
+dep wget

@@ -1,5 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # http://stackoverflow.com/a/28379059
-echo openssl
+dep openssl

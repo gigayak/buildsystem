@@ -1,15 +1,16 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # To get release from Github.
-echo wget
+dep wget
 # To extract source.
-echo tar
+dep tar
 
 # Build tools.
-echo gcc
-echo gcc-c++
-echo libtool
-echo automake
-echo autoconf
-echo make
+dep gcc
+dep gcc-c++
+dep libtool
+dep automake
+dep autoconf
+dep make

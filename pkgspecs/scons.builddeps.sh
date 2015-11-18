@@ -1,4 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
-echo wget
-echo tar
+source "$BUILDTOOLS/all.sh"
+dep wget
+dep tar

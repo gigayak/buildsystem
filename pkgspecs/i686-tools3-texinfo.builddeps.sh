@@ -1,4 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo i686-tools2-texinfo
+dep i686-tools2-texinfo

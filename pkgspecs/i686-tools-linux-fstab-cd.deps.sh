@@ -1,7 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo i686-clfs-root
-echo i686-tools-root
-echo i686-tools-env
-echo i686-tools-linux
+dep i686-clfs-root
+dep i686-tools-root
+dep i686-tools-env
+dep i686-tools-linux

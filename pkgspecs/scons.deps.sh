@@ -1,3 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-echo python
+source "$BUILDTOOLS/all.sh"
+dep python

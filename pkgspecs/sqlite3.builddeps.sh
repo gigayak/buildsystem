@@ -1,6 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo wget
-echo tar
-echo gcc
+dep wget
+dep tar
+dep gcc

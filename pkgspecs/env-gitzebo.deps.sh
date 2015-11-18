@@ -1,11 +1,12 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo git # can't export git dep in Python :(
-echo python-gitzebo # configured module
+dep git # can't export git dep in Python :(
+dep python-gitzebo # configured module
 
-echo rootfiles # .bashrc needed for HOME and the like
+dep rootfiles # .bashrc needed for HOME and the like
 
-echo go-https-fileserver # to serve repos over dumb HTTPS
+dep go-https-fileserver # to serve repos over dumb HTTPS
 
-echo openssh-server # needed to accept pushes and serve pulls
+dep openssh-server # needed to accept pushes and serve pulls

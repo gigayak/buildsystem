@@ -1,5 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo i686-tools2-gcc
-echo i686-tools3-perl
+dep i686-tools2-gcc
+dep i686-tools3-perl

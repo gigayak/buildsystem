@@ -1,7 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
-echo openssl
-echo libcurl
-echo expat
-echo perl
-echo tcl
+source "$BUILDTOOLS/all.sh"
+dep openssl
+dep libcurl
+dep expat
+dep perl
+dep tcl

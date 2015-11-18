@@ -1,17 +1,18 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo wget
-echo tar
-echo gcc
-echo gcc-c++
+dep wget
+dep tar
+dep gcc
+dep gcc-c++
 
-echo flex
-echo bison
+dep flex
+dep bison
 
-echo glibc-devel
-echo binutils-devel
-echo gmp-devel
-echo libmpc-devel
-echo mpfr-devel
-echo zlib-devel
+dep glibc-devel
+dep binutils-devel
+dep gmp-devel
+dep libmpc-devel
+dep mpfr-devel
+dep zlib-devel

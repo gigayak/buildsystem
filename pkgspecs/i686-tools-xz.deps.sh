@@ -1,4 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
-echo i686-tools-root
+dep i686-tools-root

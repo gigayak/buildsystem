@@ -1,9 +1,10 @@
 #!/bin/bash
 set -Eeo pipefail
+source "$BUILDTOOLS/all.sh"
 
 # To download from source.
-echo git
+dep git
 
 # To ensure trust of git server.
-echo enable-dynamic-ca-certificates
-echo internal-ca-certificates
+dep enable-dynamic-ca-certificates
+dep internal-ca-certificates

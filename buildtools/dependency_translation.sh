@@ -20,8 +20,8 @@ dep()
 {
   if [[ -e "$DIR/deptranslate.$HOST_OS.txt" ]]
   then
-    grep -E "^$@" "$DIR/deptranslate.$HOST_OS.txt" \
-      | awk '{print $2}' \
+    $GREP -E "^$@" "$DIR/deptranslate.$HOST_OS.txt" \
+      | $AWK '{print $2}' \
       || echo "$@"
     return 0
   fi
@@ -36,7 +36,7 @@ dep_rewrite()
     return 1
   fi
   grep -E "^$@" "$DIR/deptranslate.$HOST_OS.txt" \
-    | awk '{print $2}' \
+    | $AWK '{print $2}' \
     || return 1
   return 0
 }

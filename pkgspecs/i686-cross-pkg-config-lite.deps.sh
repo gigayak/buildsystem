@@ -1,4 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
-echo i686-cross-root
-echo i686-cross-env
+source "$BUILDTOOLS/all.sh"
+dep i686-cross-root
+dep i686-cross-env
