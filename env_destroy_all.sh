@@ -67,7 +67,7 @@ do
 done
 
 # Clean up IPs.
-lease_file=/tmp/ip.ghetto.leases
+lease_file=/tmp/ip.gigayak.allocations
 lease_file_new="$lease_file.new"
 rm -fv "$lease_file_new"
 touch "$lease_file_new"

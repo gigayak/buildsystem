@@ -131,9 +131,9 @@ ext_if=eth0 # Which external interface to NAT to
 ext_ip="$(ip addr show primary dev "$ext_if" scope global \
   | sed -nre 's@^.*inet ([0-9.]+)\/.*$@\1@gp')"
 proxy_ip=""
-if [[ -e /tmp/ip.ghetto.leases ]]
+if [[ -e /tmp/ip.gigayak.allocations ]]
 then
-  proxy_ip="$(awk '/lxc:proxy-01/ {print $1}' /tmp/ip.ghetto.leases)"
+  proxy_ip="$(awk '/lxc:proxy-01/ {print $1}' /tmp/ip.gigayak.allocations)"
 fi
 make_temp_dir temp
 rules="$temp/iptables.rules.nat"

@@ -47,7 +47,7 @@ Example of --subnet:
     TODO: Check that upper end is not 10.0.254.254.
 EOF
 
-add_flag lease_file --default=/tmp/ip.ghetto.leases \
+add_flag lease_file --default=/tmp/ip.gigayak.allocations \
   "Where the IP lease information should be stored."
 
 add_flag --boolean read_only "Does not generate a new lease when set."
