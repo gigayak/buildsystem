@@ -21,6 +21,9 @@ source "$DIR/escape.sh" # needed for some eval'ed array manipulation :[
 #   add_flag test_flag dflt "A test flag."
 #   parse_flags
 #   echo "Test flag value: $F_test_flag"
+#
+# Commandline arguments (stuff after a '--' token) are preserved and exported
+# as the ${ARGS[@]} array.
 
 _flags=()
 _usage_notes=()
@@ -325,6 +328,10 @@ parse_flags()
       export "$dest"="$val"
     fi
   done
+
+  # Save off remaining arguments in ${ARGS[@]} with a bash array copy.
+  ARGS=("$@")
+  export ARGS
 
   for name in "${_flags[@]}"
   do

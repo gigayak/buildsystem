@@ -145,3 +145,17 @@ expect_success()
   expect_success "$retval" "retrieving null default-overridden flag"
 )
 
+# Check that nothing after -- is parsed.
+(
+  source "$DIR/flag.sh"
+  _program_name="test_default"
+  _program_params=("$_program_name" "--" "--test_flag")
+  retval=0
+  parse_flags || retval=$?
+  expect_success "$retval" "ceasing parsing at -- delimiter"
+  retval=0
+  (( "${#ARGS[@]}" == 1 )) || retval=$?
+  expect_success "$retval" "checking number of args after -- delimiter"
+  [[ "${ARGS[0]}" == "--test_flag" ]] || retval=$?
+  expect_success "$retval" "checking value of arg after -- delimiter"
+)
