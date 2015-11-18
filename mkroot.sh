@@ -54,7 +54,7 @@ create_bare_root()
   # TODO: Check if this works with Debian.
   elif which apt-get >/dev/null 2>&1
   then
-    _pkgs=(apt apt-transport-https ca-certificates)
+    _pkgs=(apt apt-transport-https ca-certificates bash libacl1)
   # Assuming anything else is a Gigayak host.
   # TODO: Do a secondary check and chuck a wobbly if not on Gigayak here.
   else
