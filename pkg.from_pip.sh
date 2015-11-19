@@ -25,4 +25,5 @@ args+=(--deps_script="$DIR/pip.deps.sh")
 args+=(--opts_script="$DIR/pip.opts.sh")
 
 "$DIR/pkg.sh" \
-  "${args[@]}"
+  "${args[@]}" \
+  "${ARGS[@]}"

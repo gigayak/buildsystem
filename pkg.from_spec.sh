@@ -38,4 +38,5 @@ fi
   --make_script="$SPECS/${pkgname}.make.sh" \
   --install_script="$SPECS/${pkgname}.install.sh" \
   --version_script="$SPECS/${pkgname}.version.sh" \
-  --deps_script="$SPECS/${pkgname}.deps.sh"
+  --deps_script="$SPECS/${pkgname}.deps.sh" \
+  "${ARGS[@]}"

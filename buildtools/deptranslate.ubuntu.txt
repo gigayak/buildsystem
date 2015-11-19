@@ -1,3 +1,7 @@
-gcc gcc-4.9
 tar tar
 tar gzip
+automake automake
+automake make
+bash bash
+bash dash
+awk gawk

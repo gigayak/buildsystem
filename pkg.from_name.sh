@@ -24,7 +24,7 @@ fi
 # instead.
 if [[ "$name" == "python-pip" ]] || [[ "$name" == "python-distribute" ]]
 then
-  "$DIR/pkg.from_spec.sh" "--pkg_name=$name"
+  "$DIR/pkg.from_spec.sh" "--pkg_name=$name" -- "${ARGS[@]}"
   exit $?
 
 # python -> pip
@@ -41,7 +41,7 @@ then
     echo "$(basename "$0"): failed to strip pip package name '$name'" >&2
     exit 1
   fi
-  "$DIR/pkg.from_pip.sh" "--pkg_name=$stripped"
+  "$DIR/pkg.from_pip.sh" "--pkg_name=$stripped" -- "${ARGS[@]}"
   exit $?
 
 # go -> go repo
@@ -54,37 +54,37 @@ then
     echo "$(basename "$0"): failed to strip go package name '$name'" >&2
     exit 1
   fi
-  "$DIR/pkg.from_go.sh" "--pkg_name=$stripped"
+  "$DIR/pkg.from_go.sh" "--pkg_name=$stripped" -- "${ARGS[@]}"
   exit $?
 
 # tools -> tools2
 elif [[ "$name" == *"-tools2-"* ]]
 then
-  "$DIR/pkg.tools_to_tools2.sh" --pkg_name="$name"
+  "$DIR/pkg.tools_to_tools2.sh" --pkg_name="$name" -- "${ARGS[@]}"
   exit $?
 
 # try a bootstrap package
 elif [[ -e "$DIR/pkgspecs/$name.bootstrap.sh" ]]
 then
-  "$DIR/pkg.from_bootstrap.sh" "--pkg_name=$name"
+  "$DIR/pkg.from_bootstrap.sh" "--pkg_name=$name" -- "${ARGS[@]}"
   exit $?
 
 # try a specced package
 elif "$DIR/pkg.from_spec.sh" "--pkg_name=$name" --check_only
 then
-  "$DIR/pkg.from_spec.sh" "--pkg_name=$name"
+  "$DIR/pkg.from_spec.sh" "--pkg_name=$name" -- "${ARGS[@]}"
   exit $?
 
 # try yum conversion on CentOS hosts
 elif which yum >/dev/null 2>&1
 then
-  "$DIR/pkg.from_yum.sh" "--pkg_name=$name"
+  "$DIR/pkg.from_yum.sh" "--pkg_name=$name" -- "${ARGS[@]}"
   exit $?
 
 # try apt conversion on Ubuntu hosts
 elif which apt-get >/dev/null 2>&1
 then
-  "$DIR/pkg.from_apt.sh" "--pkg_name=$name"
+  "$DIR/pkg.from_apt.sh" "--pkg_name=$name" -- "${ARGS[@]}"
   exit $?
 fi
 

@@ -24,6 +24,28 @@ add_flag --required version_script \
   "Name of the script that determines the version of the installed package."
 add_flag --array opts_script \
   "Name of the script that provides additional flags for fpm (--provides)."
+add_flag --array dependency_history \
+  "List of dependencies that led to this build in chronological order."
+add_usage_note <<EOF
+--dependency_history is an internal flag to help manage dependency cycles.
+The leftmost value of the flag is expected to be the first dependency in the
+chain - normally, the package that caused the build to kick off.  For example,
+if building dnsmasq caused gcc to be requested, and gcc requested libgcc, and
+we're now building libgcc, we'd expect the following flags in this order:
+  --dependency_history dnsmasq --dependency_history gcc
+Note that there is no entry for libgcc here: that's provided by --pkg_name.
+EOF
+add_flag --boolean break_dependency_cycles \
+  "Set this flag if obeying dependencies is optional: ahem, Ubuntu?"
+add_usage_note <<EOF
+--break_dependency_cycles exists solely to support Ubuntu packages, which
+are allowed to have circular dependencies declared as a common practice.  When
+apt-get encounters circular dependencies, it chooses an arbitrary point in the
+circle, cuts the chain, and unrolls it.  It attempts to install packages that
+have no postinst scripts first, which pkg.sh does not attempt to mirror, but
+this should at least somewhat unbreak the gcc <-> libgcc interdependencies when
+building with Ubuntu as a host OS.
+EOF
 parse_flags
 
 pkgname="$F_pkg_name"
@@ -70,6 +92,27 @@ do
     exit 1
   fi
 done
+
+
+# Scan for circular dependencies.
+cycle_found=0
+for hist_entry in "${F_dependency_history[@]}"
+do
+  if [[ "$hist_entry" == "$pkgname" ]]
+  then
+    cycle_found=1
+    break
+  fi
+done
+if (( "$cycle_found" && ! "$F_break_dependency_cycles" ))
+then
+  echo "$(basename "$0"): found a dependency cycle due to '$cycle_culprit'" >&2
+  exit 1
+elif (( "$cycle_found" ))
+then
+  echo "$(basename "$0"): WARNING: removing cyclic dependencies" >&2
+  echo "$(basename "$0"): WARNING: this may lead to undefined behavior" >&2
+fi
 
 
 # Bring in dependencies and initialize system.
@@ -186,8 +229,21 @@ ensure_pkg_exists()
     return 0
   fi
 
+  # Convert dependency history array to a fresh set of flags.
+  local _hist_flags
+  _hist_flags=()
+  local _hist_entry
+  for _hist_entry in "${F_dependency_history[@]}"
+  do
+    _hist_flags+=(--dependency_history="$_hist_entry")
+  done
+
   echo "Building nonexistent package '$_pkg'"
-  "$DIR/pkg.from_name.sh" --pkg_name="$_pkg"
+  "$DIR/pkg.from_name.sh" \
+    --pkg_name="$_pkg" \
+    -- \
+      --dependency_history="$pkgname" \
+      "${_hist_flags[@]}"
 }
 
 install_deps()
@@ -248,7 +304,7 @@ do
         continue
       fi
       echo " - $dep"
-    done < <(echo "$workdir/builddeps.txt")
+    done < "$workdir/builddeps.txt"
   fi
 done
 
@@ -272,6 +328,22 @@ do
     done < <(echo "$deplist")
   fi
 done
+
+# remove cycles if requested (and found)
+if (( "$F_break_dependency_cycles" && "$cycle_found" ))
+then
+  for possible_culprit in "${F_dependency_history[@]}"
+  do
+    deplist="$(echo "$deplist" \
+      | grep -vE "^${possible_culprit}\$" \
+      || true)"
+    {
+      grep -vE "^${possible_culprit}\$" "$workdir/builddeps.txt" \
+      || true
+    } > "$workdir/builddeps.txt.new"
+    mv -f "$workdir/builddeps.txt.new" "$workdir/builddeps.txt"
+  done
+fi
 
 
 echo "Installing all dependencies."

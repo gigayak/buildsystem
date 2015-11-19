@@ -23,4 +23,5 @@ args+=(--deps_script="$DIR/go.deps.sh")
 args+=(--opts_script="$DIR/go.opts.sh")
 
 "$DIR/pkg.sh" \
-  "${args[@]}"
+  "${args[@]}" \
+  "${ARGS[@]}"
