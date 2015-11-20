@@ -1,27 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
 
-#apt-get install "$PKG_NAME" --dry-run \
-#  | sed -nre 's@^Inst (\S+)\s.*$@\1@gp' \
-#  | {
-#    grep -vE "^${PKG_NAME}\$" || true
-#  }
-
-#dotty pkg...
-#           dotty takes a list of packages on the command line and generates output
-#           suitable for use by dotty from the GraphViz[1] package. The result will be a
-#           set of nodes and edges representing the relationships between the packages. By
-#           default the given packages will trace out all dependent packages; this can
-#           produce a very large graph. To limit the output to only the packages listed on
-#           the command line, set the APT::Cache::GivenOnly option.
-#
-#           The resulting nodes will have several shapes; normal packages are boxes, pure
-#           virtual packages are triangles, mixed virtual packages are diamonds, missing
-#           packages are hexagons. Orange boxes mean recursion was stopped (leaf
-#           packages), blue lines are pre-depends, green lines are conflicts.
-#
-#           Caution, dotty cannot graph larger sets of packages.
-
 # This should list the dependencies for a specific package from the dotfile.
 # It does not recursively resolve (as it is a helper to a recursive resolver).
 #
