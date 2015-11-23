@@ -22,19 +22,12 @@ sq()
 # This should escape those.
 grep_escape()
 {
+  # It's difficult to escape ']' as a part of a character class.  It gets its
+  # own substitution expression, as a result - the rest of the special
+  # characters can all be replaced with a single class.
   echo "$@" \
     | sed -r \
-      -e 's@\\@\\\\@g' \
-      -e 's@\^@\\^@g' \
-      -e 's@\$@\\$@g' \
-      -e 's@\+@\\+@g' \
-      -e 's@\{@\\{@g' \
-      -e 's@\}@\\}@g' \
-      -e 's@\[@\\[@g' \
-      -e 's@\]@\\]@g' \
-      -e 's@\(@\\(@g' \
-      -e 's@\)@\\)@g' \
-      -e 's@\.@\\.@g' \
-      -e 's@\*@\\*@g'
+      -e 's@([\\${}().*+[^])@\\\1@g' \
+      -e 's@(\])@\\\1@g'
 }
 
