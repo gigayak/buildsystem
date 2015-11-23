@@ -1,6 +1,17 @@
 #!/bin/bash
 set -Eeo pipefail
 
+# Escapes a string for use within a regex.
+# (Because "g++" is a particularly nasty package name.)
+# (Remember, "+" is a special character in regexes."
+re_escape()
+{
+  echo "$@" \
+    | sed -r \
+      -e 's@([\\${}().*+[^])@\\\1@g' \
+      -e 's@(\])@\\\1@g'
+}
+
 # This should list the dependencies for a specific package from the dotfile.
 # It does not recursively resolve (as it is a helper to a recursive resolver).
 #
@@ -18,9 +29,12 @@ list_direct_deps()
   fi
   dotfile="$1"
   pkgname="$2"
+
+  # Green edges are detected because green lines are conflicts.
+  # Remaining edges are valid dependencies.
   sed -nr \
     -e '/ -> "[^"]+".*color=springgreen/d' \
-    -e 's@^"'"$pkgname"'" -> "([^"]+)".*$@\1@gp' \
+    -e 's@^"'"$(re_escape "$pkgname")"'" -> "([^"]+)".*$@\1@gp' \
     "$dotfile"
 }
 
@@ -33,8 +47,9 @@ package_type()
   fi
   dotfile="$1"
   pkgname="$2"
+  # TODO: oh no this is horribly illegible
   shape="$(sed -nr \
-    -e 's@^"'"$pkgname"'"\s*\[(.*,)?shape\s*=\s*(\S+)\s*(,.*)?\]\s*;\s*$@\2@gp' \
+    -e 's@^"'"$(re_escape "$pkgname")"'"\s*\[(.*,)?shape\s*=\s*(\S+)\s*(,.*)?\]\s*;\s*$@\2@gp' \
     "$dotfile")"
   case "$shape" in
   "") echo "regular";;
@@ -71,8 +86,9 @@ list_direct_real_deps()
   list_direct_deps "$dotfile" "$pkgname" > "$queue"
   while read -r dep
   do
-    if grep -E "^$dep\$" "$seen" >/dev/null 2>&1
+    if grep -E "^$(re_escape "$dep")\$" "$seen" >/dev/null 2>&1
     then
+      echo "${FUNCNAME[0]}: skipping already-seen dependency '$dep'" >&2
       continue
     fi
     echo "$dep" >> "$seen"
@@ -100,17 +116,19 @@ already_processed="/root/already_processed_deps"
 touch "$already_processed"
 cycle_seeds="/root/cycle_seeds"
 touch "$cycle_seeds"
+seeds_found=0
 
 while read -r dep
 do
   while read -r subdep
   do
-    if grep "$subdep" "^$already_processed\$" >/dev/null 2>&1
+    if grep "^$(re_escape "$subdep")" "$already_processed" >/dev/null 2>&1
     then
       echo "$subdep" >> "$cycle_seeds"
+      seeds_found="$(expr "$seeds_found" + 1)"
       continue
     fi
-    if grep -E "^$subdep\$" "$depqueue" >/dev/null 2>&1
+    if grep -E "^$(re_escape "$subdep")\$" "$depqueue" >/dev/null 2>&1
     then
       continue
     fi
@@ -119,3 +137,10 @@ do
   echo "$dep"
 done < "$depqueue"
 
+if (( "$seeds_found" > 0 ))
+then
+  echo "$(basename "$0"): found $seeds_found cycles" >&2
+  exit 1
+fi
+
+exit 0
