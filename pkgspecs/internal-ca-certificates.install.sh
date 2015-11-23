@@ -1,10 +1,26 @@
 #!/bin/bash
 set -Eeo pipefail
 
-# TODO: Mark me as a RHEL-specific package.
 # TODO: Provide a build that will work for JPGL.
 
-cat > /etc/pki/ca-trust/source/anchors/machine-audio-research-ca.pem <<'EOF'
+cert_path=""
+update_command=()
+if [[ "$HOST_OS" == "centos" ]]
+then
+  echo "Found CentOS host" >&2
+  cert_path="/etc/pki/ca-trust/source/anchors"
+  update_command=(update-ca-trust extract)
+elif [[ "$HOST_OS" == "ubuntu" ]]
+then
+  echo "Found Ubuntu host" >&2
+  cert_path="/usr/local/share/ca-certificates"
+  update_command=(update-ca-certificates)
+else
+  echo "Unknown host OS '$HOST_OS'" >&2
+  exit 1
+fi
+
+cat > "$cert_path/machine-audio-research-ca.pem" <<'EOF'
 -----BEGIN CERTIFICATE-----
 MIIKADCCBeigAwIBAgIBATANBgkqhkiG9w0BAQsFADCBnjE+MDwGA1UEAxM1TWFj
 aGluZSBBdWRpbyBSZXNlYXJjaCBJbnRlcm5hbCBDZXJ0aWZpY2F0ZSBBdXRob3Jp
@@ -63,4 +79,4 @@ hc3Ekx13T+TlLchIipENa7ZAtt0=
 -----END CERTIFICATE-----
 EOF
 
-update-ca-trust extract
+${update_command[@]}
