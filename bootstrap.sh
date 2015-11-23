@@ -9,9 +9,12 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 "$DIR/env_destroy_all.sh"
 
-rm -rfv "$DIR/cache/baseroot"
-rm -fv /tmp/ip.gigayak.allocations
-rm -rfv /var/www/html/tgzrepo/
+echo "Removing $DIR/cache/baseroot/"
+rm -rf "$DIR/cache/baseroot"
+echo "Removing /tmp/ip.gigayak.allocations"
+rm -f /tmp/ip.gigayak.allocations
+echo "Removing and recreating /var/www/html/tgzrepo"
+rm -rf /var/www/html/tgzrepo/
 mkdir -pv /var/www/html/tgzrepo/
 
 # TODO: Refactor this and mkroot.sh to use the same package list.
