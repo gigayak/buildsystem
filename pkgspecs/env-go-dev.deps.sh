@@ -2,16 +2,14 @@
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
-cat <<EOF
-go
-gcc
+dep go
+dep gcc
 
-rootfiles
-vim-enhanced
-vim-go
+dep rootfiles
+dep vim-enhanced
+dep vim-go
 
-git
-internal-ca-certificates
+dep git
+dep internal-ca-certificates
 
-ssh-dev-keys-client
-EOF
+dep ssh-dev-keys-client

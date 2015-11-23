@@ -1,14 +1,14 @@
 #!/bin/bash
 set -Eeo pipefail
-set -x
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$BUILDTOOLS/all.sh"
 
 # Compilers.
-echo go
-echo gcc
+dep go
+dep gcc
 
 # To download source.
-echo git
+dep git
 
 # To make sure we trust the git server.
-echo internal-ca-certificates
+dep internal-ca-certificates

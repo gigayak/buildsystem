@@ -6,20 +6,16 @@ dep wget # to fetch package
 dep tar # to extract package
 
 # Development tools, to build with
-cat <<EOF
-autoconf
-automake
-binutils
-bison
-flex
-gcc
-gcc-c++
-gettext
-libtool
-make
-patch
-pkgconfig
-redhat-rpm-config
-rpm-build
-EOF
+dep autoconf
+dep automake
+dep binutils
+dep bison
+dep flex
+dep gcc
+dep gcc-c++
+dep gettext
+dep libtool
+dep make
+dep patch
+dep pkgconfig
 
