@@ -40,7 +40,7 @@ do
   echo "Destroying LXC container $n"
   unmount_chroot "$t"
   lxc-destroy --name="$n"
-done < <(lxc-ls -l | awk '{print $9}')
+done < <(lxc-ls -1 | awk '{print $9}')
 
 # Clean up chroot directories.
 for temp_root in "${_TEMP_ROOTS[@]}"

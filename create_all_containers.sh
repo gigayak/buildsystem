@@ -19,7 +19,7 @@ container()
     "$DIR/pkg.from_name.sh" --pkg_name="${package_name}"
   fi
 
-  if lxc-ls -l \
+  if lxc-ls -1 \
     | awk '{print $9}' \
     | grep -e '^'"$container_name"'$'
   then
