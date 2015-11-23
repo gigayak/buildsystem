@@ -30,7 +30,13 @@ then
 # python -> pip
 # Note: python-devel is not the "devel" package from PIP, it's a RHEL/CentOS
 #   RPM that needs conversion.
-elif [[ "$name" == "python-"* ]] && [[ "$name" != "python-devel" ]]
+# Note: python-dev and python-minimal are similarly Ubuntu packages to convert.
+elif [[ \
+  "$name" == "python-"* \
+  && "$name" != "python-devel" \
+  && "$name" != "python-dev" \
+  && "$name" != "python-minimal" \
+]]
 then
   # Make sure to remove both the python- prefix and the version restrictions
   # TODO: obey version restrictions

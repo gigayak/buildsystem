@@ -12,6 +12,7 @@ pkgname="$F_pkg_name"
 # Fire the packaging script.
 args=()
 args+=(--pkg_name="python-$pkgname")
+args+=(--builddeps_script="$DIR/pip.builddeps.python.sh")
 args+=(--builddeps_script="$DIR/pip.builddeps.initial.sh")
 extra_builddeps="$DIR/pipspecs/$pkgname.builddeps.sh"
 if [[ -f "$extra_builddeps" ]]

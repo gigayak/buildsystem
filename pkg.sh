@@ -295,7 +295,7 @@ do
   if [[ -e "${builddeps}" ]]
   then
     echo "Running builddeps script"
-    run_in_root "${builddeps}" >> "$workdir/builddeps.txt"
+    run_in_root "${builddeps}" > "$workdir/builddeps.txt"
     echo "Found build dependencies:"
     while read -r dep
     do
@@ -305,6 +305,21 @@ do
       fi
       echo " - $dep"
     done < "$workdir/builddeps.txt"
+
+    # Watch out: dependencies are intentionally installed as soon as possible.
+    # One reason why can be seen in pkg.from_pip.sh: multiple builddeps
+    # scripts are needed, as each script relies on packages from the prior
+    # script.  The first script installs python, the second installs pip
+    # USING python, and then the third and fourth build upon that.  Yeah, it's
+    # ugly like that - but it's an okay stopgap while build scripts are all
+    # separate pieces being called by the build framework.  When control is
+    # inverted (build script says "ensure this dependency is installed" and it
+    # gets installed), these issues will all go away...
+    #
+    # Note that inversion of control will be difficult due to cyclic
+    # dependencies when converting packages from apt-get.  Fun.
+    install_deps "$workdir/builddeps.txt"
+    rm -fv "$workdir/builddeps.txt"
   fi
 done
 
@@ -319,7 +334,7 @@ do
     echo "Found runtime dependencies:"
     while read -r dep
     do
-      echo "$dep" >> "$workdir/builddeps.txt"
+      echo "$dep" >> "$workdir/deps.txt"
       if [[ -z "$dep" ]]
       then
         continue
@@ -338,18 +353,18 @@ then
       | grep -vE "^${possible_culprit}\$" \
       || true)"
     {
-      grep -vE "^${possible_culprit}\$" "$workdir/builddeps.txt" \
+      grep -vE "^${possible_culprit}\$" "$workdir/deps.txt" \
       || true
-    } > "$workdir/builddeps.txt.new"
-    mv -f "$workdir/builddeps.txt.new" "$workdir/builddeps.txt"
+    } > "$workdir/deps.txt.new"
+    mv -f "$workdir/deps.txt.new" "$workdir/deps.txt"
   done
 fi
 
 
 echo "Installing all dependencies."
-if [[ -e "$workdir/builddeps.txt" ]]
+if [[ -e "$workdir/deps.txt" ]]
 then
-  install_deps "$workdir/builddeps.txt"
+  install_deps "$workdir/deps.txt"
 fi
 
 
