@@ -4,6 +4,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "$DIR/escape.sh"
 source "$DIR/cleanup.sh"
+source "$DIR/flag.sh"
+
+add_flag --boolean active "even destroy active containers"
 
 unmount_chroot()
 {
@@ -31,16 +34,23 @@ do
   if [[ "$(lxc-info -n "$n" | grep -e '^State:' | awk '{print $2}')" \
     == "RUNNING" ]]
   then
-    echo "Ignoring active container $n"
-    active_lxc_roots+=("$t")
-    active_lxc_names+=("$n")
-    continue
+    if (( "${F_active}" ))
+    then
+      echo "Destroying active container $n"
+      "$DIR/destroy_container.sh" --name="$n"
+      continue
+    else
+      echo "Ignoring active container $n"
+      active_lxc_roots+=("$t")
+      active_lxc_names+=("$n")
+      continue
+    fi
   fi
 
   echo "Destroying LXC container $n"
   unmount_chroot "$t"
   lxc-destroy --name="$n"
-done < <(lxc-ls -1 | awk '{print $9}')
+done < <(lxc-ls -1)
 
 # Clean up chroot directories.
 for temp_root in "${_TEMP_ROOTS[@]}"

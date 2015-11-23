@@ -20,7 +20,6 @@ container()
   fi
 
   if lxc-ls -1 \
-    | awk '{print $9}' \
     | grep -e '^'"$container_name"'$'
   then
     echo "Skipping already-created container '$container_name'"
