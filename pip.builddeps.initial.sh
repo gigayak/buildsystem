@@ -18,8 +18,6 @@ dep libtool
 dep make
 dep patch
 dep pkgconfig
-dep redhat-rpm-config
-dep rpm-build
 dep python-devel
 
 # NOTE: /root/deplist.txt will be exported in pip.builddeps.final.txt!
