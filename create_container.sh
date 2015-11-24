@@ -38,6 +38,13 @@ fi
 # Environment will no longer work as a chroot environment after this step.
 umount "$root/dev"
 umount "$root/proc"
+# /run/shm is an Ubuntu compatibility thing, and may not always exist.
+# See comments about Python multiprocessing issue in mkroot.sh, or commit
+# messages for this change.
+if [[ -d "$root/run/shm" ]]
+then
+  umount "$root/run/shm"
+fi
 
 # Programs that drop permissions might freak out with the default permissions
 # for the chroot, because they're set to 700 by default...

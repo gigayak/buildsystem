@@ -103,6 +103,24 @@ populate_dynamic_fs_pieces()
   fi
   mount --bind /dev "$_root/dev"
 
+  # Ubuntu keeps shared memory in /run/shm instead of /dev/shm.
+  # /dev/shm winds up being a symlink to /run/shm.  Ugh.
+  # Not having this bindmount causes an issue with Python's multiprocessing
+  # module on Ubuntu which emits an error pointing to this issue:
+  #   http://bugs.python.org/issue3770
+  # The following somewhat helped clue me in to the root cause:
+  #   http://stackoverflow.com/a/2009505
+  #   http://stackoverflow.com/q/6033599
+  if [[ -d "/run/shm" ]]
+  then
+    if [[ ! -d "$_root/run/shm" ]]
+    then
+      mkdir -p "$_root/run/shm"
+      chmod 777 "$_root/run/shm"
+    fi
+    mount --bind /run/shm "$_root/run/shm"
+  fi
+
   "$DIR/create_resolv.sh" > "$_root/etc/resolv.conf"
 }
 
@@ -125,6 +143,10 @@ depopulate_dynamic_fs_pieces()
 
   umount "$_root/proc"
   umount "$_root/dev"
+  if [[ -d "$_root/run/shm" ]]
+  then
+    umount "$_root/run/shm"
+  fi
 
   rm -f "$_root/etc/resolv.conf"
 }
