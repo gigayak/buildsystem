@@ -46,6 +46,7 @@ chmod 755 "$root"
 
 # Create base config.
 # TODO: escape or sanitize inputs, to prevent LXC injection :o
+# TODO: stop assuming 192.168.122.0/24 subnet
 cat > "$tmp/lxc.conf" <<EOF
 lxc.arch = i686
 lxc.utsname = $name
