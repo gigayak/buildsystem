@@ -85,6 +85,9 @@ create_ubuntu_bridge()
     local _prefix_len="$(netmask_to_prefix_length "$_netmask")"
     ip address add "$_ip"/"$_prefix_len" dev "$_bridge_name"
   fi
+
+  # Ensure bridge up.
+  ip link set "$_bridge_name" up
 }
 
 netmask_to_prefix_length()
