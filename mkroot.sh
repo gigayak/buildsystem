@@ -122,6 +122,19 @@ populate_dynamic_fs_pieces()
   fi
 
   "$DIR/create_resolv.sh" > "$_root/etc/resolv.conf"
+
+  # Hilariously, dart cannot network if /etc/hosts is missing.  Not
+  # having /etc/hosts present causes the following error during its
+  # build:
+  #
+  #     Transformer library "package:initialize/build/loader_replacer.dart"
+  #     not found.
+  #
+  # This flaw almost certainly extends to other packages... so we'll manually
+  # populate /etc/hosts just in case no package overwrites it.  This fixes
+  # the issue on Ubuntu, where base-ubuntu does not actually contain an
+  # /etc/hosts file for some reason...
+  echo "127.0.0.1 localhost" > "$_root/etc/hosts"
 }
 
 depopulate_dynamic_fs_pieces()
