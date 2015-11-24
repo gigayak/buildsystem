@@ -5,9 +5,12 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # This script attempts to take over a clean host and use it to build the whole
 # world.  This can cause bad side effects at the moment (such as reconfiguring
 # your networking and restarting all network interfaces) - so maybe consider
-# not doing it on a live production host.
+# not doing it on a live production host.  If you're already running Gigayak
+# build infrastructure and you run this script: you will no longer be running
+# the same instances.  They will all have been shut down, destroyed, rebuilt,
+# and redeployed.
 
-"$DIR/env_destroy_all.sh"
+"$DIR/env_destroy_all.sh" --active
 
 echo "Removing $DIR/cache/baseroot/"
 rm -rf "$DIR/cache/baseroot"
