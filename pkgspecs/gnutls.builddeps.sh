@@ -10,6 +10,8 @@ dep wget # to download source
 dep gcc
 dep automake
 dep autoconf
+dep pkgconfig
 
 # library deps
 dep gmp-devel
+dep nettle-devel
