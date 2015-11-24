@@ -128,6 +128,11 @@ bridge()
   fi
 }
 
+
+echo "Setting nameserver to 8.8.8.8" >&2
+echo "(Many consumer ISPs have unreliable nameservers.)" >&2
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
 bridge virbr0 192.168.122.1 255.255.255.0
 # TODO: Which interface to NAT to should be a configuration option....
 ext_if=eth0 # Which external interface to NAT to
