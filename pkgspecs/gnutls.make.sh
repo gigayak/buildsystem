@@ -2,8 +2,10 @@
 set -Eeo pipefail
 
 version="3.3.11"
+without_revision="$(echo "$version" | sed -re 's@\.[0-9]+$@@')"
 echo "$version" > /root/version
-url="ftp://ftp.gnutls.org/gcrypt/gnutls/v3.3/gnutls-3.3.11.tar.xz"
+basedir="ftp://ftp.gnutls.org/gcrypt/gnutls/v$without_revision"
+url="$basedir/gnutls-${version}.tar.xz"
 
 cd /root
 wget "$url"
