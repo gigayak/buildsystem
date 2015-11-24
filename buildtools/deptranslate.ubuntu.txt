@@ -9,7 +9,7 @@ gcc gcc
 gcc build-essential
 openssl-devel libssl-dev
 libcurl-devel libcurl4-gnutls-dev
-libcurl curl
+libcurl libcurl3-gnutls
 expat-devel libexpat1-dev
 perl-devel libperl-dev
 tcl-devel tcl-dev
@@ -31,11 +31,17 @@ db4-devel libdb5.3-dev
 gmp libgmpxx4ldbl
 gmp-devel libgmp-dev
 glibc libc6
+glibc libstdc++6
 glibc-devel libc6-dev
+glibc-devel linux-libc-dev
+glibc-headers libc6-dev
 binutils-devel binutils-dev
+libmpc libmpc3
 libmpc-devel libmpc-dev
 mpfr libmpfr4
 mpfr-devel libmpfr-dev
 nettle nettle
 nettle libnettle4
 nettle-devel nettle-dev
+python-devel python-dev
+python-devel libpython-dev
