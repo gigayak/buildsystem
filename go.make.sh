@@ -6,7 +6,27 @@ echo "Package name is: $pkg_name" >&2
 # Make sure go environment is sourced
 source /etc/profile.d/go.sh
 
-export IMPORT_PATH="git.jgilik.com/$pkg_name"
+export IMPORT_PATH=""
+paths=()
+paths+=("git.jgilik.com/$pkg_name")
+paths+=("github.com/gigayak/$pkg_name")
+for path in "${paths[@]}"
+do
+  if curl \
+    --head \
+    --fail \
+    "https://$path" \
+    >/dev/null
+  then
+    export IMPORT_PATH="$path"
+    break
+  fi
+done
+if [[ -z "$IMPORT_PATH" ]]
+then
+  echo "$(basename "$0"): Failed to find valid import path for '$pkg_name'" >&2
+  exit 1
+fi
 
 mkdir /root/workspace
 cd /root/workspace

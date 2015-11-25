@@ -9,6 +9,7 @@ dep gcc
 
 # To download source.
 dep git
+dep curl
 
 # To make sure we trust the git server.
 dep internal-ca-certificates
