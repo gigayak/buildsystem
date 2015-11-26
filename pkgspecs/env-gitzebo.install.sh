@@ -32,6 +32,13 @@ ln -s "$tgt_db" "$src_db"
 mkdir -pv /root/.ssh
 chmod 0700 /root/.ssh
 
+# Create "privilege separation directory" if it doesn't exist yet.
+# sshd doesn't like to start without this...
+if [[ ! -d "/var/run/sshd" ]]
+then
+  mkdir -p "/var/run/sshd"
+fi
+
 # Create links for persistent configuration files.
 # TODO: disabled due to hack below
 #ln -s {/opt/db,/root/.ssh}/authorized_keys
@@ -95,7 +102,18 @@ cat > /usr/bin/container.init <<'EOF'
 #!/bin/bash
 set -Eeo pipefail
 export HOME=/root
-source "$HOME/.bash_profile"
+for profile in .bash_profile .profile .bashrc
+do
+  if [[ -e "$HOME/$profile" ]]
+  then
+    echo "$(basename "$0"): importing profile '$profile'" >&2
+    source "$HOME/$profile"
+  fi
+done
+# If PATH is not exported, then PATH-based lookups in gitzebo-regenerate-keys
+# will throw exceptions on Ubuntu.  This likely has to do with the session
+# appearing to be non-interactive, and some other workaround likely exists...
+export PATH
 
 repo_dir=/opt/git
 if [[ ! -e "$repo_dir" ]]
@@ -112,6 +130,7 @@ fi
 db="$db_dir/gitzebo.db"
 if [[ ! -e "$db" ]]
 then
+  echo "$(basename "$0"): recreating databse '$db'" >&2
   gitzebo-schema create
 fi
 
@@ -132,62 +151,64 @@ fi
 stop_all()
 {
   kill -SIGTERM "$web_pid"
-  kill -SIGTERM "$admin_pid"
   /etc/init.d/sshd stop
   kill -SIGTERM "$regen_pid"
   kill -SIGTERM "$ssl_pid"
 }
 term_handler()
 {
-  echo "Caught SIGTERM, shutting down"
+  echo "$(basename "$0"): caught SIGTERM, shutting down" >&2
   stop_all
 }
+echo "$(basename "$0"): enabling SIGTERM handler" >&2
 trap term_handler 15
 err_handler()
 {
-  echo "Something went wrong in the main thread, shutting down."
+  echo "$(basename "$0"): error occurred in the main thread, shutting down." >&2
   stop_all
 }
+echo "$(basename "$0"): enabling EXIT/ERR handler" >&2
 trap err_handler EXIT ERR
 
+echo "$(basename "$0"): regenerating key file" >&2
 gitzebo-regenerate-keyfile
 
+echo "$(basename "$0"): starting sshd" >&2
 /usr/sbin/sshd -D -e -f /etc/ssh/sshd_config.gitzebo &
 ssh_pid="$!"
-echo "SSH running on PID $ssh_pid"
+echo "$(basename "$0"): sshd running on PID $ssh_pid" >&2
 
+echo "$(basename "$0"): starting frontend" >&2
 gitzebo-dev-server &
-admin_pid="$!"
-echo "Gitzebo frontend started with PID $admin_pid"
+web_pid="$!"
+echo "$(basename "$0"): frontend started with PID $web_pid" >&2
 
+echo "$(basename "$0"): starting git-over-HTTPS server" >&2
 https-fileserver \
   --key=/opt/db/git.key \
   --certificate=/opt/db/git.crt \
   --dir=/opt/git &
-web_pid="$!"
-echo "Web server started with PID $web_pid"
+ssl_pid="$!"
+echo "$(basename "$0"): git-over-HTTPS server started with PID $ssl_pid" >&2
 
+echo "$(basename "$0"): starting pack regenerator" >&2
 /usr/bin/regenerate_packs &
 regen_pid="$!"
-echo "Pack regenerator started with PID $regen_pid"
-
-/usr/bin/git-https-server &
-ssl_pid="$!"
-echo "HTTPS server started with PID $ssl_pid"
+echo "$(basename "$0"): pack regenerator started with PID $regen_pid" >&2
 
 toret=0
 retval=0
 wait "$web_pid" || retval=$?
-echo "Web server exited with return code $retval"
+echo "$(basename "$0"): frontend exited with code $retval" >&2
 (( "$retval" )) && toret=$retval
 wait "$regen_pid" || retval=$?
-echo "Pack regenerator exited with return code $retval"
+echo "$(basename "$0"): pack regenerator exited with code $retval" >&2
 (( "$retval" )) && toret=$retval
 wait "$ssl_pid" || retval=$?
-echo "HTTPS server exited with return code $retval"
+echo "$(basename "$0"): git-over-HTTPS server exited with code $retval" >&2
 (( "$retval" )) && toret=$retval
 wait "$ssh_pid" || retval=$?
-echo "SSH server exited with return code $retval"
+echo "$(basename "$0"): sshd exited with code $retval" >&2
 (( "$retval" )) && toret=$retval
 exit "$toret"
 EOF
