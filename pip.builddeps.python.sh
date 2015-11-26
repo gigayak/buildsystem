@@ -1,5 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
-echo python
-echo python-distribute
-echo python-pip
+source "$BUILDTOOLS/all.sh"
+
+dep python
+dep python-distribute
+dep python-pip

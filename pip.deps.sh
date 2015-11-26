@@ -1,7 +1,11 @@
 #!/bin/bash
 set -Eeo pipefail
-set -x
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$BUILDTOOLS/all.sh"
+
+dep python
 
 # from builddeps.txt
-cat /root/deplist.txt
+while read -r dependency
+do
+  dep "$dependency"
+done < /root/deplist.txt
