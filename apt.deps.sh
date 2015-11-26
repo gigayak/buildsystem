@@ -27,8 +27,8 @@ list_direct_deps()
     echo "Usage: ${FUNCNAME[0]} <dotfile> <pkgname>" >&2
     return 1
   fi
-  dotfile="$1"
-  pkgname="$2"
+  local dotfile="$1"
+  local pkgname="$2"
 
   # Green edges are detected because green lines are conflicts.
   # Remaining edges are valid dependencies.
@@ -45,10 +45,10 @@ package_type()
     echo "Usage: ${FUNCNAME[0]} <dotfile> <pkgname>" >&2
     return 1
   fi
-  dotfile="$1"
-  pkgname="$2"
+  local dotfile="$1"
+  local pkgname="$2"
   # TODO: oh no this is horribly illegible
-  shape="$(sed -nr \
+  local shape="$(sed -nr \
     -e 's@^"'"$(re_escape "$pkgname")"'"\s*\[(.*,)?shape\s*=\s*(\S+)\s*(,.*)?\]\s*;\s*$@\2@gp' \
     "$dotfile")"
   case "$shape" in
@@ -56,11 +56,49 @@ package_type()
   "box") echo "regular";;
   "triangle") echo "virtual";;
   "diamond") echo "virtual";;
+  "hexagon") echo "need-candidate";;
   *)
     echo "${FUNCNAME[0]}: unknown package shape '$shape'" >&2
     return 1
     ;;
   esac
+  return 0
+}
+
+# Some packages no longer exist, but another package is marked as "replacing"
+# them.  For these packages, we just want to depend on the replacement.
+#
+# Without this hairball, we get error messages from apt-get such as:
+#
+#     E: Can't select candidate version from package file-rc as it has no
+#     candidate
+choose_candidate()
+{
+  if (( "$#" != 1 ))
+  then
+    echo "Usage: ${FUNCNAME[0]} <pkgname>" >&2
+    return 1
+  fi
+  local pkgname="$1"
+
+  # This apt-get install call is expected to fail, so it's broken out and
+  # the return code is overridden with || true.  Installation failure is
+  # precisely why this function gets called, so it's no big deal.
+  local results="$(apt-get install --dry-run "$pkgname" 2>&1 || true)"
+  # However, the post-processing we do on the output can fail, and we want
+  # to capture that failure (stemming from grep failing to match) - so this
+  # is effectively the second half of a small pipeline.
+  retval=0
+  echo "$results" \
+    | grep -E -A 1 '^However the following packages replace it:' \
+    | tail -n 1 \
+    | sed -re 's@^\s+@@g' -e 's@\s+$@@g' \
+    || retval="$?"
+  if (( "$retval" ))
+  then
+    echo "Could not find replacement for '$pkgname'" >&2
+    return 1
+  fi
   return 0
 }
 
@@ -74,15 +112,15 @@ list_direct_real_deps()
     echo "Usage: ${FUNCNAME[0]} <dotfile> <pkgname>" >&2
     return 1
   fi
-  dotfile="$1"
-  pkgname="$2"
+  local dotfile="$1"
+  local pkgname="$2"
 
-  seen="/root/dep.${pkgname}.seen"
+  local seen="/root/dep.${pkgname}.seen"
   rm -f "$seen" >&2
   touch "$seen"
 
   echo "${FUNCNAME[0]}: expanding virtual packages for '$pkgname'" >&2
-  queue="/root/dep.${pkgname}.queue"
+  local queue="/root/dep.${pkgname}.queue"
   list_direct_deps "$dotfile" "$pkgname" > "$queue"
   while read -r dep
   do
@@ -92,10 +130,16 @@ list_direct_real_deps()
       continue
     fi
     echo "$dep" >> "$seen"
-    if [[ "$(package_type "$dotfile" "$dep")" == "virtual" ]]
+    local dep_type="$(package_type "$dotfile" "$dep")"
+    if [[ "$dep_type" == "virtual" ]]
     then
       echo "${FUNCNAME[0]}: expanding virtual package '$dep'" >&2
       list_direct_deps "$dotfile" "$dep" >> "$queue"
+      continue
+    elif [[ "$dep_type" == "need-candidate" ]]
+    then
+      echo "${FUNCNAME[0]}: attempting to choose candidate for '$dep'" >&2
+      choose_candidate "$dep" >> "$queue"
       continue
     fi
     echo "${FUNCNAME[0]}: found dependency '$dep'" >&2
