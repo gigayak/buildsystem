@@ -7,7 +7,24 @@ set -Eeo pipefail
 
 # Create the database.  Pre-create the file, so that the user can play with it.
 # This gets around patching Gitzebo directly for the moment.
-src_db="/usr/lib/python2.6/site-packages/gitzebo/gitzebo.db"
+src_paths=()
+src_paths+=("/usr/lib/python2.7/site-packages/gitzebo")
+src_paths+=("/usr/local/lib/python2.7/dist-packages/gitzebo")
+src_path=""
+for path in "${src_paths[@]}"
+do
+  if [[ -d "$path" ]]
+  then
+    src_path="$path"
+    break
+  fi
+done
+if [[ -z "$src_path" ]]
+then
+  echo "Unable to locate Gitzebo installation path." >&2
+  exit 1
+fi
+src_db="$src_path/gitzebo.db"
 tgt_db="/opt/db/gitzebo.db"
 ln -s "$tgt_db" "$src_db"
 
@@ -18,14 +35,21 @@ chmod 0700 /root/.ssh
 # Create links for persistent configuration files.
 # TODO: disabled due to hack below
 #ln -s {/opt/db,/root/.ssh}/authorized_keys
-ln -s {/opt/db,/etc/ssh}/ssh_host_key
-ln -s {/opt/db,/etc/ssh}/ssh_host_key.pub
-ln -s {/opt/db,/etc/ssh}/ssh_host_rsa_key
-ln -s {/opt/db,/etc/ssh}/ssh_host_rsa_key.pub
-ln -s {/opt/db,/etc/ssh}/ssh_host_dsa_key
-ln -s {/opt/db,/etc/ssh}/ssh_host_dsa_key.pub
+keys=()
+keys+=(ssh_host_key ssh_host_key.pub)
+keys+=(ssh_host_rsa_key ssh_host_rsa_key.pub)
+keys+=(ssh_host_dsa_key ssh_host_dsa_key.pub)
+keys+=(ssh_host_ecdsa_key ssh_host_ecdsa_key.pub)
+keys+=(ssh_random_seed)
+for key in "${keys[@]}"
+do
+  if [[ -e "/etc/ssh/$key" ]]
+  then
+    rm -fv "/etc/ssh/$key"
+  fi
+  ln -sv {/opt/db,/etc/ssh}/"$key"
+done
 # TODO: ensure these keys are generated
-ln -s {/opt/db,/etc/ssh}/ssh_random_seed
 
 # This script periodically refreshes repository information to generate static
 # pack files.  This should not be necessary in a version with a smarter HTTPS
