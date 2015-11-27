@@ -8,19 +8,20 @@ update_command=()
 if [[ "$HOST_OS" == "centos" ]]
 then
   echo "Found CentOS host" >&2
-  cert_path="/etc/pki/ca-trust/source/anchors"
+  cert_dir="/etc/pki/ca-trust/source/anchors"
   update_command=(update-ca-trust extract)
 elif [[ "$HOST_OS" == "ubuntu" ]]
 then
   echo "Found Ubuntu host" >&2
-  cert_path="/usr/local/share/ca-certificates"
-  update_command=(update-ca-certificates)
+  cert_dir="/usr/local/share/ca-certificates"
+  mkdir -pv "$cert_dir"
+  update_command=(update-ca-certificates --verbose)
 else
   echo "Unknown host OS '$HOST_OS'" >&2
   exit 1
 fi
 
-cat > "$cert_path/machine-audio-research-ca.pem" <<'EOF'
+cat > "$cert_dir/gigayak.pem" <<'EOF'
 -----BEGIN CERTIFICATE-----
 MIIKADCCBeigAwIBAgIBATANBgkqhkiG9w0BAQsFADCBnjE+MDwGA1UEAxM1TWFj
 aGluZSBBdWRpbyBSZXNlYXJjaCBJbnRlcm5hbCBDZXJ0aWZpY2F0ZSBBdXRob3Jp
@@ -78,5 +79,11 @@ WTXhncu4YfCdNIowrWOXzEfyNxuoHTxoluk/l93AaXHWONM737Fs/jYukVGCNlhP
 hc3Ekx13T+TlLchIipENa7ZAtt0=
 -----END CERTIFICATE-----
 EOF
+
+# Ubuntu appears to demand that it see a PEM file with suffix .crt.
+# Which... makes no sense, given .crt is traditionally DER-encoded.
+cp -fv \
+  "$cert_dir/gigayak.pem" \
+  "$cert_dir/gigayak_as_pem.crt"
 
 ${update_command[@]}
