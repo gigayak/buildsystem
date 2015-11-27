@@ -26,7 +26,7 @@ do
   fi
 
   # Ignore LXC instances not named "dns-##".
-  if [[ -z "$(echo "$lxc_name" | sed -nre 's@^/lxc/dns-([0-9]+)$@\1@gp')" ]]
+  if [[ -z "$(echo "$lxc_name" | sed -nre 's@^/lxc/dns-([0-9-]+)$@\1@gp')" ]]
   then
     echo "$(basename "$0"): ignoring dnsmasq /w PID $pid and name $lxc_name" >&2
     continue
