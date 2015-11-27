@@ -9,6 +9,6 @@ dep tar
 # To build.
 dep i686-cross-env
 dep i686-cross-gcc-static
-
-# Okay, really, it's the last time... I hope. BUILD_CC=gcc; so we need gcc...
+dep awk
 dep gcc
+
