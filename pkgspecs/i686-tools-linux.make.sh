@@ -16,7 +16,10 @@ make mrproper
 
 # Copy in a default configuration.  This allows us to just track configuration
 # changes in this file.
-make defconfig
+make \
+  ARCH=i386 \
+  CROSS_COMPILE=${CLFS_TARGET}- \
+  defconfig
 
 # Save off a copy of the configuration to install to /opt/kernel.config.default
 cp -v .config /root/kernel.config.default
@@ -66,8 +69,6 @@ set_config DEVTMPFS y
 # HP Smart Array driver - needed for P410i on HP DL380g7.
 set_config SCSI_LOWLEVEL y # required for SCSI_HPSA
 set_config SCSI_HPSA y # SCSI driver itself
-# TODO: Find out if the latter is required for HPSA...
-#set_config BLK_CPQ_DA y # SMART2 driver
 
 # HACK SCALE: MINOR
 #
@@ -93,8 +94,18 @@ set_config SCSI_HPSA y # SCSI driver itself
 # avoid this from hoisting us - we double-check our final `.config` file
 # to ensure that all variables we set were retained after the
 # `make allnoconfig` step...
+#
+# Note that if ARCH=... and CROSS_COMPILE=... are left out, then we'll
+# generate a configuration pointing at the incorrect architecture when
+# truly cross compiling (i.e. building arm7 on x86_64), and the make
+# invocation at the end will fail when it starts prompting about
+# options not available on the host architecture.
 cp -vf .config config.partial
-make KCONFIG_ALLCONFIG=config.partial allnoconfig
+make \
+  ARCH=i386 \
+  CROSS_COMPILE=${CLFS_TARGET}- \
+  KCONFIG_ALLCONFIG=config.partial \
+  allnoconfig
 for e in "${expected_values[@]}"
 do
   if ! grep -E "^$e\$" .config >/dev/null 2>&1
