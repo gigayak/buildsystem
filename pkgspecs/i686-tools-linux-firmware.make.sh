@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 
-version=2015-07-01
+version=2015-11-01
 echo "$version" >> /root/version
 
 cd /root
