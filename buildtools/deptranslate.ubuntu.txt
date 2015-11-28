@@ -45,3 +45,4 @@ nettle libnettle4
 nettle-devel nettle-dev
 python-devel python-dev
 python-devel libpython-dev
+util-linux-ng util-linux
