@@ -46,3 +46,5 @@ nettle-devel nettle-dev
 python-devel python-dev
 python-devel libpython-dev
 util-linux-ng util-linux
+glib2 libglib2.0-0
+glib2-devel libglib2.0-dev
