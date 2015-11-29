@@ -22,6 +22,12 @@ cd /root
 # all dependencies, which causes O(N^2) system build times and network traffic,
 # and will likely cause file conflicts when copy_diff_files.sh executes.
 apt-get download "$PKG_NAME"
+pkg_count="$(find . -mindepth 1 -maxdepth 1 -iname '*.deb' | wc -l)"
+if (( "$pkg_count" != 1 ))
+then
+  echo "$(basename "$0"): $pkg_count packages downloaded instead of 1" >&2
+  exit 1
+fi
 dpkg -i --force-depends *.deb
 
 # Save off version number now, as version script will run after we blow away
