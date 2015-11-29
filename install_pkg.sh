@@ -13,12 +13,13 @@ add_flag --default="https://repo.jgilik.com" repo_url "URL to find packages."
 add_flag --required install_root "Directory to install package to."
 parse_flags
 
-if [[ -z "$F_pkg_name" ]]
+pkg="$F_pkg_name"
+if [[ -z "$pkg" ]]
 then
   echo "$(basename "$0"): package name cannot be blank" >&2
   exit 1
 fi
-echo "$(basename "$0"): installing package '$F_pkg_name' and deps" >&2
+echo "$(basename "$0"): installing package '$pkg' and deps" >&2
 
 set_repo_local_path "$F_repo_path"
 set_repo_remote_url "$F_repo_url"
@@ -35,8 +36,20 @@ fi
 make_temp_dir scratch
 ordered_deps="$scratch/ordered_deps"
 
+# Build requested package if it's not yet been built...
+if ! repo_get "$pkg.done" > "$scratch/$pkg.done"
+then
+  echo "$(basename "$0"): could not find package '$pkg', building..." >&2
+  "$DIR/pkg.from_name.sh" --pkg_name="$pkg"
+fi
+if ! repo_get "$pkg.done" > "$scratch/$pkg.done"
+then
+  echo "$(basename "$0"): could not find or build package '$pkg'" >&2
+  exit 1
+fi
+
 # Get all of the required dependencies...
-resolve_deps "$F_pkg_name" "$pkglist" > "$ordered_deps"
+resolve_deps "$pkg" "$pkglist" > "$ordered_deps"
 
 # Now install all of the required packages in proper dependency order.
 while read -r dep
@@ -59,7 +72,7 @@ do
   versionpath="$scratch/$dep.version"
   if ! repo_get "$dep.tar.gz" > "$pkgpath"
   then
-    echo "$(basename "$0"): could not find package '$dep'" >&2
+    echo "$(basename "$0"): could not find archive for package '$dep'" >&2
     exit 1
   fi
   if ! repo_get "$dep.version" > "$versionpath"
