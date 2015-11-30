@@ -7,6 +7,7 @@ source "$DIR/cleanup.sh"
 source "$DIR/flag.sh"
 
 add_flag --boolean active "even destroy active containers"
+parse_flags
 
 unmount_chroot()
 {
