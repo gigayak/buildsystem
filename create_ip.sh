@@ -65,6 +65,8 @@ lxc)
   ;;
 chroot)
   ;;
+vm)
+  ;;
 *)
   echo "$(basename "$0"): unknown owner type '$owner_type'" >&2
   exit 1
