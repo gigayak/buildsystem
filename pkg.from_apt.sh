@@ -37,14 +37,17 @@ do
     continue
   fi
 
-  # Instead, build all other dependencies, and then build self later.
-  retval=0
-  "$DIR/$(basename "$0")" --pkg_name="$dep" -- "${ARGS[@]}"
-  if (( "$retval" ))
-  then
-    exit "$retval"
-  fi
+  # Do not attempt to build translated dependencies here, as it will break
+  # cycle detection if you're not careful to preserve dependency history.
 done < <(echo "$translation")
+
+# Do no more work if the originally requested package no longer exists after
+# translation.
+if [[ "$pkgname" != "$translation" ]] && (( ! "$built_original_name" ))
+then
+  "$DIR/pkg.alias.sh" --target="$translation" --alias="$pkgname"
+  exit 0
+fi
 
 # Fire the packaging script.
 args=()
@@ -53,7 +56,7 @@ args+=(--builddeps_script="$DIR/apt.builddeps.sh")
 args+=(--install_script="$DIR/apt.install.sh")
 args+=(--version_script="$DIR/apt.version.sh")
 args+=(--deps_script="$DIR/apt.deps.sh")
-if [[ "$pkgname" != "$translation" ]] && (( "$built_original_name" ))
+if [[ "$pkgname" != "$translation" ]]
 then
   make_temp_file deps_script
   (
@@ -70,7 +73,3 @@ args+=(--break_dependency_cycles)
   "${args[@]}" \
   "${ARGS[@]}"
 
-if [[ "$pkgname" != "$translation" ]] && (( ! "$built_original_name" ))
-then
-  "$DIR/pkg.alias.sh" --target="$translation" --alias="$pkgname"
-fi
