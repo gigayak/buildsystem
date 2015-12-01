@@ -50,6 +50,7 @@ parse_flags
 
 pkgname="$F_pkg_name"
 export PKG_NAME="$pkgname"
+echo "Building package $pkgname"
 version="$F_version_script"
 
 # Manually export a select set of environment variables.
