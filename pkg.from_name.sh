@@ -3,11 +3,11 @@ set -Eeo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "$DIR/flag.sh"
+source "$DIR/buildtools/all.sh"
 add_flag --required pkg_name "Name of the package to build."
 parse_flags
 
 name="${F_pkg_name}"
-
 
 # Lowercase the package name if needed.  pkg.from_whatever.sh should all
 # receive lowercase package names.
@@ -17,7 +17,6 @@ then
   echo "Lowercasing the package name"
   name="$lcname"
 fi
-
 
 # DO NOT USE PIP for installing pip and distribute, as these are requirements
 # for pip.  (Go figure.)  They need to be built differently, and have specs
@@ -84,14 +83,40 @@ then
 # try yum conversion on CentOS hosts
 elif which yum >/dev/null 2>&1
 then
-  "$DIR/pkg.from_yum.sh" "--pkg_name=$name" -- "${ARGS[@]}"
+  # Do dependency translation if available.
+  newname="$(HOST_OS=centos dep "$name")"
+  if [[ "$newname" != "$name" ]]
+  then
+    echo "Dependency name '$name' was translated to '$newname'"
+  fi
+
+  retval=0
+  "$DIR/pkg.from_yum.sh" --pkg_name="$newname" -- "${ARGS[@]}"
+
+  if (( ! "$retval" )) && [[ "$name" != "$newname" ]]
+  then
+    "$DIR/pkg.alias.sh" --target="$newname" --alias="$name"
+  fi
   exit $?
 
 # try apt conversion on Ubuntu hosts
 elif which apt-get >/dev/null 2>&1
 then
-  "$DIR/pkg.from_apt.sh" "--pkg_name=$name" -- "${ARGS[@]}"
-  exit $?
+  # Do dependency translation if available.
+  newname="$(HOST_OS=ubuntu dep "$name")"
+  if [[ "$newname" != "$name" ]]
+  then
+    echo "Dependency name '$name' was translated to '$newname'"
+  fi
+
+  retval=0
+  "$DIR/pkg.from_apt.sh" --pkg_name="$newname" -- "${ARGS[@]}" || retval=$?
+
+  if (( ! "$retval" )) && [[ "$name" != "$newname" ]]
+  then
+    "$DIR/pkg.alias.sh" --target="$newname" --alias="$name"
+  fi
+  exit $retval
 fi
 
 echo "$(basename "$0"): could not find a builder for package '$name'" >&2

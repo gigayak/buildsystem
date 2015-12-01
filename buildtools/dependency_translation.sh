@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}
 
 # This file allows you to translate Gigayak dependency names to names from
 # other operating systems (for very small numbers of "other operating
@@ -40,7 +40,7 @@ dep()
 # dep_rewrite is the same as dep(), except it fails on failed lookups.
 dep_rewrite()
 {
-  translations="$DIR/deptranslate.${HOST_OS}.txt"
+  translations="$(DIR)/deptranslate.${HOST_OS}.txt"
   if [[ ! -e "$translations" ]]
   then
     echo "${FUNCNAME[0]}: could not find translations file '$translations'" >&2
