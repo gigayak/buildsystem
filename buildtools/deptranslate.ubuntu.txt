@@ -48,3 +48,7 @@ python-devel libpython-dev
 util-linux-ng util-linux
 glib2 libglib2.0-0
 glib2-devel libglib2.0-dev
+kernel-devel linux-headers-generic
+libuuid uuid
+libuuid-devel uuid-dev
+openssh-clients openssh-client
