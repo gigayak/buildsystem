@@ -22,20 +22,23 @@ re_escape()
 # requiring recursion in this function.
 list_direct_deps()
 {
-  if (( "$#" != 2 ))
+  if (( "$#" != 1 ))
   then
-    echo "Usage: ${FUNCNAME[0]} <dotfile> <pkgname>" >&2
+    echo "Usage: ${FUNCNAME[0]} <pkgname>" >&2
     return 1
   fi
-  local dotfile="$1"
-  local pkgname="$2"
+  local pkgname="$1"
 
-  # Green edges are detected because green lines are conflicts.
-  # Remaining edges are valid dependencies.
-  sed -nr \
-    -e '/ -> "[^"]+".*color=springgreen/d' \
-    -e 's@^"'"$(re_escape "$pkgname")"'" -> "([^"]+)".*$@\1@gp' \
-    "$dotfile"
+  apt-cache depends "$pkgname" \
+    | sed -nre 's@^ ([| ])Depends: (.*)@\1\2@gp' \
+    | sed -re 's@^\s+@@g' \
+    | sed -re 's@<([^>]+)>@\1@g' \
+    | sed -re 's@:\S+@@g' \
+    | tr '\n' ',' \
+    | sed -re 's@$@\n@g' \
+    | sed -re 's@\|([^,]+),([^,]+),@\1|\2,@g' \
+    | sed -re 's@,$@@g' \
+    | tr ',' '\n'
 }
 
 package_type()
@@ -121,29 +124,50 @@ list_direct_real_deps()
 
   echo "${FUNCNAME[0]}: expanding virtual packages for '$pkgname'" >&2
   local queue="/root/dep.${pkgname}.queue"
-  list_direct_deps "$dotfile" "$pkgname" > "$queue"
+  list_direct_deps "$pkgname" > "$queue"
   while read -r dep
   do
-    if grep -E "^$(re_escape "$dep")\$" "$seen" >/dev/null 2>&1
+    found_match=0
+    while read -r subdep
+    do
+      # TODO: Is this the right level of granularity?
+      # Will we ever see "a|b, a" as a dependency list, where a does not
+      # exist?  If we do, then we'll erroneously emit just b as a dependency,
+      # and fail to break on the fact that "a" is unmatchable.
+      if grep -E "^$(re_escape "$subdep")\$" "$seen" >/dev/null 2>&1
+      then
+        echo "${FUNCNAME[0]}: skipping already-seen dependency '$subdep'" >&2
+        found_match=1
+        break
+      fi
+      echo "$subdep" >> "$seen"
+      local dep_type="$(package_type "$dotfile" "$subdep")"
+      if [[ "$dep_type" == "virtual" ]]
+      then
+        echo "${FUNCNAME[0]}: expanding virtual package '$subdep'" >&2
+        retval=0
+        list_direct_deps "$subdep" >> "$queue" || continue
+        found_match=1
+        break
+      elif [[ "$dep_type" == "need-candidate" ]]
+      then
+        echo "${FUNCNAME[0]}: attempting to choose candidate for '$subdep'" >&2
+        choose_candidate "$dep" >> "$queue" || continue
+        found_match=1
+        break
+      elif apt-cache show "$subdep" >/dev/null 2>&1
+      then
+        echo "${FUNCNAME[0]}: found concrete dependency '$subdep'" >&2
+        echo "$subdep"
+        found_match=1
+        break
+      fi
+    done < <(echo "$dep" | tr '|' '\n')
+    if (( ! "$found_match" ))
     then
-      echo "${FUNCNAME[0]}: skipping already-seen dependency '$dep'" >&2
-      continue
+      echo "${FUNCNAME[0]}: could not resolve dependency list '$dep'" >&2
+      return 1
     fi
-    echo "$dep" >> "$seen"
-    local dep_type="$(package_type "$dotfile" "$dep")"
-    if [[ "$dep_type" == "virtual" ]]
-    then
-      echo "${FUNCNAME[0]}: expanding virtual package '$dep'" >&2
-      list_direct_deps "$dotfile" "$dep" >> "$queue"
-      continue
-    elif [[ "$dep_type" == "need-candidate" ]]
-    then
-      echo "${FUNCNAME[0]}: attempting to choose candidate for '$dep'" >&2
-      choose_candidate "$dep" >> "$queue"
-      continue
-    fi
-    echo "${FUNCNAME[0]}: found dependency '$dep'" >&2
-    echo "$dep"
   done < "$queue"
   return 0
 }
