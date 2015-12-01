@@ -30,13 +30,18 @@ then
   exit 0
 fi
 
+# Pass in all available scripts, and no more than that.
+args=()
+for script_name in builddeps make install version deps
+do
+  path="$SPECS/${pkgname}.${script_name}.sh"
+  if [[ -e "$path" ]]
+  then
+    args+=("--${script_name}_script=$path")
+  fi
+done
 
 # Fire the packaging script.
-# TODO: may want to check that these filenames exist before passing them in
 "$DIR/pkg.sh" \
-  --builddeps_script="$SPECS/${pkgname}.builddeps.sh" \
-  --make_script="$SPECS/${pkgname}.make.sh" \
-  --install_script="$SPECS/${pkgname}.install.sh" \
-  --version_script="$SPECS/${pkgname}.version.sh" \
-  --deps_script="$SPECS/${pkgname}.deps.sh" \
+  "${args[@]}" \
   "${ARGS[@]}"
