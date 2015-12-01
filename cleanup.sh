@@ -101,6 +101,22 @@ cleanup_temp_files()
 }
 register_exit_handler cleanup_temp_files
 
+select_temp_root()
+{
+  local _temp_root
+  for _temp_root in "${_TEMP_ROOTS[@]}"
+  do
+    if [[ ! -e "$_temp_root" ]]
+    then
+      continue
+    fi
+    echo "$_temp_root"
+    return 0
+  done
+  echo "${FUNCNAME[0]}: no suitable temproots found" >&2
+  return 1
+}
+
 make_temp_dir()
 {
   if (( "$#" != 1 ))
@@ -110,21 +126,25 @@ make_temp_dir()
   fi
   local _env="$1"
 
-  local _temp_root
-  for _temp_root in "${_TEMP_ROOTS[@]}"
-  do
-    if [[ ! -e "$_temp_root" ]]
-    then
-      continue
-    fi
-    local _dir="$(mktemp -d --tmpdir="$_temp_root")"
-    register_temp_file "$_dir"
-    export "$_env"="$_dir"
-    return 0
-  done
+  local _temp_root="$(select_temp_root)"
+  local _dir="$(mktemp -d --tmpdir="$_temp_root")"
+  register_temp_file "$_dir"
+  export "$_env"="$_dir"
+}
 
-  echo "${FUNCNAME[0]}: no suitable temproots found" >&2
-  return 1
+make_temp_file()
+{
+  if (( "$#" != 1 ))
+  then
+    echo "Usage: ${FUNCNAME[0]} <env_var_name_to_store_to>" >&2
+    return 1
+  fi
+  local _env="$1"
+
+  local _temp_root="$(select_temp_root)"
+  local _file="$(mktemp --tmpdir="$_temp_root")"
+  register_temp_file "$_file"
+  export "$_env"="$_file"
 }
 
 run_exit_handlers()
