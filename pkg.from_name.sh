@@ -90,8 +90,15 @@ then
     echo "Dependency name '$name' was translated to '$newname'"
   fi
 
-  retval=0
-  "$DIR/pkg.from_yum.sh" --pkg_name="$newname" -- "${ARGS[@]}"
+  while read -r dep
+  do
+    retval=0
+    "$DIR/pkg.from_yum.sh" --pkg_name="$newname" -- "${ARGS[@]}"
+    if (( "$retval" ))
+    then
+      break
+    fi
+  done < <(echo "$newname")
 
   if (( ! "$retval" )) && [[ "$name" != "$newname" ]]
   then
@@ -109,8 +116,15 @@ then
     echo "Dependency name '$name' was translated to '$newname'"
   fi
 
-  retval=0
-  "$DIR/pkg.from_apt.sh" --pkg_name="$newname" -- "${ARGS[@]}" || retval=$?
+  while read -r dep
+  do
+    retval=0
+    "$DIR/pkg.from_apt.sh" --pkg_name="$dep" -- "${ARGS[@]}" || retval=$?
+    if (( "$retval" ))
+    then
+      break
+    fi
+  done < <(echo "$newname")
 
   if (( ! "$retval" )) && [[ "$name" != "$newname" ]]
   then
