@@ -292,35 +292,32 @@ fi
 # build-only deps
 for builddeps in "${F_builddeps_script[@]}"
 do
-  if [[ -e "${builddeps}" ]]
-  then
-    echo "Running builddeps script"
-    run_in_root "${builddeps}" > "$workdir/builddeps.txt"
-    echo "Found build dependencies:"
-    while read -r dep
-    do
-      if [[ -z "$dep" ]]
-      then
-        continue
-      fi
-      echo " - $dep"
-    done < "$workdir/builddeps.txt"
+  echo "Running builddeps script"
+  run_in_root "${builddeps}" > "$workdir/builddeps.txt"
+  echo "Found build dependencies:"
+  while read -r dep
+  do
+    if [[ -z "$dep" ]]
+    then
+      continue
+    fi
+    echo " - $dep"
+  done < "$workdir/builddeps.txt"
 
-    # Watch out: dependencies are intentionally installed as soon as possible.
-    # One reason why can be seen in pkg.from_pip.sh: multiple builddeps
-    # scripts are needed, as each script relies on packages from the prior
-    # script.  The first script installs python, the second installs pip
-    # USING python, and then the third and fourth build upon that.  Yeah, it's
-    # ugly like that - but it's an okay stopgap while build scripts are all
-    # separate pieces being called by the build framework.  When control is
-    # inverted (build script says "ensure this dependency is installed" and it
-    # gets installed), these issues will all go away...
-    #
-    # Note that inversion of control will be difficult due to cyclic
-    # dependencies when converting packages from apt-get.  Fun.
-    install_deps "$workdir/builddeps.txt"
-    rm -fv "$workdir/builddeps.txt"
-  fi
+  # Watch out: dependencies are intentionally installed as soon as possible.
+  # One reason why can be seen in pkg.from_pip.sh: multiple builddeps
+  # scripts are needed, as each script relies on packages from the prior
+  # script.  The first script installs python, the second installs pip
+  # USING python, and then the third and fourth build upon that.  Yeah, it's
+  # ugly like that - but it's an okay stopgap while build scripts are all
+  # separate pieces being called by the build framework.  When control is
+  # inverted (build script says "ensure this dependency is installed" and it
+  # gets installed), these issues will all go away...
+  #
+  # Note that inversion of control will be difficult due to cyclic
+  # dependencies when converting packages from apt-get.  Fun.
+  install_deps "$workdir/builddeps.txt"
+  rm -fv "$workdir/builddeps.txt"
 done
 
 # non-build deps
@@ -328,20 +325,17 @@ deplist=""
 for deps in "${F_deps_script[@]}"
 do
   echo "Running dependency listing script"
-  if [[ -e "$deps" ]]
-  then
-    deplist="$(run_in_root "${deps}")"
-    echo "Found runtime dependencies:"
-    while read -r dep
-    do
-      echo "$dep" >> "$workdir/deps.txt"
-      if [[ -z "$dep" ]]
-      then
-        continue
-      fi
-      echo " - $dep"
-    done < <(echo "$deplist")
-  fi
+  deplist="$(run_in_root "${deps}")"
+  echo "Found runtime dependencies:"
+  while read -r dep
+  do
+    echo "$dep" >> "$workdir/deps.txt"
+    if [[ -z "$dep" ]]
+    then
+      continue
+    fi
+    echo " - $dep"
+  done < <(echo "$deplist")
 done
 
 # remove cycles if requested (and found)
@@ -370,11 +364,8 @@ fi
 
 for make in "${F_make_script[@]}"
 do
-  if [[ -e "${make}" ]]
-  then
-    echo "Running make script"
-    run_in_root "${make}"
-  fi
+  echo "Running make script"
+  run_in_root "${make}"
 done
 
 
@@ -402,11 +393,8 @@ populate_dynamic_fs_pieces "$dir"
 
 for install in "${F_install_script[@]}"
 do
-  if [[ -e "$install" ]]
-  then
-    echo "Running install script"
-    run_in_root "${install}"
-  fi
+  echo "Running install script"
+  run_in_root "${install}"
 done
 
 
@@ -424,12 +412,8 @@ echo "Version is: $pkgversion"
 
 for opts in "${F_opts_script[@]}"
 do
-  echo "Running extra options script"
-  if [[ -e "$opts" ]]
-  then
-    echo "$(basename "$0"): .opts files are dead; fpm no longer in use" >&2
-    exit 1
-  fi
+  echo "$(basename "$0"): .opts files are dead; fpm no longer in use" >&2
+  exit 1
 done
 
 
