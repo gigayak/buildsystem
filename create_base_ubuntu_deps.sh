@@ -16,11 +16,7 @@ fi
 
 while read -r pkg
 do
-  echo "Creating stub package for '$pkg' aliased to 'base-ubuntu'" >&2
-  echo "1.0" > "$repodir/$pkg.version"
-  tar -z -c -T /dev/null -f "$repodir/$pkg.tar.gz"
-  echo "base-ubuntu" > "$repodir/$pkg.dependencies"
-  touch "$repodir/$pkg.done"
+  "$DIR/pkg.alias.sh" --target=base-ubuntu --alias="$pkg"
 done < <(tar -zx \
   -f /var/www/html/tgzrepo/base-ubuntu.tar.gz \
   --to-stdout ./etc/base-ubuntu-packages)
