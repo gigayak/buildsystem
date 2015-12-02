@@ -61,6 +61,15 @@ then
 fi
 
 
+# _REPO_SCRATCH contains a temporary directory where we can save off files
+# before actually uploading them to the upstream repository.
+if [[ -z "$_REPO_SCRATCH" ]]
+then
+  make_temp_dir _REPO_SCRATCH
+  export _REPO_SCRATCH
+fi
+
+
 # Gets a file from the repository and outputs it to stdout.
 # Example:
 #   $ repo_get yadda_does_exist > test.txt
@@ -97,11 +106,12 @@ repo_get()
       -q -O- \
       --retry-connrefused \
       "$_url" \
-    > "$_REPO_LOCAL_PATH/$_path" \
+    > "$_REPO_SCRATCH/$_path" \
     || {
       echo "${FUNCNAME[0]}: error code '$?' fetching '$_url'" >&2
       return 1
     }
+    mv -f "$_REPO_SCRATCH/$_path" "$_REPO_LOCAL_PATH/$_path"
     cat "$_REPO_LOCAL_PATH/$_path"
   else
     retval=0
