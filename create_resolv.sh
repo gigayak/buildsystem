@@ -35,6 +35,11 @@ fi
 # a single dns.jgilik.com record (yet).  So... we hard code the DNS server IDs.
 for i in 01 02
 do
+  # Ignore nonexistent containers.
+  if ! lxc-info --name="dns-$i" >/dev/null 2>&1
+  then
+    continue
+  fi
   ip="$("$DIR/create_ip.sh" --read_only --owner="lxc:dns-$i" || true)"
   if [[ -z "$ip" ]]
   then
