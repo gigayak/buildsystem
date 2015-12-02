@@ -198,55 +198,6 @@ cleanup_root()
   done
 }
 
-# Make sure that a package exists in the default repositories.  Build it if
-# it does not.
-ensure_pkg_exists()
-{
-  if (( "$#" != 1 ))
-  then
-    echo "Usage: ${FUNCNAME[0]} <pkg_name>" >&2
-    return 1
-  fi
-
-  local _pkg="$1"
-
-  echo "Making sure package '$_pkg' exists."
-
-  # Check our package root manually.
-  # TODO: Remove this performance hack.  We need a faster package manager...
-  #       THIS WILL BREAK WHEN WE TARGET MULTIPLE ARCHITECTURES!
-  if [[ -e "/var/www/html/tgzrepo" ]] \
-    && (( "$(find /var/www/html/tgzrepo -iname "$_pkg.tar.gz" | wc -l)" ))
-  then
-    echo "Found package '$_pkg' using a hack that will break cross-arch"
-    return 0
-  fi
-
-  # Check upstream repository manually.
-  # TODO: Centralize the repository URL(s) somehow...
-  if "$_REPO_GET" -q -O- "https://repo.jgilik.com/$_pkg.done"
-  then
-    echo "Found package '$_pkg' using a wget hack that will break on Pi"
-    return 0
-  fi
-
-  # Convert dependency history array to a fresh set of flags.
-  local _hist_flags
-  _hist_flags=()
-  local _hist_entry
-  for _hist_entry in "${F_dependency_history[@]}"
-  do
-    _hist_flags+=(--dependency_history="$_hist_entry")
-  done
-
-  echo "Building nonexistent package '$_pkg'"
-  "$DIR/pkg.from_name.sh" \
-    --pkg_name="$_pkg" \
-    -- \
-      --dependency_history="$pkgname" \
-      "${_hist_flags[@]}"
-}
-
 install_deps()
 {
   if (( "$#" != 1 ))
@@ -264,8 +215,20 @@ install_deps()
     then
       continue
     fi
-    ensure_pkg_exists "$_dep"
-    "$DIR/install_pkg.sh" --pkg_name="$_dep" --install_root="$dir"
+
+    # Convert dependency history array to a fresh set of flags.
+    local _hist_flags
+    _hist_flags=(--dependency_history="$pkgname")
+    local _hist_entry
+    for _hist_entry in "${F_dependency_history[@]}"
+    do
+      _hist_flags+=(--dependency_history="$_hist_entry")
+    done
+
+    "$DIR/install_pkg.sh" \
+      --pkg_name="$_dep" \
+      --install_root="$dir" \
+      "${_hist_flags[@]}"
   done < "$_depfile"
 }
 

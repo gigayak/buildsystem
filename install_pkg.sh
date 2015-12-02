@@ -11,6 +11,8 @@ add_flag --required pkg_name "Name of the package to install."
 add_flag --default="/var/www/html/tgzrepo" repo_path "Path to find packages."
 add_flag --default="https://repo.jgilik.com" repo_url "URL to find packages."
 add_flag --required install_root "Directory to install package to."
+add_flag --array dependency_history \
+  "Names of packages that are currently being built - for cycle detection."
 parse_flags
 
 pkg="$F_pkg_name"
@@ -40,7 +42,15 @@ ordered_deps="$scratch/ordered_deps"
 if ! repo_get "$pkg.done" > "$scratch/$pkg.done"
 then
   echo "$(basename "$0"): could not find package '$pkg', building..." >&2
-  "$DIR/pkg.from_name.sh" --pkg_name="$pkg"
+  hist_args=()
+  for hist_entry in "${F_dependency_history[@]}"
+  do
+    hist_args+=(--dependency_history="$hist_entry")
+  done
+  "$DIR/pkg.from_name.sh" \
+    --pkg_name="$pkg" \
+    -- \
+      "${hist_args[@]}"
 fi
 if ! repo_get "$pkg.done" > "$scratch/$pkg.done"
 then
