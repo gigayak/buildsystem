@@ -2,9 +2,6 @@
 set -Eeo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# To check if env-... packages for containers exist.
-source "$DIR/repo.sh"
-
 container()
 {
   name="$1"
@@ -12,12 +9,6 @@ container()
 
   container_name="${name}-${replica_index}"
   package_name="env-${name}"
-
-  if ! repo_get "${package_name}.done"
-  then
-    echo "Could not find container environment package '$package_name'" >&2
-    "$DIR/pkg.from_name.sh" --pkg_name="${package_name}"
-  fi
 
   if lxc-ls -1 \
     | grep -e '^'"$container_name"'$'
