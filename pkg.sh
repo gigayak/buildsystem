@@ -289,6 +289,9 @@ deplist=""
 for deps in "${F_deps_script[@]}"
 do
   echo "Running dependency listing script"
+  # Watch out: this is an overwrite of deplist, not an append.  We then
+  # append deplist to deps.txt, so they wind up out of sync if multiple
+  # dependency scripts execute.
   deplist="$(run_in_root "${deps}")"
   echo "Found runtime dependencies:"
   while read -r dep
@@ -301,6 +304,11 @@ do
     echo " - $dep"
   done < <(echo "$deplist")
 done
+# this makes sure that our repeated overwrites of deplist are undone.
+if [[ -e "$workdir/deps.txt" ]]
+then
+  deplist="$(<"$workdir/deps.txt")"
+fi
 
 # remove cycles if requested (and found)
 if (( "$F_break_dependency_cycles" && "$cycle_found" ))
@@ -323,6 +331,25 @@ echo "Installing all dependencies."
 if [[ -e "$workdir/deps.txt" ]]
 then
   install_deps "$workdir/deps.txt"
+fi
+
+
+# This code prevents us from rebuilding packages that are a part of a cycle.
+# If they've already been built successfully, and were then installed in our
+# root, then it means that the cycle was not broken in this build, but was
+# broken in a build it triggered.  Thus, this build should abort peacefully.
+#
+# It also prevents packages with cycles from building on systems that aren't
+# Ubuntu, because cycles are annoying.
+if [[ -e "$dir/.installed_pkgs/$pkgname" ]]
+then
+  if (( "$F_break_dependency_cycles" ))
+  then
+    echo "Found dependency cycle that was broken downstream.  Exiting."
+    exit 0
+  fi
+  echo "Found disallowed dependency cycle.  Failing."
+  exit 1
 fi
 
 
