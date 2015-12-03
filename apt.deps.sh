@@ -30,7 +30,7 @@ list_direct_deps()
   local pkgname="$1"
 
   apt-cache depends "$pkgname" \
-    | sed -nre 's@^ ([| ])Depends: (.*)@\1\2@gp' \
+    | sed -nre 's@^ ([| ])(Pre)?Depends: (.*)@\1\3@gp' \
     | sed -re 's@^\s+@@g' \
     | sed -re 's@<([^>]+)>@\1@g' \
     | sed -re 's@:\S+@@g' \
