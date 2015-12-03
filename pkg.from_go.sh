@@ -20,7 +20,6 @@ args+=(--make_script="$DIR/go.make.sh")
 args+=(--install_script="$DIR/go.install.sh")
 args+=(--version_script="$DIR/go.version.sh")
 args+=(--deps_script="$DIR/go.deps.sh")
-args+=(--opts_script="$DIR/go.opts.sh")
 
 "$DIR/pkg.sh" \
   "${args[@]}" \
