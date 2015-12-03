@@ -23,7 +23,6 @@ args+=(--builddeps_script="$DIR/pip.builddeps.final.sh")
 args+=(--install_script="$DIR/pip.install.sh")
 args+=(--version_script="$DIR/pip.version.sh")
 args+=(--deps_script="$DIR/pip.deps.sh")
-args+=(--opts_script="$DIR/pip.opts.sh")
 
 "$DIR/pkg.sh" \
   "${args[@]}" \
