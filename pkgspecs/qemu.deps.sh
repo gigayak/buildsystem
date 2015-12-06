@@ -4,4 +4,4 @@ source "$BUILDTOOLS/all.sh"
 
 # ./configure asked for headers, so assume we link the following:
 dep zlib
-dep glib2-devel
+dep glib2

@@ -12,6 +12,8 @@ dep gcc
 dep gcc-c++
 dep automake
 dep autoconf
+dep python
 
 # Needed headers.
 dep zlib-devel
+dep glib2-devel
