@@ -9,6 +9,8 @@ export CGO_ENABLED=1
 export GOROOT=/usr/go
 export PATH="$PATH:/usr/go/bin"
 export GOROOT_BOOTSTRAP=/usr/go14
+export GOOS=linux
+export GOARCH=386
 
 cd /usr/go/src
 bash make.bash --no-banner
