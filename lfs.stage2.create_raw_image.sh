@@ -174,7 +174,7 @@ SERIAL 0
 DEFAULT linux
 LABEL linux
   SAY Now booting the kernel from SYSLINUX...
-  KERNEL /tools/i686/boot/vmlinuz-clfs-3.14.21
+  KERNEL /tools/i686/boot/vmlinuz
   APPEND rw root=/dev/sda1 console=tty0 console=ttyS0,115200n8 panic=1
 EOF
 
