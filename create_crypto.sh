@@ -12,9 +12,11 @@ echo "$(basename "$0"): These should never be checked in."
 # key_strength applies to SSH keys
 key_strength="8192"
 rsa_key_strength="$key_strength"
-dsa_key_strength="$key_strength"
 ssl_key_strength="$key_strength"
-#storage_dir="/root/crypto"
+# DSA keys are apparently limited by standards to 1024 bits.
+# Otherwise, ssh-keygen yields "DSA keys must be 1024 bits."
+# TODO: Remove DSA keys entirely and see what breaks?
+dsa_key_strength="1024"
 
 ssh_key()
 {
@@ -86,12 +88,20 @@ then
 fi
 for mnt in /proc /sys /dev
 do
+  if [[ ! -e "$root$mnt" ]]
+  then
+    mkdir -p "$root$mnt"
+  fi
   if ! mountpoint -q -- "$root$mnt"
   then
     mount --bind "$mnt" "$root$mnt"
   fi
 done
 ca_root="$root/opt/ca"
+if [[ ! -e "$ca_root" ]]
+then
+  mkdir -p "$ca_root"
+fi
 if ! mountpoint -q -- "$ca_root"
 then
   mount --bind /root/localstorage/certificate-authority/ca "$ca_root"

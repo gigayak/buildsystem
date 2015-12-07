@@ -50,6 +50,11 @@ then
   exit 1
 fi
 
+if [[ ! -e "$storage_dir" ]]
+then
+  mkdir -p "$storage_dir"
+fi
+
 # Determine where the key should be.
 if [[ "${F_key_type}" == "rsa" || "${F_key_type}" == "dsa" ]]
 then
