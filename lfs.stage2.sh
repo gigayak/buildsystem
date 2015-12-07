@@ -16,6 +16,7 @@ running in qemu.  The IP should probably be managed by create_ip.sh, but that
 isn't supported yet...
 EOF
 add_flag --required image_path "Path to output of lfs.stage2.create_image.sh"
+add_flag --boolean preserve_chroot "If set, does not clean up execution chroot"
 parse_flags
 
 if [[ -z "$F_image_path" || ! -e "$F_image_path" ]]
@@ -57,6 +58,7 @@ cp -v "$F_image_path" "$dir/root/$image_name"
 #  -f "$target_pkgdir/i686-tools-buildsystem.tar.gz" \
 #  ./* \
 #  --transform='s@^\.@./clfs-root/tools/i686/bin/buildsystem@'
+echo "Starting VM; logging to $dir/root/log.qemu"
 
 cat > "$dir/root/start_vm.sh" <<'EOF_START_VM'
 #!/bin/bash
@@ -102,7 +104,7 @@ qemu_pid="$(</root/pid.qemu)"
 trap 'kill -SIGHUP "$qemu_pid"; sleep 5' EXIT ERR
 echo "qemu running as PID $qemu_pid"
 date
-echo "Waiting for SSH daemon to come up."
+echo "Waiting for SSH daemon to come up on IP $ip_address."
 while ! ssh \
   -o UserKnownHostsFile=/dev/null \
   -o StrictHostKeyChecking=no \
@@ -185,3 +187,9 @@ chroot "$dir" /bin/bash /root/start_vm.sh \
 # Break out of chroot and export the packages...
 echo "chroot complete.  Exporting packages."
 #cp -v "$dir/root/jpgl.raw.img" ./
+echo "TODO: implement package export"
+
+if (( "$F_preserve_chroot" ))
+then
+  unregister_temp_file "$dir"
+fi
