@@ -165,5 +165,6 @@ ssl_server_cert www
 ssl_client_cert jgilik oven.home.jgilik.com "John Gilik / Desktop"
 ssl_client_cert jgilik hp11.home.jgilik.com "John Gilik / HP11 Chromebook"
 ssl_client_cert system dl380.home.jgilik.com "System / DL380"
+ssl_client_cert system stage2.automation.jgilik.com "System / stage2 build"
 
 echo "$(basename "$0"): successfully created all keys and certs" >&2
