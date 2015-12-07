@@ -172,6 +172,14 @@ list_direct_real_deps()
   return 0
 }
 
+# Make sure everything depends on base-ubuntu, as otherwise, chroot
+# environments created haphazardly may not contain base-ubuntu.
+# base-ubuntu is guaranteed by mkroot.sh's chroot creation utilities, but
+# other scripts (such as create_crypto.sh) may have other ideas as to how to
+# create a chroot (mkdir -> bind mounts -> install_pkg.sh) - so this will
+# guarantee that base-ubuntu gets installed later rather than not at all.
+echo base-ubuntu
+
 maindot="/root/depgraph.${PKG_NAME}.dot"
 apt-cache dotty "$PKG_NAME" > "$maindot"
 list_direct_real_deps "$maindot" "$PKG_NAME" \
