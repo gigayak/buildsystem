@@ -152,7 +152,9 @@ cat > "$rules" <<EOF
 :OUTPUT ACCEPT
 EOF
 
-if [[ ! -z "$proxy_ip" ]]
+# This port forwarding attempt is commented as "does not work", but I recall
+# it working at some point in time.
+if [[ ! -z "$proxy_ip" ]] && false # do not do non-working stuff
 then
   # port forwarding attempt - does not work
   echo "-A PREROUTING -p tcp -i $ext_if --dport 443 -m state" \
