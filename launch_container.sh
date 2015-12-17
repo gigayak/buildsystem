@@ -3,11 +3,15 @@ set -Eeo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "$DIR/flag.sh"
+source "$DIR/mkroot.sh"
 add_flag --required name "Name of container to launch"
 parse_flags
 
 root="$(lxc-info --name="${F_name}" -c lxc.rootfs \
   | sed -nre 's@^\S+\s*=\s*(\S+)$@\1@gp')"
+
+populate_dynamic_fs_pieces "$root"
+dont_depopulate_dynamic_fs_pieces "$root"
 
 storage_root="$HOME/localstorage/${F_name}"
 mkdir -pv "$storage_root"
