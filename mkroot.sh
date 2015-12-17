@@ -134,7 +134,10 @@ populate_dynamic_fs_pieces()
   # populate /etc/hosts just in case no package overwrites it.  This fixes
   # the issue on Ubuntu, where base-ubuntu does not actually contain an
   # /etc/hosts file for some reason...
-  echo "127.0.0.1 localhost" > "$_root/etc/hosts"
+  if [[ ! -e "$_root/etc/hosts" ]]
+  then
+    echo "127.0.0.1 localhost" > "$_root/etc/hosts"
+  fi
 }
 
 depopulate_dynamic_fs_pieces()
