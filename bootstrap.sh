@@ -10,6 +10,13 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # the same instances.  They will all have been shut down, destroyed, rebuilt,
 # and redeployed.
 
+if ! ls /dev/kvm >/dev/null 2>&1
+then
+  echo "$(basename "$0"): /dev/kvm is missing, stage3 would be really slow" >&2
+  echo "$(basename "$0"): Consider installing the KVM module." >&2
+  exit 1
+fi
+
 "$DIR/env_destroy_all.sh" --active
 
 echo "Removing $DIR/cache/baseroot/"
@@ -20,19 +27,15 @@ echo "Removing and recreating /var/www/html/tgzrepo"
 rm -rf /var/www/html/tgzrepo/
 mkdir -pv /var/www/html/tgzrepo/
 
-# TODO: Refactor this and mkroot.sh to use the same package list.
-if type yum >/dev/null 2>&1
-then
-  for p in rpm-build centos-release yum
-  do
-    "$DIR/pkg.from_yum.sh" \
-      --pkg_name="$p"
-  done
-elif type apt-get >/dev/null 2>&1
-then
-  "$DIR/pkg.from_name.sh" --pkg_name=base-ubuntu
-  "$DIR/create_base_ubuntu_deps.sh"
-fi
-
+"$DIR/create_crypto.sh"
 "$DIR/create_all_containers.sh"
 "$DIR/lfs.stage1.sh"
+ip="$("$DIR/create_ip.sh" --owner="vm:stage3")"
+image_path="/var/www/html/tgzrepo/stage2.raw"
+"$DIR/lfs.stage2.create_raw_image.sh" \
+  --ip_address="$ip" \
+  --mac_address="$("$DIR/create_mac.sh")" \
+  --output_path="$image_path"
+"$DIR/lfs.stage2.sh" \
+  --ip_address="$ip" \
+  --image_path="$image_path"
