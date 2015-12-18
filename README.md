@@ -59,48 +59,7 @@ Linux distributions:
 
 ## How can you install it? ##
 
-"Easy" (with air-quotes):
-
-* find a machine you don't care about
-* install Red Hat Enterprise Linux 6 or CentOS 6
-* no, really - do this on a clean machine / VM - it will trample your
-  network settings, start services, and in general make a huge mess
-* log in as `root`
-* seriously reconsider doing this
-* run `yum install -y git lxc bridge-utils`
-* run `git clone https://github.com/jgilik/gigayak-linux`
-* run `cd gigayak-linux`
-* run `./buildall.sh`
-* run `./create_network.sh`
-* run `./create_all_containers.sh`
-* run `./lfs.stage1.sh`
-* assume 10.0.0.42 is an available IP on your local subnet - if it is
-  not, change it to one when you run this: `export IP=10.0.0.42`
-* run `./lfs.stage2.create_iso_image.sh
-  --ip_address=$IP --mac_address="$(./create_mac.sh)"
-  --output_path=/var/www/html/tgzrepo/stage2.iso`
-* find a second machine you don't care about, or reuse the first machine
-  you don't care about if you're feeling brave and/or silly
-* make sure it is connected to a subnet for which `$IP` is a valid IP to
-  communicate with
-* boot the resulting ISO (either burn it or insert over virtual media if
-  you have a DRAC/iLO/IPMI card)
-* log in as `root`
-* act shocked at not needing a password
-* run `install-jpgl` (*WARNING*: this destroys the first hard disk it
-  detects with absolutely no confirmation required - do *NOT* run this on a
-  machine you care about)
-* reboot without CD-ROM image present
-* run `/tools/i686/bin/buildsystem/lfs.stage3.sh`
-* ???
-* **TODO**: actually finish this project
-* ???
-* profit (good luck)
-
-These directions are untested, and as a result, likely to be  pretty broken.
-Therefore, be warned: here there be dragons.  Or yaks.  Or something.
-
-**TODO:** Move this section into its own document and test it.
+See [INSTALL.md](INSTALL.md).
 
 
 ## When was this all built? ##
