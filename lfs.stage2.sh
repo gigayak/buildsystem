@@ -91,7 +91,11 @@ esac
 
 # Boot the machine and wait for SSH to be available.
 sync # Ensure no dangling I/Os are waiting.
+machine_type="$(qemu-system-i386 -machine help \
+  | grep '(default)' \
+  | awk '{print $1}')"
 qemu-system-i386 \
+  -machine "${machine_type},accel=kvm,iommu=on" \
   -m 1024 \
   "${image_args[@]}" \
   -netdev bridge,id=network0,br=virbr0 \
