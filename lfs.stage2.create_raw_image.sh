@@ -144,7 +144,7 @@ for pkg in \
   linux-credentials linux-fstab-hd linux-log-directories bash-profile \
   iproute2 dhcp dhcp-config dropbear dropbear-config nettle gnutls \
   internal-ca-certificates wget rsync buildsystem linux-mountpoints \
-  linux-firmware jpgl-installer sget
+  linux-firmware jpgl-installer stage2-certificate sget
 do
   pkgs+=("i686-tools2-$pkg")
 done

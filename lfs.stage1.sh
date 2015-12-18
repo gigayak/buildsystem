@@ -41,7 +41,7 @@ for p in \
   linux-credentials linux-fstab-cd linux-fstab-hd linux-log-directories \
   bash-profile iproute2 dhcp dhcp-config dropbear dropbear-config nettle gnutls \
   internal-ca-certificates wget rsync buildsystem linux-mountpoints busybox \
-  initrd linux-firmware jpgl-installer sget
+  initrd linux-firmware jpgl-installer stage2-certificate sget
 do
   pkgs+=("i686-tools-$p")
   pkgs+=("i686-tools2-$p")
