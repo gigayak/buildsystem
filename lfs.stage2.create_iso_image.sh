@@ -2,6 +2,12 @@
 set -Eeo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+echo "$(basename "$0") is deprecated" >&2
+echo "Code remains to allow an installation CD to be created for stage3." >&2
+echo "Use lfs.stage2.create_raw_image.sh to create stage2 image." >&2
+echo "Use lfs.stage2.sh to boot stage2 image and build stage3." >&2
+exit 1
+
 source "$DIR/arch.sh"
 source "$DIR/flag.sh"
 source "$DIR/cleanup.sh"
@@ -72,7 +78,7 @@ for pkg in \
   linux-credentials linux-fstab-cd linux-log-directories bash-profile \
   iproute2 dhcp dhcp-config dropbear dropbear-config nettle gnutls \
   internal-ca-certificates wget rsync buildsystem linux-mountpoints initrd \
-  linux-firmware jpgl-installer sget
+  linux-firmware jpgl-installer stage2-certificate sget
 do
   pkgs+=("i686-tools2-$pkg")
 done

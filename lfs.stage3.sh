@@ -5,15 +5,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "Starting stage 3 bootstrap"
 echo "This uses i686-tools-buildsystem to build all native packages."
 
-if ! ip route show | grep default >/dev/null 2>&1
-then
-  echo "HACK TIME: set up default route (should be done at init)"
-  ip route add default via 10.0.0.1
-fi
-echo "HACK TIME: point glibc at /etc/hosts"
-echo "hosts: files dns" > /etc/nsswitch.conf
-echo "HACK TIME: point proxy.jgilik.com at proxy"
-echo "10.0.0.10 proxy.jgilik.com" > /etc/hosts
 if [[ ! -d "/var/www/html/tgzrepo" ]]
 then
   echo "HACK TIME: creating repository directory"
