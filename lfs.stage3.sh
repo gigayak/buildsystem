@@ -56,6 +56,7 @@ pkgs+=("i686-yak-iana-etc")
 pkgs+=("i686-yak-iproute2")
 pkgs+=("i686-yak-bzip2")
 pkgs+=("i686-yak-gdbm")
+pkgs+=("i686-yak-perl")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
