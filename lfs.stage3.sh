@@ -50,6 +50,10 @@ pkgs+=("i686-yak-automake")
 pkgs+=("i686-yak-libtool")
 pkgs+=("i686-yak-gettext")
 pkgs+=("i686-yak-procps-ng")
+pkgs+=("i686-yak-e2fsprogs")
+pkgs+=("i686-yak-coreutils")
+pkgs+=("i686-yak-iana-etc")
+pkgs+=("i686-yak-iproute2")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
