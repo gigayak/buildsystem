@@ -68,6 +68,7 @@ pkgs+=("i686-yak-grep")
 pkgs+=("i686-yak-groff")
 pkgs+=("i686-yak-less")
 pkgs+=("i686-yak-gzip")
+pkgs+=("i686-yak-iputils")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
