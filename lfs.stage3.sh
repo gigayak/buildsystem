@@ -59,6 +59,7 @@ pkgs+=("i686-yak-gdbm")
 pkgs+=("i686-yak-perl")
 pkgs+=("i686-yak-readline")
 pkgs+=("i686-yak-bash")
+pkgs+=("i686-yak-bc")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
