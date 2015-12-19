@@ -60,6 +60,7 @@ pkgs+=("i686-yak-perl")
 pkgs+=("i686-yak-readline")
 pkgs+=("i686-yak-bash")
 pkgs+=("i686-yak-bc")
+pkgs+=("i686-yak-diffutils")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
