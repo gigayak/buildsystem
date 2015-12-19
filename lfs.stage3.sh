@@ -64,6 +64,7 @@ pkgs+=("i686-yak-diffutils")
 pkgs+=("i686-yak-file")
 pkgs+=("i686-yak-gawk")
 pkgs+=("i686-yak-findutils")
+pkgs+=("i686-yak-grep")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
