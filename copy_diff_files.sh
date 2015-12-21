@@ -91,26 +91,32 @@ parse_line()
   change_spec="$1"
   shift
 
+  # Unescape the file name to clean up after rsync "conveniently" escaping some
+  # file names for us.
+  n="$(echo "$@" \
+    | sed -re 's@\\\#@\\0@g')"
+  n="$(echo -e "$n")"
+
   # Keys can be interpreted by using this page:
   #   http://andreafrancia.it/2010/03/understanding-the-output-of-rsync-itemize-changes.html
   case "$change_spec" in
-    ".d..t......") noop "$@" ;;
-    ".d..T......") noop "$@" ;;
-    ".d...p.....") warn_on_permissions "$@" ;;
-    "cd+++++++++") copy_dir "$@" ;;
-    ">f.s.......") copy_file "$@" ;;
-    ".f..t......") noop "$@" ;;
-    ">f..t......") copy_file "$@" ;;
-    ".f...p.....") warn_on_permissions "$@" ;;
-    ".f..T......") noop "$@" ;;
-    ">f..T......") copy_file "$@" ;;
-    ">f.st......") copy_file "$@" ;;
-    ">f.sT......") copy_file "$@" ;;
-    ">f+++++++++") copy_file "$@" ;;
-    "cL+++++++++") copy_link "$@" ;;
-    "cLc.T......") copy_link "$@" ;;
-    "cD+++++++++") copy_device "$@" ;;
-    ">f.sTp.....") error "File was modified: $@" ;;
+    ".d..t......") noop "$n" ;;
+    ".d..T......") noop "$n" ;;
+    ".d...p.....") warn_on_permissions "$n" ;;
+    "cd+++++++++") copy_dir "$n" ;;
+    ">f.s.......") copy_file "$n" ;;
+    ".f..t......") noop "$n" ;;
+    ">f..t......") copy_file "$n" ;;
+    ".f...p.....") warn_on_permissions "$n" ;;
+    ".f..T......") noop "$n" ;;
+    ">f..T......") copy_file "$n" ;;
+    ">f.st......") copy_file "$n" ;;
+    ">f.sT......") copy_file "$n" ;;
+    ">f+++++++++") copy_file "$n" ;;
+    "cL+++++++++") copy_link "$n" ;;
+    "cLc.T......") copy_link "$n" ;;
+    "cD+++++++++") copy_device "$n" ;;
+    ">f.sTp.....") error "File was modified: $n" ;;
     *)
       echo "${FUNCNAME[0]}: invalid diff changespec '$change_spec'" >&2
       return 1

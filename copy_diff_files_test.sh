@@ -104,3 +104,18 @@ export copy_diff_files="$DIR/copy_diff_files.sh"
   [[ -f "$pkg/etc/test/test_file" ]] && pass || fail
   run_exit_handlers
 )
+
+(
+  make_temp_dir pre
+  make_temp_dir post
+  make_temp_dir pkg
+  # This creates a file with a name of a single eighth note followed by two
+  # sixteenth notes - using UTF-8 Unicode.  rsync has some escaping that it
+  # does to make this work...
+  touch "$post/"$'\342\231\252\342\231\254'
+  start_case "UTF-8 nastiness in filenames case - file copying"
+  ddiff "$post" "$pre" | "$copy_diff_files" "$post" "$pkg" && pass || fail
+  start_case "UTF-8 nastiness in filenames case - existence check"
+  [[ -f "$pkg/"$'\342\231\252\342\231\254' ]] && pass || fail
+  run_exit_handlers
+)
