@@ -70,6 +70,7 @@ pkgs+=("i686-yak-less")
 pkgs+=("i686-yak-gzip")
 pkgs+=("i686-yak-iputils")
 pkgs+=("i686-yak-kbd")
+pkgs+=("i686-yak-libpipeline")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
