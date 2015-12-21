@@ -72,6 +72,7 @@ pkgs+=("i686-yak-iputils")
 pkgs+=("i686-yak-kbd")
 pkgs+=("i686-yak-libpipeline")
 pkgs+=("i686-yak-man")
+pkgs+=("i686-yak-make")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
