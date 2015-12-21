@@ -4,7 +4,6 @@ source /tools/env.sh
 
 cd /root
 version=20
-#version=18
 echo "$version" > /root/version
 url="http://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-$version.tar.xz"
 wget "$url"
