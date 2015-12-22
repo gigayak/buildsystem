@@ -78,6 +78,7 @@ pkgs+=("i686-yak-kmod")
 pkgs+=("i686-yak-patch")
 pkgs+=("i686-yak-psmisc")
 pkgs+=("i686-yak-libestr")
+pkgs+=("i686-yak-libee")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
