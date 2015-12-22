@@ -75,6 +75,7 @@ pkgs+=("i686-yak-man")
 pkgs+=("i686-yak-make")
 pkgs+=("i686-yak-xz")
 pkgs+=("i686-yak-kmod")
+pkgs+=("i686-yak-patch")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
