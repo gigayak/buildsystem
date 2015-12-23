@@ -79,6 +79,14 @@ pkgs+=("i686-yak-patch")
 pkgs+=("i686-yak-psmisc")
 pkgs+=("i686-yak-libestr")
 pkgs+=("i686-yak-libee")
+pkgs+=("i686-yak-debianutils")
+pkgs+=("i686-yak-eventlog")
+pkgs+=("i686-yak-libffi")
+pkgs+=("i686-yak-python2")
+pkgs+=("i686-yak-glib")
+pkgs+=("i686-yak-pcre")
+pkgs+=("i686-yak-openssl")
+pkgs+=("i686-yak-syslog-ng")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
