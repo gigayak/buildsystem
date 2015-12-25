@@ -90,6 +90,7 @@ pkgs+=("i686-yak-syslog-ng")
 pkgs+=("i686-yak-sysvinit")
 pkgs+=("i686-yak-sysvinit-config")
 pkgs+=("i686-yak-tar")
+pkgs+=("i686-yak-texinfo")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
