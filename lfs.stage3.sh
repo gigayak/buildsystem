@@ -88,6 +88,7 @@ pkgs+=("i686-yak-pcre")
 pkgs+=("i686-yak-openssl")
 pkgs+=("i686-yak-syslog-ng")
 pkgs+=("i686-yak-sysvinit")
+pkgs+=("i686-yak-sysvinit-config")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
