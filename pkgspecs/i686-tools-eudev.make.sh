@@ -4,7 +4,6 @@ source /tools/env.sh
 
 cd /root
 version=2.1
-#version=1.7 # :o
 echo "$version" > /root/version
 url="https://dev.gentoo.org/~blueness/eudev/eudev-2.1.tar.gz"
 wget "$url"
