@@ -99,6 +99,7 @@ pkgs+=("i686-yak-bootscripts")
 pkgs+=("i686-yak-bootscripts-config")
 pkgs+=("i686-yak-input-config")
 pkgs+=("i686-yak-fstab-config")
+pkgs+=("i686-yak-dhcpcd")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
