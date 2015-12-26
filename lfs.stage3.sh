@@ -93,6 +93,7 @@ pkgs+=("i686-yak-tar")
 pkgs+=("i686-yak-texinfo")
 pkgs+=("i686-yak-eudev")
 pkgs+=("i686-yak-vim")
+pkgs+=("i686-yak-syslinux")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
