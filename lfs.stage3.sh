@@ -97,6 +97,7 @@ pkgs+=("i686-yak-vim")
 pkgs+=("i686-yak-syslinux")
 pkgs+=("i686-yak-bootscripts")
 pkgs+=("i686-yak-bootscripts-config")
+pkgs+=("i686-yak-input-config")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
