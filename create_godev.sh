@@ -19,21 +19,19 @@ deps=()
 # Needed to compile:
 deps+=(go gcc)
 # Needed to download source:
-deps+=(git)
+deps+=(git openssh-clients)
 # Needed to authenticate git server for download:
 deps+=(internal-ca-certificates)
 # Needed for root user to be usable:
 deps+=(rootfiles)
 # Needed to actually horse around with Go code:
-deps+=(vim-enhanced vim-pathogen vim-pathogen-config vim-go)
+deps+=(vim vim-pathogen vim-pathogen-config vim-go)
 for dep in "${deps[@]}"
 do
   "$DIR/install_pkg.sh" \
     --install_root="$root" \
     --pkg_name="$dep"
 done
-
-cat "$root/.installed_pkgs"
 
 # Set up directory tree outside of chroot to transfer data in.
 # ($pkg_name is not propagated across chroot by default.)

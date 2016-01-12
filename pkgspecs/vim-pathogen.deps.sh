@@ -1,4 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
-dep vim-enhanced
+dep vim
