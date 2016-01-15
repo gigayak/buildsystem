@@ -11,6 +11,7 @@ source "$DIR/escape.sh"
 add_flag --required output_path "Where to store the image."
 add_flag --required mac_address "MAC address to assign to eth0."
 add_flag --required ip_address "IP address to assign to eth0."
+add_flag --required distro_name "Which distribution to load (tools2, yak, ???)"
 parse_flags
 
 pkgs=()
@@ -44,7 +45,13 @@ mkdir -pv "$target_buildsystem"
 
 target_pkgdir="$dir/pkgs"
 mkdir -pv "$target_pkgdir"
-cp -v /var/www/html/tgzrepo/i686-tools2-* "$target_pkgdir/"
+pkgs=()
+while read -r pkgpath
+do
+  pkg="$(basename "$pkgpath" .tar.gz)"
+  pkgs+=("$pkg")
+  cp -v "/var/www/html/tgzrepo/${pkg}."* "$target_pkgdir/"
+done < <(find /var/www/html/tgzrepo -iname "i686-${F_distro_name}-*.tar.gz")
 
 # Ensure that internal DNS is available.
 "$DIR/create_resolv.sh" > "$dir/root/resolv.conf"
@@ -54,8 +61,16 @@ cat > "$dir/root/generate_image.sh" <<'EOF_GEN_IMAGE'
 set -Eeo pipefail
 
 # Pull in flags from next layer of execution above us.
+# TODO: Subtle bugs are likely to result from not using flag.sh here.
 mac_address="$1"
-ip_address="$2"
+shift
+ip_address="$1"
+shift
+strip_prefix="$1"
+shift
+distro_name="$1"
+shift
+pkgs=("$@")
 
 # Create image.
 qemu-img create -f raw /root/jpgl.raw.img 16G
@@ -126,42 +141,29 @@ losetup \
 loop_dev="$(losetup -a | grep '/root/jpgl.raw.img' | awk -F':' '{print $1}')"
 trap 'losetup -d "$loop_dev"' EXIT ERR
 mke2fs "$loop_dev"
-# Mounting as /mnt/guest/clfs-root allows us to extract the temporary system
+# $strip_prefix allows us to mount the disk at /mnt/guest/clfs-root.
+# Mounting at /mnt/guest/clfs-root allows us to extract the temporary system
 # packages to /mnt/guest and results in /clfs-root/ becoming /.
-mkdir -pv /mnt/guest/clfs-root
-trap 'losetup -d "$loop_dev" ; umount /mnt/guest/clfs-root' EXIT ERR
-mount "$loop_dev" /mnt/guest/clfs-root
+mkdir -pv "/mnt/guest${strip_prefix}"
+trap 'losetup -d "$loop_dev" ; umount "/mnt/guest${strip_prefix}"' EXIT ERR
+mount "$loop_dev" "/mnt/guest${strip_prefix}"
 
 # Our new filesystem has no files!
 # Extract all of the packages into our guest filesystem.
-pkgs=()
-for pkg in \
-  root glibc gmp mpfr mpc isl cloog zlib binutils gcc ncurses bash bzip2 \
-  check coreutils diffutils file findutils gawk gettext grep gzip make patch \
-  sed tar texinfo util-linux xz bootscripts e2fsprogs kmod shadow sysvinit \
-  eudev linux grub gcc-aliases bash-aliases coreutils-aliases grep-aliases \
-  file-aliases sysvinit-aliases shadow-aliases linux-aliases linux-devices \
-  linux-credentials linux-fstab-hd linux-log-directories bash-profile \
-  iproute2 dhcp dhcp-config dropbear dropbear-config nettle gnutls \
-  internal-ca-certificates wget rsync buildsystem linux-mountpoints \
-  linux-firmware jpgl-installer stage2-certificate sget
-do
-  pkgs+=("i686-tools2-$pkg")
-done
 for pkg in "${pkgs[@]}"
 do
   echo "Installing $pkg"
   /buildsystem/install_pkg.sh \
-    --install_root=/mnt/guest/clfs-root \
+    --install_root="/mnt/guest${strip_prefix}" \
     --pkg_name="$pkg" \
     --repo_path="/pkgs"
 done
 
 # Copy in dynamically generated resolv.conf to ensure internal DNS access.
-cp /root/resolv.conf /mnt/guest/clfs-root/etc/resolv.conf
+cp /root/resolv.conf "/mnt/guest${strip_prefix}/etc/resolv.conf"
 
 # And now for the bootloader configuration, so that the thing will boot in qemu
-bootdir=/mnt/guest/clfs-root/boot/extlinux
+bootdir="/mnt/guest${strip_prefix}/boot/extlinux"
 mkdir -pv "$bootdir"
 extlinux --install "$bootdir"
 # TODO: Move to a package, this should not be tightly coupled here.
@@ -169,19 +171,27 @@ extlinux --install "$bootdir"
 # Note that the serial console is last: this is important, as /sbin/init is only
 # bound to the last console in the parameter list.  We use the serial console
 # for logging the boot process, so this is useful for diagnosing init failures.
-cat > "$bootdir/extlinux.conf" <<'EOF'
+if [[ "$distro_name" == "tools2" ]]
+then
+  kernel_path="/tools/i686/boot/vmlinuz"
+else
+  kernel_path="/boot/vmlinuz"
+fi
+cat > "$bootdir/extlinux.conf" <<EOF
 SERIAL 0
 DEFAULT linux
 LABEL linux
   SAY Now booting the kernel from SYSLINUX...
-  KERNEL /tools/i686/boot/vmlinuz
+  KERNEL $kernel_path
   APPEND rw root=/dev/sda1 console=tty0 console=ttyS0,115200n8 panic=1
 EOF
 
+if [[ "$distro_name" == "tools2" ]]
+then
 # HACK SCALE: EPIC
 #
 # Yeah, we should NOT be assigning an IP address like this!
-cat > "/mnt/guest/clfs-root/tools/i686/etc/rc.d/init.d/eth0" <<'EOF'
+cat > "/mnt/guest${strip_prefix}/tools/i686/etc/rc.d/init.d/eth0" <<'EOF'
 #!/bin/bash
 set -Eeo pipefail
 if [[ "$1" != "start" ]]
@@ -214,11 +224,11 @@ ${ip} addr add $(</tools/i686/etc/ip_address.conf)/24 dev eth0
 ${ip} route add default via 192.168.122.1
 EOF
 echo "$ip_address" > /mnt/guest/clfs-root/tools/i686/etc/ip_address.conf
-
+fi
 
 
 # That's it, pack it up
-umount /mnt/guest/clfs-root
+umount "/mnt/guest${strip_prefix}"
 losetup -d "$loop_dev"
 unset loop_dev
 trap - EXIT ERR
@@ -236,8 +246,13 @@ trap - EXIT ERR
 EOF_GEN_IMAGE
 chmod +x "$dir/root/generate_image.sh"
 
+strip_prefix=""
+if [[ "$F_distro_name" == "tools2" ]]
+then
+  strip_prefix="/clfs-root"
+fi
 chroot "$dir" /bin/bash /root/generate_image.sh \
-  "$F_mac_address" "$F_ip_address"
+  "$F_mac_address" "$F_ip_address" "$strip_prefix" "$F_distro_name" "${pkgs[@]}"
 
 
 # Break out of chroot and export the packages...

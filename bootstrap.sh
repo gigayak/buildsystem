@@ -30,12 +30,22 @@ mkdir -pv /var/www/html/tgzrepo/
 "$DIR/create_crypto.sh"
 "$DIR/create_all_containers.sh"
 "$DIR/lfs.stage1.sh"
-ip="$("$DIR/create_ip.sh" --owner="vm:stage3")"
+ip="$("$DIR/create_ip.sh" --owner="vm:stage2")"
 image_path="/var/www/html/tgzrepo/stage2.raw"
 "$DIR/lfs.stage2.create_raw_image.sh" \
   --ip_address="$ip" \
   --mac_address="$("$DIR/create_mac.sh")" \
-  --output_path="$image_path"
+  --output_path="$image_path" \
+  --distro_name=tools2
 "$DIR/lfs.stage2.sh" \
   --ip_address="$ip" \
   --image_path="$image_path"
+
+"$DIR/lfs.stage3.test_input.sh"
+ip="$("$DIR/create_ip.sh" --owner="vm:stage3")"
+image_path="/var/www/html/tgzrepo/stage3.raw"
+"$DIR/lfs.stage2.create_raw_image.sh" \
+  --ip_address="$ip" \
+  --mac_address="$("$DIR/create_mac.sh")" \
+  --output_path="$image_path" \
+  --distro_name=yak
