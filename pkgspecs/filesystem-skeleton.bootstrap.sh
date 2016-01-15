@@ -19,6 +19,10 @@ make_temp_dir root
   ln -sv /run "$root"/var/run
   ln -sv /run/lock "$root"/var/lock
   mkdir -pv "$root"/var/{opt,cache,lib/{color,misc,locate},local}
+  mkdir -pv "$root"/dev
+  mkdir -pv "$root"/proc
+  mkdir -pv "$root"/run/{lock,utmp,udev}
+  mkdir -pv "$root"/sys
 } >&2
 
 tar -cz -C "$root" .
