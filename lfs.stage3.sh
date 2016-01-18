@@ -104,6 +104,10 @@ pkgs+=("i686-yak-input-config")
 pkgs+=("i686-yak-fstab-config")
 pkgs+=("i686-yak-linux")
 pkgs+=("i686-yak-linux-credentials")
+pkgs+=("i686-yak-nettle")
+pkgs+=("i686-yak-gnutls")
+pksg+=("i686-yak-wget")
+pkgs+=("i686-yak-dropbear")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
