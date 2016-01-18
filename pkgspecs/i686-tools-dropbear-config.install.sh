@@ -2,12 +2,6 @@
 set -Eeo pipefail
 source /tools/env.sh
 
-# This would actually fail in a cross-compiled setting :o
-# TODO: Move this into an initscript
-#"$CLFS/tools/i686/bin/dropbearkey" \
-#  -t rsa \
-#  -s 1024 \
-#  -f "$CLFS/tools/i686/etc/dropbear_rsa_host_key"
 # Ensure directory to hold keys exists.
 mkdir -pv "$CLFS/tools/i686/etc/dropbear"
 
