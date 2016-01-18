@@ -36,9 +36,9 @@ container()
 # Network must be up before containers are created.
 "$DIR/create_network.sh"
 
-# Everything requires the DNS servers.  Always boot these first.
+# Everything requires the DNS/DHCP server.  Always boot this first.
+# TODO: Figure out how to replicate DHCP.
 container dns     01
-container dns     02
 
 # Infrastructure services:
 container gitzebo 01
