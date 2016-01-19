@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 source /tools/env.sh
 
-cat > "$CLFS/tools/i686/bin/install-jpgl" <<'EOF_INSTALLED_SCRIPT'
+cat > "$CLFS/tools/i686/bin/install-gigayak" <<'EOF_INSTALLED_SCRIPT'
 #!/bin/bash
 set -Eeuo pipefail
 
@@ -78,20 +78,20 @@ blkid -s UUID -o value "${hd}1" \
   > /tmp/mount/root/grub.blkid
 echo "${hd}1" > /tmp/mount/root/grub.rootfs
 chroot /tmp/mount /tools/i686/bin/bash <<'EOF_CHROOT_INSTALLER'
-cat > /tools/i686/etc/grub.d/42_jpgl <<'EOF_HELPER'
+cat > /tools/i686/etc/grub.d/42_gigayak <<'EOF_HELPER'
 #!/bin/sh -e
 uuid=`cat /root/grub.blkid`
 export uuid
 rootfs=`cat /root/grub.rootfs`
 export rootfs
 cat <<EOF
-menuentry "JPGL" {
+menuentry "Gigayak Linux" {
 search --set=root --fs-uuid $uuid
 linux /tools/i686/boot/vmlinuz root=$rootfs console=ttyS0,115200n8
 }
 EOF
 EOF_HELPER
-chmod +x /tools/i686/etc/grub.d/42_jpgl
+chmod +x /tools/i686/etc/grub.d/42_gigayak
 cat > /tools/i686/etc/default/grub <<EOF
 GRUB_CMDLINE_LINUX_DEFAULT="console=ttyS0,115200n8"
 GRUB_TERMINAL="console serial"
@@ -100,4 +100,4 @@ EOF
 grub-mkconfig > /tools/i686/boot/grub/grub.cfg
 EOF_CHROOT_INSTALLER
 EOF_INSTALLED_SCRIPT
-chmod +x "$CLFS/tools/i686/bin/install-jpgl"
+chmod +x "$CLFS/tools/i686/bin/install-gigayak"

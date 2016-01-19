@@ -73,18 +73,18 @@ shift
 pkgs=("$@")
 
 # Create image.
-qemu-img create -f raw /root/jpgl.raw.img 16G
+qemu-img create -f raw /root/gigayak.raw.img 16G
 
 # Create partition table!
 # Per http://superuser.com/a/518556
-#parted /root/jpgl.raw.img mklabel msdos
-losetup -f /root/jpgl.raw.img
-loop_dev="$(losetup -a | grep '/root/jpgl.raw.img' | awk -F':' '{print $1}')"
+#parted /root/gigayak.raw.img mklabel msdos
+losetup -f /root/gigayak.raw.img
+loop_dev="$(losetup -a | grep '/root/gigayak.raw.img' | awk -F':' '{print $1}')"
 trap 'losetup -d "$loop_dev"' EXIT ERR
 retval=0
 ( \
 cat <<EOF
-o # create new partition table (same as parted /root/jpgl.raw.img mklabel msdos)
+o # create new partition table (same as parted ....raw.img mklabel msdos)
 n # create new partition
 p # primary
 1 # first primary
@@ -137,8 +137,8 @@ losetup \
   --find \
   --offset "$part_start" \
   --sizelimit "$part_size" \
-  /root/jpgl.raw.img
-loop_dev="$(losetup -a | grep '/root/jpgl.raw.img' | awk -F':' '{print $1}')"
+  /root/gigayak.raw.img
+loop_dev="$(losetup -a | grep '/root/gigayak.raw.img' | awk -F':' '{print $1}')"
 trap 'losetup -d "$loop_dev"' EXIT ERR
 mke2fs "$loop_dev"
 # $strip_prefix allows us to mount the disk at /mnt/guest/clfs-root.
@@ -235,8 +235,8 @@ trap - EXIT ERR
 trap
 
 # Still need to install the MBR binary from SYSLINUX...
-losetup -f /root/jpgl.raw.img
-loop_dev="$(losetup -a | grep '/root/jpgl.raw.img' | awk -F':' '{print $1}')"
+losetup -f /root/gigayak.raw.img
+loop_dev="$(losetup -a | grep '/root/gigayak.raw.img' | awk -F':' '{print $1}')"
 trap 'losetup -d "$loop_dev"' EXIT ERR
 dd bs=440 count=1 conv=notrunc if=/usr/share/syslinux/mbr.bin of="$loop_dev"
 losetup -d "$loop_dev"
@@ -257,4 +257,4 @@ chroot "$dir" /bin/bash /root/generate_image.sh \
 
 # Break out of chroot and export the packages...
 echo "generate_image.sh complete.  Exporting image."
-cp -v "$dir/root/jpgl.raw.img" "$F_output_path"
+cp -v "$dir/root/gigayak.raw.img" "$F_output_path"

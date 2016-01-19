@@ -78,7 +78,7 @@ for pkg in \
   linux-credentials linux-fstab-cd linux-log-directories bash-profile \
   iproute2 dhcp dhcp-config dropbear dropbear-config nettle gnutls \
   internal-ca-certificates wget rsync buildsystem linux-mountpoints initrd \
-  linux-firmware jpgl-installer stage2-certificate sget
+  linux-firmware gigayak-installer stage2-certificate sget
 do
   pkgs+=("i686-tools2-$pkg")
 done
@@ -109,7 +109,7 @@ DEFAULT linux
 LABEL linux
   SAY Now booting the kernel from SYSLINUX...
   KERNEL /tools/i686/boot/vmlinuz
-  APPEND ro root=LABEL=JPGL_CDROM console=ttyS0,115200
+  APPEND ro root=LABEL=YAK_CDROM console=ttyS0,115200
   INITRD /tools/i686/boot/initrd.igz
 EOF
 cp -v "/usr/share/syslinux/isolinux-debug.bin" "$bootdir/isolinux.bin"
@@ -158,15 +158,15 @@ echo "$ip_address" > "$extract_path/tools/i686/etc/ip_address.conf"
 # but the kernel requires Rock Ridge extensions (-R) to be able to decode
 # symlinks and leading-dot filenames.
 #
-# -V JPGL_CDROM provides a volume ID we can look up in /dev/disk/by-label.
+# -V YAK_CDROM provides a volume ID we can look up in /dev/disk/by-label.
 # It's intentionally separate from the volume ID we might set for the hard
 # disk in the long run.
 genisoimage \
   -R \
-  -o /root/jpgl.iso \
+  -o /root/gigayak.iso \
   -b boot/isolinux/isolinux.bin \
   -c boot/isolinux/boot.cat \
-  -V JPGL_CDROM \
+  -V YAK_CDROM \
   -no-emul-boot \
   -boot-load-size 4 \
   -boot-info-table \
@@ -179,4 +179,4 @@ chroot "$dir" /bin/bash /root/generate_image.sh \
 
 # Break out of chroot and export the packages...
 echo "generate_image.sh complete.  Exporting image."
-cp -v "$dir/root/jpgl.iso" "$F_output_path"
+cp -v "$dir/root/gigayak.iso" "$F_output_path"

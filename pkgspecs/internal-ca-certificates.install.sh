@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 
-# TODO: Provide a build that will work for JPGL.
+# TODO: Provide a build that will work for Gigayak.
 
 cert_path=""
 update_command=()
