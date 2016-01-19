@@ -56,17 +56,44 @@ version="$F_version_script"
 # Manually export a select set of environment variables.
 # These are all hacks to accomplish something dirty.
 host_os="unknown"
-if \
+host_os_style="unknown"
+if [[ -e /etc/os-release ]]
+then
+  # Translates to:
+  #   "archarm" for Arch Linux ARM
+  #   ??? for Arch Linux x86
+  #   "ubuntu" for Ubuntu
+  #   ??? for Debian
+  #   "${ARCH}-yak" for Gigayak (this distribution)
+  host_os="$(sed -n -r \
+    -e 's@^\s*ID=(.*)$@\1@gp' \
+    -e 's@^"@@' \
+    -e 's@"$@@' \
+    -e 's@\s*$@@' \
+    /etc/os-release)"
+  # Translates to:
+  #   "arch" for Arch Linux ARM and Arch Linux
+  #   "debian" for Ubuntu and Debian (maybe Raspbian, Olinuxino, and others)
+  #   "yak" for Gigayak (this distribution)
+  host_os_style="$(sed -n -r \
+    -e 's@^\s*ID_LIKE=(.*)$@\1@gp' \
+    -e 's@^"@@' \
+    -e 's@"$@@' \
+    -e 's@\s*$@@' \
+    /etc/os-release)"
+elif \
   rpm -q redhat-release >/dev/null 2>&1 \
   || rpm -q centos-release >/dev/null 2>&1
 then
   host_os="redhat"
-elif lsb_release -d | grep -i ubuntu >/dev/null 2>&1
-then
-  host_os="ubuntu"
+  host_os_style="redhat"
 fi
+host_arch="$(uname -m)"
+
 env_string=""
 env_string="$env_string HOST_OS=$host_os"
+env_string="$env_string HOST_OS_STYLE=$host_os_style"
+env_string="$env_string HOST_ARCH=$host_arch"
 # TODO: Migrate to something other than /root...
 #     (First step is to make all instances of "/root" be "$WORKSPACE".)
 env_string="$env_string BUILDTOOLS=/root"
