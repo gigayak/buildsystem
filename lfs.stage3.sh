@@ -108,6 +108,7 @@ pkgs+=("i686-yak-nettle")
 pkgs+=("i686-yak-gnutls")
 pksg+=("i686-yak-wget")
 pkgs+=("i686-yak-dropbear")
+pkgs+=("i686-yak-dropbear-config")
 
 build="$DIR/pkg.from_name.sh"
 for p in "${pkgs[@]}"
