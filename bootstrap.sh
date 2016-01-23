@@ -19,10 +19,17 @@ fi
 
 "$DIR/env_destroy_all.sh" --active
 
-echo "Removing $DIR/cache/baseroot/"
-rm -rf "$DIR/cache/baseroot"
-echo "Removing /tmp/ip.gigayak.allocations"
-rm -f /tmp/ip.gigayak.allocations
+if [[ -e "$DIR/cache/baseroot" ]]
+then
+  echo "Removing $DIR/cache/baseroot/"
+  rm -rf "$DIR/cache/baseroot"
+fi
+if [[ -e "/tmp/ip.gigayak.allocations" ]]
+then
+  echo "Removing /tmp/ip.gigayak.allocations"
+  rm -f /tmp/ip.gigayak.allocations
+fi
+
 echo "Removing and recreating /var/www/html/tgzrepo"
 rm -rf /var/www/html/tgzrepo/
 mkdir -pv /var/www/html/tgzrepo/
