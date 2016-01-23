@@ -17,7 +17,7 @@ then
   exit 1
 fi
 
-"$DIR/env_destroy_all.sh" --active
+"$DIR/env_destroy_all.sh" --active --persistent
 
 if [[ -e "$DIR/cache/baseroot" ]]
 then
