@@ -298,10 +298,11 @@ resolve_deps()
 
     # Process all of its sub-dependencies.
     deps_path="$scratch/tmp.deps"
-    if ! repo_get "$new_dep.dependencies" > "$deps_path"
+    subdeps="$new_dep.dependencies"
+    if ! repo_get "$subdeps" > "$deps_path"
     then
-      echo "$(basename "$0"): could not find subdependencies at '$subdeps'" >&2
-      exit 1
+      echo "${FUNCNAME[0]}: could not find subdependencies at '$subdeps'" >&2
+      return 1
     fi
     while read -r dep
     do
