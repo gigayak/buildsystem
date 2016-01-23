@@ -51,7 +51,7 @@ mkdir -pv "$target_buildsystem"
 
 target_pkgdir="$dir/pkgs"
 mkdir -pv "$target_pkgdir"
-cp -v /var/www/html/tgzrepo/i686-tools2-* "$target_pkgdir/"
+cp -v /var/www/html/tgzrepo/i686-tools2:* "$target_pkgdir/"
 
 # Ensure that internal DNS is available.
 "$DIR/create_resolv.sh" > "$dir/root/resolv.conf"

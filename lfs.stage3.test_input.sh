@@ -63,7 +63,7 @@ do
   "$DIR/recursive_umount.sh" "$work"
   rm -rf "$work"
   unregister_temp_file "$work"
-done < <(find /var/www/html/tgzrepo -iname "$arch"'-yak-*.tar.gz')
+done < <(find /var/www/html/tgzrepo -iname "$arch"'-yak:*.tar.gz')
 
 if (( "$failures" <= 0 ))
 then

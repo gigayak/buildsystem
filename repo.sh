@@ -130,13 +130,110 @@ repo_get()
   fi
 }
 
+dependency_to_property()
+{
+  arch="$1"
+  os="$2"
+  dep="$3"
+  prop="$4"
+  if (( "$#" != 4 ))
+  then
+    echo "Usage: ${FUNCNAME[0]} <host_arch> <host_os> <dep> <prop>" >&2
+    echo "Outputs given property name." >&2
+    return 1
+  fi
+  group=''
+  p=''
+  if [[ "$prop" == "arch" || "$prop" == "architecture" ]]
+  then
+    group='\1'
+    p='arch'
+  elif [[ "$prop" == "distro" || "$prop" == "distribution" ]]
+  then
+    group='\2'
+    p='distro'
+  elif [[ "$prop" == "pkgname" || "$prop" == "pkg_name" || "$prop" == "name" ]]
+  then
+    group='\3'
+    p='pkg'
+  else
+    echo "${FUNCNAME[0]}: unknown property '$prop'" >&2
+    return 1
+  fi
+
+  if echo "$dep" | grep -E '^[^:]+:' >/dev/null 2>&1
+  then
+    echo "$dep" | sed -nre 's@^([^-:]+)-([^-:]+):(.*)$@'"$group"'@gp'
+    return 0
+  fi
+
+  if [[ "$p" == "pkg" ]]
+  then
+    echo "$dep"
+    return 0
+  fi
+  if [[ "$p" == "arch" ]]
+  then
+    echo "$arch"
+    return 0
+  fi
+  if [[ "$p" == "distro" ]]
+  then
+    echo "$os"
+    return 0
+  fi
+
+  echo "${FUNCNAME[0]}: unknown property '$prop'" >&2
+  return 1
+}
+dep2name()
+{
+  dependency_to_property "$1" "$2" "$3" pkg_name
+}
+dep2arch()
+{
+  dependency_to_property "$1" "$2" "$3" architecture
+}
+dep2distro()
+{
+  dependency_to_property "$1" "$2" "$3" distribution
+}
+
+qualify_dep()
+{
+  if (( "$#" != 3 ))
+  then
+    echo "Usage: ${FUNCNAME[0]} <arch> <os> <dep>" >&2
+    echo >&2
+    echo "${FUNCNAME[0]} will fully-qualify a dependency with the given" >&2
+    echo "architecture and distribution if they are not already specified" >&2
+    echo "in the dependency." >&2
+    echo >&2
+    echo "For example, ${FUNCNAME[0]} i686 tools root will yield" >&2
+    echo "i686-tools:root, and ${FUNCNAME[0]} i686 tools x86_64-ubuntu:root" >&2
+    echo "will just yield x86_64-ubuntu:root." >&2
+    return 1
+  fi
+
+  arch="$1"
+  distro="$2"
+  dep="$3"
+
+  pkg_name="$(dep2name "$arch" "$distro" "$dep")"
+  arch="$(dep2arch "$arch" "$distro" "$dep")"
+  distro="$(dep2distro "$arch" "$distro" "$dep")"
+  echo "${arch}-${distro}:${pkg_name}"
+}
+
 resolve_deps()
 {
-  pkg_name="$1"
-  installed_list="$2"
-  if [[ -z "$pkg_name" ]]
+  host_arch="$1"
+  host_os="$2"
+  dep="$3"
+  installed_list="$4"
+  if (( "$#" < 3 || "$#" > 4 ))
   then
-    echo "Usage: ${FUNCNAME[0]} <pkg name>" \
+    echo "Usage: ${FUNCNAME[0]} <arch> <os> <dep>" \
       "[<dir containing filelists of installed pkgs>]" >&2
     return 1
   fi
@@ -144,8 +241,14 @@ resolve_deps()
   # Make sure we have a place to work.
   make_temp_dir scratch
 
+  # Break dependency into pieces.
+  pkg_name="$(dep2name "$host_arch" "$host_os" "$dep")"
+  arch="$(dep2arch "$host_arch" "$host_os" "$dep")"
+  os="$(dep2distro "$host_arch" "$host_os" "$dep")"
+  dep="$(qualify_dep "$host_arch" "$host_os" "$dep")"
+
   # Resolve all missing dependencies.
-  orig_deps_name="$pkg_name.dependencies"
+  orig_deps_name="${dep}.dependencies"
   orig_deps_path="$scratch/$orig_deps_name"
   if ! repo_get "$orig_deps_name" > "$orig_deps_path"
   then
@@ -162,7 +265,7 @@ resolve_deps()
   ordered_deps="$scratch/deps.ordered"
   touch "$old_deps"
   # Start with package requested.
-  echo "$pkg_name" > "$new_deps"
+  echo "${dep}" > "$new_deps"
   echo "${FUNCNAME[0]}: resolving dependencies for '$pkg_name'" >&2
   touch "$ordered_deps"
 
@@ -238,7 +341,7 @@ resolve_deps()
         #
         # The loop appends to its input before it reaches EOF, causing it to
         # find more input.  This is the closest bash comes to a Go channel.
-        echo "$dep" >> "$new_deps"
+        qualify_dep "$arch" "$os" "$dep" >> "$new_deps"
       fi
     done < "$deps_path"
   done < "$new_deps"

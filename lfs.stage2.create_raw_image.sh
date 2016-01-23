@@ -51,7 +51,7 @@ do
   pkg="$(basename "$pkgpath" .tar.gz)"
   pkgs+=("$pkg")
   cp -v "/var/www/html/tgzrepo/${pkg}."* "$target_pkgdir/"
-done < <(find /var/www/html/tgzrepo -iname "i686-${F_distro_name}-*.tar.gz")
+done < <(find /var/www/html/tgzrepo -iname "i686-${F_distro_name}:*.tar.gz")
 
 # Ensure that internal DNS is available.
 "$DIR/create_resolv.sh" > "$dir/root/resolv.conf"

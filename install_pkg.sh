@@ -13,6 +13,10 @@ add_flag --default="https://repo.jgilik.com" repo_url "URL to find packages."
 add_flag --required install_root "Directory to install package to."
 add_flag --array dependency_history \
   "Names of packages that are currently being built - for cycle detection."
+add_flag --default="" target_architecture \
+  "Name of architecture to install packages for.  Defaults to detected value."
+add_flag --default="" target_distribution \
+  "Name of distribution to install packages for.  Defaults to detected value."
 parse_flags
 
 pkg="$F_pkg_name"
@@ -27,6 +31,21 @@ set_repo_local_path "$F_repo_path"
 set_repo_remote_url "$F_repo_url"
 
 
+# Detect current OS information.
+host_os="$("$DIR/os_info.sh" --distribution)"
+host_arch="$("$DIR/os_info.sh" --architecture)"
+target_os="$host_os"
+if [[ ! -z "$F_target_distribution" ]]
+then
+  target_os="$F_target_distribution"
+fi
+target_arch="$host_arch"
+if [[ ! -z "$F_target_architecture" ]]
+then
+  target_arch="$F_target_architecture"
+fi
+
+
 # Create list of installed packages if not already present.
 pkglist="$F_install_root/.installed_pkgs"
 if [[ ! -e "$pkglist" ]]
@@ -39,7 +58,8 @@ make_temp_dir scratch
 ordered_deps="$scratch/ordered_deps"
 
 # Build requested package if it's not yet been built...
-if ! repo_get "$pkg.done" > "$scratch/$pkg.done"
+pkgfile="${target_arch}-${target_os}:${pkg}"
+if ! repo_get "$pkgfile.done" > "$scratch/$pkgfile.done"
 then
   echo "$(basename "$0"): could not find package '$pkg', building..." >&2
   hist_args=()
@@ -49,17 +69,19 @@ then
   done
   "$DIR/pkg.from_name.sh" \
     --pkg_name="$pkg" \
+    --target_distribution="$target_os" \
+    --target_architecture="$target_arch" \
     -- \
       "${hist_args[@]}"
 fi
-if ! repo_get "$pkg.done" > "$scratch/$pkg.done"
+if ! repo_get "$pkgfile.done" > "$scratch/$pkgfile.done"
 then
   echo "$(basename "$0"): could not find or build package '$pkg'" >&2
   exit 1
 fi
 
 # Get all of the required dependencies...
-resolve_deps "$pkg" "$pkglist" > "$ordered_deps"
+resolve_deps "$target_arch" "$target_os" "$pkg" "$pkglist" > "$ordered_deps"
 
 # Now install all of the required packages in proper dependency order.
 while read -r dep

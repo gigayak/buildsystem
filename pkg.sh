@@ -11,7 +11,27 @@ usable binary packages.  It provides enough indirection to be able to change
 the packaging format of this distribution on a bit of a whim - which is helpful,
 as two such changes were planned from the original RPM target.
 EOF
+
+# Core flags that you should really care about.
 add_flag --required pkg_name "Name of the package to build."
+add_flag --default="" target_architecture "Architecture to build package for."
+add_flag --default="" target_distribution "Distribution to build package for."
+add_usage_note <<'EOF'
+--target_architecture and --target_distribution control which OS the package
+should be built for.  For instance, Ubuntu (--target_distribution=ubuntu)
+supports multiple architectures (--target_architecture=[i686|x86_64|???]).
+For the most part, packages will only build natively - that is, in a host
+environment that matches their target environment.  As such, these two flags
+default to the host arch/distro.  They're only used when compiling across
+boundaries, such as compiling $ARCH-tools from any OS environment, and when
+compiling $ARCH-yak from $ARCH-tools2.  Using these flags does not trigger
+any cross-compilation magic - that's added in the package specifications.
+Adding these flags without making sure to use a cross compiling toolchain
+in the package specification will just result in mislabeled binaries (i.e.
+a host OS of i686 with --target_architecture=x86_64 will produce i686
+binaries that are labeled as x86_64...).  If in doubt, start a VM with the
+desired architecture and compile natively!
+EOF
 add_flag --array builddeps_script \
   "Name of the script that installs all build dependencies."
 add_flag --array make_script \
@@ -22,8 +42,8 @@ add_flag --array deps_script \
   "Name of the script that lists dependencies the package requires."
 add_flag --required version_script \
   "Name of the script that determines the version of the installed package."
-add_flag --array opts_script \
-  "Name of the script that provides additional flags for fpm (--provides)."
+
+# Annoying flags dealing with implementation details.
 add_flag --array dependency_history \
   "List of dependencies that led to this build in chronological order."
 add_usage_note <<EOF
@@ -55,45 +75,29 @@ version="$F_version_script"
 
 # Manually export a select set of environment variables.
 # These are all hacks to accomplish something dirty.
-host_os="unknown"
-host_os_style="unknown"
-if [[ -e /etc/os-release ]]
+host_os="$("$DIR/os_info.sh" --distribution)"
+host_arch="$("$DIR/os_info.sh" --architecture)"
+
+target_arch=""
+target_os=""
+if [[ ! -z "$F_target_architecture" ]]
 then
-  # Translates to:
-  #   "archarm" for Arch Linux ARM
-  #   ??? for Arch Linux x86
-  #   "ubuntu" for Ubuntu
-  #   ??? for Debian
-  #   "${ARCH}-yak" for Gigayak (this distribution)
-  host_os="$(sed -n -r \
-    -e 's@^\s*ID=(.*)$@\1@gp' \
-    -e 's@^"@@' \
-    -e 's@"$@@' \
-    -e 's@\s*$@@' \
-    /etc/os-release)"
-  # Translates to:
-  #   "arch" for Arch Linux ARM and Arch Linux
-  #   "debian" for Ubuntu and Debian (maybe Raspbian, Olinuxino, and others)
-  #   "yak" for Gigayak (this distribution)
-  host_os_style="$(sed -n -r \
-    -e 's@^\s*ID_LIKE=(.*)$@\1@gp' \
-    -e 's@^"@@' \
-    -e 's@"$@@' \
-    -e 's@\s*$@@' \
-    /etc/os-release)"
-elif \
-  rpm -q redhat-release >/dev/null 2>&1 \
-  || rpm -q centos-release >/dev/null 2>&1
-then
-  host_os="redhat"
-  host_os_style="redhat"
+  target_arch="$F_target_architecture"
+else
+  target_arch="$host_arch"
 fi
-host_arch="$(uname -m)"
+if [[ ! -z "$F_target_distribution" ]]
+then
+  target_os="$F_target_distribution"
+else
+  target_os="$host_os"
+fi
 
 env_string=""
 env_string="$env_string HOST_OS=$host_os"
-env_string="$env_string HOST_OS_STYLE=$host_os_style"
 env_string="$env_string HOST_ARCH=$host_arch"
+env_string="$env_string TARGET_OS=$target_os"
+env_string="$env_string TARGET_ARCH=$target_arch"
 # TODO: Migrate to something other than /root...
 #     (First step is to make all instances of "/root" be "$WORKSPACE".)
 env_string="$env_string BUILDTOOLS=/root"
@@ -108,6 +112,9 @@ then
   echo "Lowercasing the package name"
   pkgname="$lcname"
 fi
+
+# Choose name to output package to.
+outputname="${target_arch}-${target_os}:${pkgname}"
 
 
 # Check that the package actually exists!
@@ -261,8 +268,6 @@ install_deps()
 
 # Create a directory to store scratch files in.
 make_temp_dir workdir
-
-base="${SPECS}/${pkgname}" 
 
 # Populate directory with tools used in build scripts.
 # TODO: Find a better way to install tools - perhaps allowing builddeps
@@ -428,13 +433,6 @@ echo "Version is: $pkgversion"
 
 
 
-for opts in "${F_opts_script[@]}"
-do
-  echo "$(basename "$0"): .opts files are dead; fpm no longer in use" >&2
-  exit 1
-done
-
-
 echo "Finding differences"
 
 # Set the path to create diffs at.
@@ -561,11 +559,11 @@ cleanup_root "$pkgdir"
 # Generate package
 cd "$pkgdir"
 make_temp_dir tmprepo
-tar -czf "$tmprepo/$pkgname.tar.gz" .
-echo "$pkgversion" > "$tmprepo/$pkgname.version"
-echo "$deplist" | sort | uniq > "$tmprepo/$pkgname.dependencies"
-touch "$tmprepo/$pkgname.done"
+tar -czf "$tmprepo/$outputname.tar.gz" .
+echo "$pkgversion" > "$tmprepo/$outputname.version"
+echo "$deplist" | sort | uniq > "$tmprepo/$outputname.dependencies"
+touch "$tmprepo/$outputname.done"
 for n in tar.gz version dependencies done
 do
-  cp -fv "$tmprepo/$pkgname.$n" "/var/www/html/tgzrepo/$pkgname.$n"
+  cp -fv "$tmprepo/$outputname.$n" "/var/www/html/tgzrepo/$outputname.$n"
 done

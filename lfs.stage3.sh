@@ -16,123 +16,139 @@ then
   umount /tmp
 fi
 
-start_at="$@"
+start_from="$@"
+waiting=0
+if [[ ! -z "$start_from" ]]
+then
+  waiting=1
+fi
 
-pkgs=()
-pkgs+=("i686-yak-filesystem-skeleton")
-pkgs+=("i686-tools3-tcl")
-pkgs+=("i686-tools3-expect")
-pkgs+=("i686-tools3-dejagnu")
-pkgs+=("i686-tools3-perl")
-pkgs+=("i686-tools3-texinfo")
-pkgs+=("i686-tools3-gdb")
-pkgs+=("i686-yak-linux-headers")
-pkgs+=("i686-yak-man-pages")
-pkgs+=("i686-yak-glibc")
-pkgs+=("i686-tools3-gcc")
-pkgs+=("i686-yak-m4")
-pkgs+=("i686-yak-gmp")
-pkgs+=("i686-yak-mpfr")
-pkgs+=("i686-yak-mpc")
-pkgs+=("i686-yak-isl")
-pkgs+=("i686-yak-cloog")
-pkgs+=("i686-yak-zlib")
-pkgs+=("i686-yak-flex")
-pkgs+=("i686-yak-bison")
-pkgs+=("i686-yak-binutils")
-pkgs+=("i686-yak-gcc")
-pkgs+=("i686-yak-sed")
-pkgs+=("i686-yak-pkg-config-lite")
-pkgs+=("i686-yak-ncurses")
-pkgs+=("i686-yak-shadow")
-pkgs+=("i686-yak-util-linux")
-pkgs+=("i686-yak-bzip2")
-pkgs+=("i686-yak-coreutils")
-pkgs+=("i686-yak-perl")
-pkgs+=("i686-yak-autoconf")
-pkgs+=("i686-yak-automake")
-pkgs+=("i686-yak-gettext")
-pkgs+=("i686-yak-e2fsprogs")
-pkgs+=("i686-yak-libtool")
-pkgs+=("i686-yak-procps-ng")
-pkgs+=("i686-yak-iana-etc")
-pkgs+=("i686-yak-iproute2")
-pkgs+=("i686-yak-gdbm")
-pkgs+=("i686-yak-readline")
-pkgs+=("i686-yak-bash")
-pkgs+=("i686-yak-bash-aliases")
-pkgs+=("i686-yak-bash-config")
-pkgs+=("i686-yak-bc")
-pkgs+=("i686-yak-diffutils")
-pkgs+=("i686-yak-file")
-pkgs+=("i686-yak-gawk")
-pkgs+=("i686-yak-findutils")
-pkgs+=("i686-yak-grep")
-pkgs+=("i686-yak-groff")
-pkgs+=("i686-yak-less")
-pkgs+=("i686-yak-gzip")
-pkgs+=("i686-yak-iputils")
-pkgs+=("i686-yak-kbd")
-pkgs+=("i686-yak-libpipeline")
-pkgs+=("i686-yak-man")
-pkgs+=("i686-yak-make")
-pkgs+=("i686-yak-xz")
-pkgs+=("i686-yak-kmod")
-pkgs+=("i686-yak-patch")
-pkgs+=("i686-yak-psmisc")
-pkgs+=("i686-yak-libestr")
-pkgs+=("i686-yak-libee")
-pkgs+=("i686-yak-debianutils")
-pkgs+=("i686-yak-eventlog")
-pkgs+=("i686-yak-libffi")
-pkgs+=("i686-yak-python2")
-pkgs+=("i686-yak-glib")
-pkgs+=("i686-yak-pcre")
-pkgs+=("i686-yak-openssl")
-pkgs+=("i686-yak-syslog-ng")
-pkgs+=("i686-yak-sysvinit")
-pkgs+=("i686-yak-sysvinit-config")
-pkgs+=("i686-yak-tar")
-pkgs+=("i686-yak-texinfo")
-pkgs+=("i686-yak-eudev")
-pkgs+=("i686-yak-vim")
-pkgs+=("i686-yak-syslinux")
-pkgs+=("i686-yak-dhcpcd")
-pkgs+=("i686-yak-bootscripts")
-pkgs+=("i686-yak-bootscripts-config")
-pkgs+=("i686-yak-input-config")
-pkgs+=("i686-yak-fstab-config")
-pkgs+=("i686-yak-linux")
-pkgs+=("i686-yak-linux-credentials")
-pkgs+=("i686-yak-nettle")
-pkgs+=("i686-yak-gnutls")
-pksg+=("i686-yak-wget")
-pkgs+=("i686-yak-dropbear")
-pkgs+=("i686-yak-dropbear-config")
+target_arch=i686
 
-build="$DIR/pkg.from_name.sh"
-for p in "${pkgs[@]}"
-do
-  if [[ ! -z "$start_at" ]]
+build()
+{
+  if (( "$#" != 2 ))
   then
-    if [[ \
-      "$p" == "$start_at" \
-      || "$p" == "i686-tools3-$start_at" \
-      || "$p" == "i686-yak-$start_at" \
-    ]]
-    then
-      start_at=""
-    else
-      continue
-    fi
+    echo "Usage: ${FUNCNAME[0]} <distro> <package>" >&2
+    return 1
   fi
-  echo "$(basename "$0"): building package '$p'" >&2
+  distro="$1"
+  pkg="$2"
+  arch="$target_arch"
+  if (( "$waiting" )) \
+    && [[ "$pkg" != "$start_from" \
+      && "${arch}-${distro}-${pkg}" != "$start_from" ]]
+  then
+    echo "Ignoring package '$pkg'"
+    return 0
+  fi
+  export waiting=0
+
+  p="${arch}-${distro}-${pkg}"
+  echo "Building package '$p'"
   retval=0
-  "$build" --pkg_name="$p" || retval=$?
+  "$DIR/pkg.from_name.sh" \
+    --pkg_name="$pkg" \
+    --target_architecture="$arch" \
+    --target_distribution="$distro" \
+    2>&1 \
+    | tee "$logdir/$p.log" \
+    || retval=$?
   if (( "$retval" ))
   then
-    echo "$(basename "$0"): failed to build package '$p' with code $retval" >&2
+    echo "Building package '$p' failed with code $retval"
     exit 1
   fi
-  echo "$(basename "$0"): successfully built package '$p'" >&2
-done
+}
+
+
+build yak filesystem-skeleton
+build tools3 tcl
+build tools3 expect
+build tools3 dejagnu
+build tools3 perl
+build tools3 texinfo
+build tools3 gdb
+build yak linux-headers
+build yak man-pages
+build yak glibc
+build tools3 gcc
+build yak m4
+build yak gmp
+build yak mpfr
+build yak mpc
+build yak isl
+build yak cloog
+build yak zlib
+build yak flex
+build yak bison
+build yak binutils
+build yak gcc
+build yak sed
+build yak pkg-config-lite
+build yak ncurses
+build yak shadow
+build yak util-linux
+build yak bzip2
+build yak coreutils
+build yak perl
+build yak autoconf
+build yak automake
+build yak gettext
+build yak e2fsprogs
+build yak libtool
+build yak procps-ng
+build yak iana-etc
+build yak iproute2
+build yak gdbm
+build yak readline
+build yak bash
+build yak bash-aliases
+build yak bash-config
+build yak bc
+build yak diffutils
+build yak file
+build yak gawk
+build yak findutils
+build yak grep
+build yak groff
+build yak less
+build yak gzip
+build yak iputils
+build yak kbd
+build yak libpipeline
+build yak man
+build yak make
+build yak xz
+build yak kmod
+build yak patch
+build yak psmisc
+build yak libestr
+build yak libee
+build yak debianutils
+build yak eventlog
+build yak libffi
+build yak python2
+build yak glib
+build yak pcre
+build yak openssl
+build yak syslog-ng
+build yak sysvinit
+build yak sysvinit-config
+build yak tar
+build yak texinfo
+build yak eudev
+build yak vim
+build yak syslinux
+build yak dhcpcd
+build yak bootscripts
+build yak bootscripts-config
+build yak input-config
+build yak fstab-config
+build yak linux
+build yak linux-credentials
+build yak nettle
+build yak gnutls
+build yak wget
+build yak dropbear
+build yak dropbear-config
