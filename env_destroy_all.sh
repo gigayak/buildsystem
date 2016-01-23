@@ -6,7 +6,8 @@ source "$DIR/escape.sh"
 source "$DIR/cleanup.sh"
 source "$DIR/flag.sh"
 
-add_flag --boolean active "even destroy active containers"
+add_flag --boolean active "even destroy active LXC container roots"
+add_flag --boolean persistent "even destroy persistent chroots"
 parse_flags
 
 unmount_chroot()
@@ -60,6 +61,14 @@ do
   then
     continue
   fi
+
+  to_remove="$temp_root/roots_to_remove"
+  find "$temp_root" -mindepth 1 -maxdepth 1 -iname 'tmp.*' > "$to_remove"
+  if (( "$F_persistent" ))
+  then
+    find "$temp_root" -mindepth 1 -maxdepth 1 -iname 'chroot.*' >> "$to_remove"
+  fi
+
   echo "Cleaning temp root '$temp_root'"
   while read -r t
   do
@@ -74,7 +83,9 @@ do
     echo "Destroying temporary chroot $t..."
     unmount_chroot "$t"
     rm -rf "$t"
-  done < <(find "$temp_root" -mindepth 1 -maxdepth 1 -iname 'tmp.*')
+  done < "$to_remove"
+
+  rm "$to_remove"
 done
 
 # Clean up IPs.
