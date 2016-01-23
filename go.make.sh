@@ -18,8 +18,11 @@ do
     "https://$path" \
     >/dev/null
   then
+    echo "Building from URL https://$path" >&2
     export IMPORT_PATH="$path"
     break
+  else
+    echo "Not considering URL https://$path" >&2
   fi
 done
 if [[ -z "$IMPORT_PATH" ]]
