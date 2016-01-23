@@ -60,10 +60,12 @@ if [[ "$pkgname" != "$translation" ]]
 then
   make_temp_file deps_script
   (
-    echo "#!/bin/bash"
+    echo '#!/bin/bash'
+    echo 'set -Eeo pipefail'
+    echo 'source "$BUILDTOOLS/all.sh"'
     echo "$translation" \
       | { grep -v "$pkgname" || true ; } \
-      | sed -re 's@^@echo @g'
+      | sed -re 's@^@dep @g'
   ) > "$deps_script"
   args+=(--deps_script="$deps_script")
 fi
