@@ -17,6 +17,8 @@ ssl_key_strength="$key_strength"
 # Otherwise, ssh-keygen yields "DSA keys must be 1024 bits."
 # TODO: Remove DSA keys entirely and see what breaks?
 dsa_key_strength="1024"
+# TODO: Do not hard-code domain.
+domain="jgilik.com"
 
 ssh_key()
 {
@@ -46,7 +48,7 @@ ssh_key()
   echo "${FUNCNAME[0]}: 8192 bit keys take ~10 minutes." >&2
   time ssh-keygen \
     -t "$algo" \
-    -C "john@jgilik.com" \
+    -C "${key_name}@$domain" \
     -b "$key_strength" \
     -f "$key_path" \
     -N ''
@@ -82,7 +84,7 @@ root="$temp_root/chroot.certificate_authority"
 if [[ ! -e "$root" ]]
 then
   mkdir -pv "$root"{,/proc,/sys,/opt/ca}
-  ./install_pkg.sh \
+  "$DIR/install_pkg.sh" \
     --install_root="$root" \
     --pkg_name="env-ca"
 fi
@@ -106,6 +108,10 @@ if ! mountpoint -q -- "$ca_root"
 then
   mount --bind /root/localstorage/certificate-authority/ca "$ca_root"
 fi
+if [[ ! -e "$ca_root/.initialized" ]]
+then
+  chroot "$root" ca_init "$domain"
+fi
 
 ssl_server_cert()
 {
@@ -128,7 +134,7 @@ ssl_server_cert()
   do
     echo "${FUNCNAME[0]}: adding alternate name $(sq "$san")" >&2
   done
-  chroot "$root" ca_generate_certificate "$key_name" "$@"
+  chroot "$root" ca_generate_certificate "$key_name" "$domain" "$@"
   tgt_path="/root/localstorage/$key_name/ssl"
   if [[ ! -e "$tgt_path" ]]
   then
@@ -161,7 +167,7 @@ ssl_client_cert()
   fi
   echo -e "no cert found:\nkey_path: $key_path\ncrt_path: $crt_path"
   chroot "$root" ca_generate_client_certificate \
-    "$username" "$fqdn" "$client_name"
+    "$username" "$fqdn" "$domain" "$client_name"
 }
 
 
@@ -169,9 +175,10 @@ ssh_rsa_key godev
 ssh_rsa_key gitzebo
 ssh_dsa_key gitzebo
 ssl_server_cert gitzebo
-ssl_server_cert proxy '*.jgilik.com'
+ssl_server_cert proxy "*.$domain"
 ssl_server_cert repo
 ssl_server_cert www
+# TODO: Break out client certificate names into a configuration file.
 ssl_client_cert jgilik oven.home.jgilik.com "John Gilik / Desktop"
 ssl_client_cert jgilik hp11.home.jgilik.com "John Gilik / HP11 Chromebook"
 ssl_client_cert system dl380.home.jgilik.com "System / DL380"
