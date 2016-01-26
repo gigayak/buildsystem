@@ -64,7 +64,6 @@ then
     echo 'set -Eeo pipefail'
     echo 'source "$BUILDTOOLS/all.sh"'
     echo "$translation" \
-      | { grep -v "$pkgname" || true ; } \
       | sed -re 's@^@dep @g'
   ) > "$deps_script"
   args+=(--deps_script="$deps_script")

@@ -114,7 +114,7 @@ then
 fi
 
 # Choose name to output package to.
-outputname="${target_arch}-${target_os}:${pkgname}"
+outputname="$(qualify_dep "$target_arch" "$target_os" "$pkgname")"
 
 
 # Check that the package actually exists!
@@ -130,13 +130,18 @@ done
 
 
 # Scan for circular dependencies.
+echo "$(basename "$0"): looking for $outputname in dependency history" >&2
 cycle_found=0
 for hist_entry in "${F_dependency_history[@]}"
 do
-  if [[ "$hist_entry" == "$pkgname" ]]
+  qhist="$(qualify_dep "$target_arch" "$target_os" "$hist_entry")"
+  if [[ "$qhist" == "$outputname" ]]
   then
+    echo "$(basename "$0"): $hist_entry is $qhist and is part of this build" >&2
     cycle_found=1
     break
+  else
+    echo "$(basename "$0"): $hist_entry is $qhist and is complete" >&2
   fi
 done
 if (( "$cycle_found" && ! "$F_break_dependency_cycles" ))
@@ -345,6 +350,8 @@ fi
 # remove cycles if requested (and found)
 if (( "$F_break_dependency_cycles" && "$cycle_found" ))
 then
+  echo "$(basename "$0"): attempting to remove cyclic dependency" >&2
+  found=0
   for possible_culprit in "${F_dependency_history[@]}"
   do
     deplist="$(echo "$deplist" \
@@ -354,8 +361,21 @@ then
       grep -vE "^${possible_culprit}\$" "$workdir/deps.txt" \
       || true
     } > "$workdir/deps.txt.new"
+    # diff returns nonzero for different files; zero for same file
+    if ! diff "$workdir/deps.txt.new" "$workdir/deps.txt" >/dev/null 2>&1
+    then
+      echo "$(basename "$0"): removed cyclic dependency $possible_culprit" >&2
+      found=1
+    else
+      echo "$(basename "$0"): did not remove dependency $possible_culprit" >&2
+    fi
     mv -f "$workdir/deps.txt.new" "$workdir/deps.txt"
   done
+  if (( ! "$found" ))
+  then
+    echo "$(basename "$0"): failed to remove dependency cycle" >&2
+    exit 1
+  fi
 fi
 
 
