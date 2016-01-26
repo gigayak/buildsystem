@@ -50,6 +50,11 @@ addn-hosts=/opt/dns/hosts.autogen
 dhcp-range=interface:virbr0,192.168.122.10,192.168.122.254,1h
 EOF
 
+# Link to repository:
+# TODO: This should be configurable, not hard coded.
+ln -sv /var/www/html/tgzrepo repo/repo
+ln -sv /var/www/html/public_html www/www
+
 # Make sure to kick off certificate generation - these are inserted into the
 # empty directories we just created, and most services won't start without
 # certificates and keys.
