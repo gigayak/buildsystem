@@ -5,6 +5,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/mkroot.sh"
 source "$DIR/escape.sh"
 source "$DIR/flag.sh"
+source "$DIR/repo.sh"
 
 add_usage_note <<EOF
 This script is a dumb, stupid, ugly hack.  It takes an i686-tools-* package
@@ -15,30 +16,33 @@ convenient to consume.  The two are inconvenient to convert, hence this
 script's existence...
 EOF
 add_flag --required pkg_name \
-  "Name of the package to build (i686-tools2-...). 'all' to convert all."
+  "Name of the package to build."
+add_flag --default "tools2" target_distribution \
+  "Distribution name to convert to."
+add_flag --default="" target_architecture \
+  "Architecture to convert.  Defaults to host architecture."
 parse_flags
 
-# TODO: There needs to be a centralized method to write to the repo.  This is
-# dumb, silly, stupid, yadda yadda yadda.
-repo=/var/www/html/tgzrepo
+repo="$_REPO_LOCAL_PATH"
 
-if [[ "$F_pkg_name" == "all" ]]
+pkg="$F_pkg_name"
+if [[ "$pkg" == "all" ]]
 then
-  while read -r tgt_pkg
-  do
-    "$DIR/pkg.tools_to_tools2.sh" --pkg_name="$tgt_pkg"
-  done \
-  < <(find "$repo" -iname "i686-tools-*.version" \
-    | sed \
-      -r \
-      -e "s@^$repo/@@g" \
-      -e 's@\.version$@@g' \
-      -e 's@^i686-tools@i686-tools2@g')
-  exit 0
+  echo "$(basename "$0"): 'all' target now unsupported" >&2
+  exit 1
 fi
 
-tgt_pkg="$F_pkg_name"
-src_pkg="$(echo "$tgt_pkg" | sed -re 's@^i686-tools2-@i686-tools-@g')"
+arch="$F_target_architecture"
+if [[ -z "$arch" ]]
+then
+  arch="$("$DIR/os_info.sh" --architecture)"
+fi
+
+distro="$F_target_distribution"
+
+tgt_pkg="$(qualify_dep "$arch" "$distro" "$pkg")"
+src_pkg="$(qualify_dep "$arch" tools "$pkg")"
+
 if [[ -z "$tgt_pkg" || -z "$src_pkg" || "$tgt_pkg" == "$src_pkg" ]]
 then
   echo "$(basename "$0"): failed to parse --pkg_name=$(sq "$tgt_pkg")" >&2
@@ -91,11 +95,11 @@ echo "$(basename "$0"): converting $(sq "$src_pkg") to $(sq "$tgt_pkg")" >&2
 # There's some redundancy here...
 sed \
   -r \
-  -e '/^i686-clfs-root$/d' \
-  -e '/^i686-tools-root$/d' \
-  -e '/^i686-tools-env$/d' \
-  -e '/^i686-tools-.*$/!d' \
-  -e 's@^i686-tools-(.*)$@i686-tools2-\1@g' \
+  -e '/^'"$arch"'-clfs:root$/d' \
+  -e '/^'"$arch"'-tools:root$/d' \
+  -e '/^'"$arch"'-tools:env$/d' \
+  -e '/^'"$arch"'-tools:.*$/!d' \
+  -e 's@^'"$arch"'-tools:(.*)$@'"$arch"'-'"$distro"':\1@g' \
   "$src_deps" \
   > "$tmp_deps"
 
