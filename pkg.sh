@@ -159,15 +159,7 @@ fi
 source "$DIR/arch.sh"
 source "$DIR/mkroot.sh"
 
-# TODO: This is... odd and unintuitive.  No.
-# Allow us to build the RPM repository without necessarily having the RPM
-# repository built (fixes the bootstrapping cycle problem).
-if [[ "$pkgname" == "jpg-repo" ]]
-then
-  mkroot dir --no-repo
-else
-  mkroot dir
-fi
+mkroot dir
 echo "Operating on $dir"
 
 run_in_root()

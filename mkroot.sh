@@ -22,13 +22,12 @@ source "$DIR/arch.sh"
 # TODO: make flag parsing in functions work, and apply it here
 create_bare_root()
 {
-  if (( "$#" < 1 || "$#" > 2 )) || [[ ! -z "$2" && "$2" != "--no-repo" ]]
+  if (( "$#" != 1 ))
   then
-    echo "Usage: ${FUNCNAME[0]} <env_var_to_store_dir_in> [--no-repo]" >&2
+    echo "Usage: ${FUNCNAME[0]} <env_var_to_store_dir_in>" >&2
     return 1
   fi
   local env="$1"
-  local _flag="$2"
 
   if (( "$UID" != 0 ))
   then
