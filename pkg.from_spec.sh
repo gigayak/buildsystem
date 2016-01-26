@@ -33,6 +33,7 @@ SPECS="$DIR/pkgspecs"
 
 spec_names=()
 spec_names+=("${target_arch}-${target_os}-${pkgname}")
+spec_names+=("${target_os}-${pkgname}")
 spec_names+=("${pkgname}")
 
 filepath="${SPECS}/${pkgname}.choose_spec.sh"
