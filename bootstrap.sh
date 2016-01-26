@@ -2,6 +2,10 @@
 set -Eeo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+source "$DIR/flag.sh"
+add_flag --boolean continue "Whether to avoid wiping state."
+parse_flags
+
 # This script attempts to take over a clean host and use it to build the whole
 # world.  This can cause bad side effects at the moment (such as reconfiguring
 # your networking and restarting all network interfaces) - so maybe consider
@@ -17,22 +21,25 @@ then
   exit 1
 fi
 
-"$DIR/env_destroy_all.sh" --active --persistent
-
-if [[ -e "$DIR/cache/baseroot" ]]
+if (( ! "$F_continue" ))
 then
-  echo "Removing $DIR/cache/baseroot/"
-  rm -rf "$DIR/cache/baseroot"
-fi
-if [[ -e "/tmp/ip.gigayak.allocations" ]]
-then
-  echo "Removing /tmp/ip.gigayak.allocations"
-  rm -f /tmp/ip.gigayak.allocations
-fi
+  "$DIR/env_destroy_all.sh" --active --persistent
 
-echo "Removing and recreating /var/www/html/tgzrepo"
-rm -rf /var/www/html/tgzrepo/
-mkdir -pv /var/www/html/tgzrepo/
+  if [[ -e "$DIR/cache/baseroot" ]]
+  then
+    echo "Removing $DIR/cache/baseroot/"
+    rm -rf "$DIR/cache/baseroot"
+  fi
+  if [[ -e "/tmp/ip.gigayak.allocations" ]]
+  then
+    echo "Removing /tmp/ip.gigayak.allocations"
+    rm -f /tmp/ip.gigayak.allocations
+  fi
+
+  echo "Removing and recreating /var/www/html/tgzrepo"
+  rm -rf /var/www/html/tgzrepo/
+  mkdir -pv /var/www/html/tgzrepo/
+fi
 
 "$DIR/create_crypto.sh"
 "$DIR/create_all_containers.sh"
