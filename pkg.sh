@@ -100,7 +100,7 @@ env_string="$env_string TARGET_OS=$target_os"
 env_string="$env_string TARGET_ARCH=$target_arch"
 # TODO: Migrate to something other than /root...
 #     (First step is to make all instances of "/root" be "$WORKSPACE".)
-env_string="$env_string BUILDTOOLS=/root"
+env_string="$env_string BUILDTOOLS=/root/buildsystem/buildtools"
 env_string="$env_string WORKSPACE=/root"
 echo "Propagating following environment variables:"
 echo "$env_string"
@@ -272,15 +272,8 @@ make_temp_dir workdir
 #     the moment it is declared?
 # TODO: Stop relying on /root/ as a general place to pollute with build temp
 #     material.
-if [[ -e "$DIR/buildtools" ]]
-then
-  mkdir -pv "$dir/root"
-  while read -r filename
-  do
-    filename="$(basename "$filename")"
-    cp -v "$DIR/buildtools/$filename" "$dir/root/$filename"
-  done < <(find "$DIR/buildtools" -mindepth 1 -maxdepth 1 -type f)
-fi
+mkdir -pv "$dir/root/buildsystem"
+"$DIR/install_buildsystem.sh" --output_path="$dir/root/buildsystem"
 
 # build-only deps
 for builddeps in "${F_builddeps_script[@]}"
