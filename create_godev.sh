@@ -1,10 +1,10 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/flag.sh"
-source "$DIR/mkroot.sh"
-source "$DIR/cleanup.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/mkroot.sh"
+source "$(DIR)/cleanup.sh"
 add_flag --required pkg_name "Name of Go package to create environment for."
 parse_flags "$@"
 
@@ -28,7 +28,7 @@ deps+=(rootfiles)
 deps+=(vim vim-pathogen vim-pathogen-config vim-go)
 for dep in "${deps[@]}"
 do
-  "$DIR/install_pkg.sh" \
+  "$(DIR)/install_pkg.sh" \
     --install_root="$root" \
     --pkg_name="$dep"
 done
@@ -42,13 +42,13 @@ echo "$pkg_name" > "$root/root/workspace/.pkg_name"
 # TODO: Key distribution should somehow be centralized and ACLed.
 mkdir -pv "$root/root/.ssh"
 chmod 0700 "$root/root/.ssh"
-"$DIR/get_crypto.sh" \
+"$(DIR)/get_crypto.sh" \
   --private \
   --key_name=godev \
   --key_type=rsa \
   > "$root/root/.ssh/id_rsa"
 chmod 0600 "$root/root/.ssh/id_rsa"
-"$DIR/get_crypto.sh" \
+"$(DIR)/get_crypto.sh" \
   --public \
   --key_name=godev \
   --key_type=rsa \
@@ -56,7 +56,7 @@ chmod 0600 "$root/root/.ssh/id_rsa"
 chmod 0644 "$root/root/.ssh/id_rsa.pub"
 for type in rsa dsa
 do
-  "$DIR/get_crypto.sh" \
+  "$(DIR)/get_crypto.sh" \
     --key_name=gitzebo \
     --key_type="$type" \
     --public \

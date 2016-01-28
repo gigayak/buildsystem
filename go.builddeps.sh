@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 source "$BUILDTOOLS/all.sh"
 
 # Compilers.

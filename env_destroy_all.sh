@@ -1,10 +1,10 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/escape.sh"
-source "$DIR/cleanup.sh"
-source "$DIR/flag.sh"
+source "$(DIR)/escape.sh"
+source "$(DIR)/cleanup.sh"
+source "$(DIR)/flag.sh"
 
 add_flag --boolean active "even destroy active LXC container roots"
 add_flag --boolean persistent "even destroy persistent chroots"
@@ -39,7 +39,7 @@ do
     if (( "${F_active}" ))
     then
       echo "Destroying active container $n"
-      "$DIR/destroy_container.sh" --name="$n"
+      "$(DIR)/destroy_container.sh" --name="$n"
       continue
     else
       echo "Ignoring active container $n"
@@ -148,4 +148,4 @@ do
 done < "$lease_file"
 mv -vf "$hosts_file_new" "$hosts_file"
 mv -vf "$lease_file_new" "$lease_file"
-"$DIR/reload_dnsmasq.sh"
+"$(DIR)/reload_dnsmasq.sh"

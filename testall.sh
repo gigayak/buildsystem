@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 failures=0
 while read -r test_name
@@ -13,7 +13,7 @@ do
   else
     echo "$base_name succeeded."
   fi
-done < <(find "$DIR" -mindepth 1 -maxdepth 1 -iname '*_test.sh')
+done < <(find "$(DIR)" -mindepth 1 -maxdepth 1 -iname '*_test.sh')
 
 if (( "$failures" > 0 ))
 then

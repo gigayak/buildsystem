@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 # HACK SCALE: MAJOR
 #
@@ -40,7 +40,7 @@ do
   then
     continue
   fi
-  ip="$("$DIR/create_ip.sh" --read_only --owner="lxc:dns-$i" || true)"
+  ip="$("$(DIR)/create_ip.sh" --read_only --owner="lxc:dns-$i" || true)"
   if [[ -z "$ip" ]]
   then
     continue

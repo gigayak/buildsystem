@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/flag.sh"
-source "$DIR/mkroot.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/mkroot.sh"
 add_flag --required name "Name of container to launch"
 parse_flags "$@"
 

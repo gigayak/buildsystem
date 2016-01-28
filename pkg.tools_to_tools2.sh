@@ -1,11 +1,11 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/mkroot.sh"
-source "$DIR/escape.sh"
-source "$DIR/flag.sh"
-source "$DIR/repo.sh"
+source "$(DIR)/mkroot.sh"
+source "$(DIR)/escape.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/repo.sh"
 
 add_usage_note <<EOF
 This script is a dumb, stupid, ugly hack.  It takes an i686-tools-* package
@@ -35,7 +35,7 @@ fi
 arch="$F_target_architecture"
 if [[ -z "$arch" ]]
 then
-  arch="$("$DIR/os_info.sh" --architecture)"
+  arch="$("$(DIR)/os_info.sh" --architecture)"
 fi
 
 distro="$F_target_distribution"

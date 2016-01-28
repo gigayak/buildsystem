@@ -1,8 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/escape.sh"
+source "$(DIR)/escape.sh"
 
 test_sq()
 {

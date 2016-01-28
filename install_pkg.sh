@@ -1,11 +1,11 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/repo.sh"
-source "$DIR/flag.sh"
-source "$DIR/escape.sh"
-source "$DIR/cleanup.sh"
+source "$(DIR)/repo.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/escape.sh"
+source "$(DIR)/cleanup.sh"
 add_flag --required pkg_name "Name of the package to install."
 # TODO: Deprecate local cache until invalidation works.
 add_flag --default="/var/www/html/tgzrepo" repo_path "Path to find packages."
@@ -32,8 +32,8 @@ set_repo_remote_url "$F_repo_url"
 
 
 # Detect current OS information.
-host_os="$("$DIR/os_info.sh" --distribution)"
-host_arch="$("$DIR/os_info.sh" --architecture)"
+host_os="$("$(DIR)/os_info.sh" --distribution)"
+host_arch="$("$(DIR)/os_info.sh" --architecture)"
 target_os="$host_os"
 if [[ ! -z "$F_target_distribution" ]]
 then
@@ -67,7 +67,7 @@ then
   do
     hist_args+=(--dependency_history="$hist_entry")
   done
-  "$DIR/pkg.from_name.sh" \
+  "$(DIR)/pkg.from_name.sh" \
     --pkg_name="$pkg" \
     --target_distribution="$target_os" \
     --target_architecture="$target_arch" \

@@ -1,8 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/flag.sh"
+source "$(DIR)/flag.sh"
 add_flag --boolean continue "Whether to avoid wiping state."
 parse_flags "$@"
 
@@ -23,12 +23,12 @@ fi
 
 if (( ! "$F_continue" ))
 then
-  "$DIR/env_destroy_all.sh" --active --persistent
+  "$(DIR)/env_destroy_all.sh" --active --persistent
 
-  if [[ -e "$DIR/cache/baseroot" ]]
+  if [[ -e "$(DIR)/cache/baseroot" ]]
   then
-    echo "Removing $DIR/cache/baseroot/"
-    rm -rf "$DIR/cache/baseroot"
+    echo "Removing $(DIR)/cache/baseroot/"
+    rm -rf "$(DIR)/cache/baseroot"
   fi
   if [[ -e "/tmp/ip.gigayak.allocations" ]]
   then
@@ -41,25 +41,25 @@ then
   mkdir -pv /var/www/html/tgzrepo/
 fi
 
-"$DIR/create_crypto.sh"
-"$DIR/create_all_containers.sh"
-"$DIR/lfs.stage1.sh"
-ip="$("$DIR/create_ip.sh" --owner="vm:stage2")"
+"$(DIR)/create_crypto.sh"
+"$(DIR)/create_all_containers.sh"
+"$(DIR)/lfs.stage1.sh"
+ip="$("$(DIR)/create_ip.sh" --owner="vm:stage2")"
 image_path="/var/www/html/tgzrepo/stage2.raw"
-"$DIR/lfs.stage2.create_raw_image.sh" \
+"$(DIR)/lfs.stage2.create_raw_image.sh" \
   --ip_address="$ip" \
-  --mac_address="$("$DIR/create_mac.sh")" \
+  --mac_address="$("$(DIR)/create_mac.sh")" \
   --output_path="$image_path" \
   --distro_name=tools2
-"$DIR/lfs.stage2.sh" \
+"$(DIR)/lfs.stage2.sh" \
   --ip_address="$ip" \
   --image_path="$image_path"
 
-"$DIR/lfs.stage3.test_input.sh"
-ip="$("$DIR/create_ip.sh" --owner="vm:stage3")"
+"$(DIR)/lfs.stage3.test_input.sh"
+ip="$("$(DIR)/create_ip.sh" --owner="vm:stage3")"
 image_path="/var/www/html/tgzrepo/stage3.raw"
-"$DIR/lfs.stage2.create_raw_image.sh" \
+"$(DIR)/lfs.stage2.create_raw_image.sh" \
   --ip_address="$ip" \
-  --mac_address="$("$DIR/create_mac.sh")" \
+  --mac_address="$("$(DIR)/create_mac.sh")" \
   --output_path="$image_path" \
   --distro_name=yak

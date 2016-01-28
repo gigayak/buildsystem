@@ -1,10 +1,10 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/cleanup.sh"
-source "$DIR/flag.sh"
-source "$DIR/buildtools/all.sh"
+source "$(DIR)/cleanup.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/buildtools/all.sh"
 add_flag --required pkg_name "Name of the package to build."
 parse_flags "$@"
 
@@ -45,17 +45,17 @@ done < <(echo "$translation")
 # translation.
 if [[ "$pkgname" != "$translation" ]] && (( ! "$built_original_name" ))
 then
-  "$DIR/pkg.alias.sh" --target="$translation" --alias="$pkgname"
+  "$(DIR)/pkg.alias.sh" --target="$translation" --alias="$pkgname"
   exit 0
 fi
 
 # Fire the packaging script.
 args=()
 args+=(--pkg_name="$pkgname")
-args+=(--builddeps_script="$DIR/apt.builddeps.sh")
-args+=(--install_script="$DIR/apt.install.sh")
-args+=(--version_script="$DIR/apt.version.sh")
-args+=(--deps_script="$DIR/apt.deps.sh")
+args+=(--builddeps_script="$(DIR)/apt.builddeps.sh")
+args+=(--install_script="$(DIR)/apt.install.sh")
+args+=(--version_script="$(DIR)/apt.version.sh")
+args+=(--deps_script="$(DIR)/apt.deps.sh")
 if [[ "$pkgname" != "$translation" ]]
 then
   make_temp_file deps_script
@@ -70,7 +70,7 @@ then
 fi
 args+=(--break_dependency_cycles)
 
-"$DIR/pkg.sh" \
+"$(DIR)/pkg.sh" \
   "${args[@]}" \
   "${ARGS[@]}"
 

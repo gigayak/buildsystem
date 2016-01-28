@@ -1,10 +1,10 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/mkroot.sh"
-source "$DIR/escape.sh"
-source "$DIR/flag.sh"
+source "$(DIR)/mkroot.sh"
+source "$(DIR)/escape.sh"
+source "$(DIR)/flag.sh"
 
 add_usage_note <<EOF
 This utility should create all network interfaces in a reasonably sane way.

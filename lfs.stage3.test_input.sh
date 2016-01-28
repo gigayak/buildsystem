@@ -1,8 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/cleanup.sh"
+source "$(DIR)/cleanup.sh"
 
 failures=0
 
@@ -60,7 +60,7 @@ do
   fi
 
   # Clean up our mess.
-  "$DIR/recursive_umount.sh" "$work"
+  "$(DIR)/recursive_umount.sh" "$work"
   rm -rf "$work"
   unregister_temp_file "$work"
 done < <(find /var/www/html/tgzrepo -iname "$arch"'-yak:*.tar.gz')

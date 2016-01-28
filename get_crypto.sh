@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 # Dumb script used to get crypto keys from the cryptography store created by
 # create_crypto.sh.
@@ -14,7 +14,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # thing.
 
 
-source "$DIR/flag.sh"
+source "$(DIR)/flag.sh"
 
 add_flag --boolean path_only "If set, returns just the expected key path."
 add_flag --boolean private "Fetch the private key.  Mutex /w --public."

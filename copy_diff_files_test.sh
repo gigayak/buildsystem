@@ -1,8 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/cleanup.sh"
+source "$(DIR)/cleanup.sh"
 
 start_case()
 {
@@ -31,7 +31,7 @@ ddiff()
     "$1/" "$2/"
 }
 
-export copy_diff_files="$DIR/copy_diff_files.sh"
+export copy_diff_files="$(DIR)/copy_diff_files.sh"
 
 (
   make_temp_dir pre

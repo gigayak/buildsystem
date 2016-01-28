@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 set -E
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-echo "Script is at: $DIR"
+echo "Script is at: $(DIR)"
 echo "Current dir: $PWD"
 echo "Installing Distribute"
 wget https://bootstrap.pypa.io/ez_setup.py

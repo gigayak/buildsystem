@@ -1,6 +1,6 @@
 # /bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 if [[ ! -z "$_FLAG_SH_INCLUDED" ]]
 then
@@ -8,7 +8,7 @@ then
 fi
 _FLAG_SH_INCLUDED=1
 
-source "$DIR/escape.sh" # needed for some eval'ed array manipulation :[
+source "$(DIR)/escape.sh" # needed for some eval'ed array manipulation :[
 
 # Allows you to add and parse flags in a program.
 # Flags are always long flags, because short flags hurt readability.
@@ -17,7 +17,7 @@ source "$DIR/escape.sh" # needed for some eval'ed array manipulation :[
 #   #!/bin/bash
 #   set -Eeo pipefail
 #   DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-#   source "$DIR/flag.sh"
+#   source "$(DIR)/flag.sh"
 #   add_flag test_flag dflt "A test flag."
 #   parse_flags "$@"
 #   echo "Test flag value: $F_test_flag"

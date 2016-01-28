@@ -1,14 +1,14 @@
 # /bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 if [[ ! -z "$_MKROOT_SH_INCLUDED" ]]
 then
   return 0
 fi
 _MKROOT_SH_INCLUDED=1
-source "$DIR/cleanup.sh"
-source "$DIR/arch.sh"
+source "$(DIR)/cleanup.sh"
+source "$(DIR)/arch.sh"
 
 # Create a bare-minimum CentOS installation in a temp directory,
 # and then store the name of that directory into the environment
@@ -70,7 +70,7 @@ create_bare_root()
   for _pkg in "${_pkgs[@]}"
   do
     echo "${FUNCNAME[0]}: installing $_pkg" >&2
-    "$DIR/install_pkg.sh" --install_root="$_root" --pkg_name="$_pkg"
+    "$(DIR)/install_pkg.sh" --install_root="$_root" --pkg_name="$_pkg"
   done
 
   cd "$_original_dir"
@@ -128,7 +128,7 @@ populate_dynamic_fs_pieces()
     mount --bind /run/shm "$_root/run/shm"
   fi
 
-  "$DIR/create_resolv.sh" > "$_root/etc/resolv.conf"
+  "$(DIR)/create_resolv.sh" > "$_root/etc/resolv.conf"
 
   # Hilariously, dart cannot network if /etc/hosts is missing.  Not
   # having /etc/hosts present causes the following error during its
@@ -225,13 +225,13 @@ mkroot()
   fi
   local _env="$1"
 
-  # TODO: Check if $DIR is correct after other source files
+  # TODO: Check if $(DIR) is correct after other source files
   #       are imported :X
-  if [[ -d "$DIR/cache/baseroot" && "$2" != "--no-repo" ]]
+  if [[ -d "$(DIR)/cache/baseroot" && "$2" != "--no-repo" ]]
   then
     echo "${FUNCNAME[0]}: creating root from baseroot cache" >&2
     make_temp_dir "$_env"
-    cp -r "$DIR/cache/baseroot/"* "${!_env}"
+    cp -r "$(DIR)/cache/baseroot/"* "${!_env}"
     populate_dynamic_fs_pieces "${!_env}"
     return 0
   fi
@@ -242,11 +242,11 @@ mkroot()
     create_bare_root "$_env" --no-repo
   else
     create_bare_root "$_env"
-    if [[ ! -e "$DIR/cache" ]]
+    if [[ ! -e "$(DIR)/cache" ]]
     then
-      mkdir -pv "$DIR/cache"
+      mkdir -pv "$(DIR)/cache"
     fi
-    cp -r "${!_env}" "$DIR/cache/baseroot"
+    cp -r "${!_env}" "$(DIR)/cache/baseroot"
   fi
   populate_dynamic_fs_pieces "${!_env}"
 }

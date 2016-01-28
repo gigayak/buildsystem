@@ -1,8 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/flag.sh"
+source "$(DIR)/flag.sh"
 
 add_flag --required output_path "Where to store the build system"
 parse_flags "$@"
@@ -20,7 +20,7 @@ rsync \
   --archive \
   --exclude="cache/*" \
   --exclude=".git" \
-  "$DIR/" \
+  "$(DIR)/" \
   "$F_output_path/" \
 || retval=$?
 if (( "$retval" ))

@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/escape.sh"
-source "$DIR/flag.sh"
+source "$(DIR)/escape.sh"
+source "$(DIR)/flag.sh"
 add_usage_note <<EOF
 This is a bit of a shell-based dumb DNS replacement.  DHCP is one of the more
 mobile wiggly bits for LXC and qemu across distributions, and tends to be the
@@ -264,4 +264,4 @@ if [[ "$shared_host" == "gitzebo" ]]
 then
   echo "$ip git git.jgilik.com" >> /root/localstorage/dns/dns/hosts.autogen
 fi
-"$DIR/reload_dnsmasq.sh"
+"$(DIR)/reload_dnsmasq.sh"

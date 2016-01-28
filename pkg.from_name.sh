@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/flag.sh"
-source "$DIR/buildtools/all.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/buildtools/all.sh"
 add_flag --required pkg_name "Name of the package to build."
 add_flag --default "" target_architecture \
   "Architecture to build for.  Default is host's architecture."
@@ -12,9 +12,9 @@ add_flag --default "" target_distribution \
 parse_flags "$@"
 
 name="${F_pkg_name}"
-host_distro="$("$DIR/os_info.sh" --distribution)"
+host_distro="$("$(DIR)/os_info.sh" --distribution)"
 distro="${F_target_distribution}"
-host_arch="$("$DIR/os_info.sh" --architecture)"
+host_arch="$("$(DIR)/os_info.sh" --architecture)"
 arch="${F_target_architecture}"
 constraint_flags=()
 constraints_enabled=0
@@ -48,7 +48,7 @@ then
     echo "$(basename "$0"): python-* cannot be built with --target_* flags" >&2
     exit 1
   fi
-  "$DIR/pkg.from_spec.sh" "--pkg_name=$name" -- "${ARGS[@]}"
+  "$(DIR)/pkg.from_spec.sh" "--pkg_name=$name" -- "${ARGS[@]}"
   exit $?
 
 # python -> pip
@@ -76,7 +76,7 @@ then
     echo "$(basename "$0"): failed to strip pip package name '$name'" >&2
     exit 1
   fi
-  "$DIR/pkg.from_pip.sh" "--pkg_name=$stripped" -- "${ARGS[@]}"
+  "$(DIR)/pkg.from_pip.sh" "--pkg_name=$stripped" -- "${ARGS[@]}"
   exit $?
 
 # go -> go repo
@@ -94,36 +94,36 @@ then
     echo "$(basename "$0"): failed to strip go package name '$name'" >&2
     exit 1
   fi
-  "$DIR/pkg.from_go.sh" "--pkg_name=$stripped" -- "${ARGS[@]}"
+  "$(DIR)/pkg.from_go.sh" "--pkg_name=$stripped" -- "${ARGS[@]}"
   exit $?
 
 # tools -> tools2
 elif [[ "$distro" == "tools2" ]]
 then
-  "$DIR/pkg.tools_to_tools2.sh" --pkg_name="$name" -- "${ARGS[@]}"
+  "$(DIR)/pkg.tools_to_tools2.sh" --pkg_name="$name" -- "${ARGS[@]}"
   exit $?
 
 # try a bootstrap package
-elif "$DIR/pkg.from_bootstrap.sh" \
+elif "$(DIR)/pkg.from_bootstrap.sh" \
   "--pkg_name=$name" \
   "${constraint_flags[@]}" \
   --check_only \
   -- "${ARGS[@]}"
 then
-  "$DIR/pkg.from_bootstrap.sh" \
+  "$(DIR)/pkg.from_bootstrap.sh" \
     "--pkg_name=$name" \
     "${constraint_flags[@]}" \
     -- "${ARGS[@]}"
   exit $?
 
 # try a specced package
-elif "$DIR/pkg.from_spec.sh" \
+elif "$(DIR)/pkg.from_spec.sh" \
   "--pkg_name=$name" \
   "${constraint_flags[@]}" \
   --check_only \
   -- "${ARGS[@]}"
 then
-  "$DIR/pkg.from_spec.sh" \
+  "$(DIR)/pkg.from_spec.sh" \
     "--pkg_name=$name" \
     "${constraint_flags[@]}" \
     -- "${ARGS[@]}"
@@ -137,7 +137,7 @@ then
     echo "$(basename "$0"): yum cannot be converted with --target_* flags" >&2
     exit 1
   fi
-  "$DIR/pkg.from_yum.sh" --pkg_name="$name" -- "${ARGS[@]}"
+  "$(DIR)/pkg.from_yum.sh" --pkg_name="$name" -- "${ARGS[@]}"
   exit $?
 
 # try apt conversion on Ubuntu hosts
@@ -148,7 +148,7 @@ then
     echo "$(basename "$0"): apt cannot be converted with --target_* flags" >&2
     exit 1
   fi
-  "$DIR/pkg.from_apt.sh" --pkg_name="$name" -- "${ARGS[@]}"
+  "$(DIR)/pkg.from_apt.sh" --pkg_name="$name" -- "${ARGS[@]}"
   exit $?
 fi
 

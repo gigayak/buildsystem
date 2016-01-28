@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/flag.sh"
-source "$DIR/cleanup.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/cleanup.sh"
 add_flag --required pkg_name "Name of the package to convert."
 add_flag --default="/var/www/html/tgzrepo" repo_path "Path to output packages."
 parse_flags "$@"
@@ -85,7 +85,7 @@ convert_yum_package()
 
   # Finalize conversion.
   echo "Converting '$pkg' to TGZ"
-  "$DIR/rpm_to_tar.sh" \
+  "$(DIR)/rpm_to_tar.sh" \
     --rpm="$rpm" \
     --out="$WORKDIR/$pkg.tar.gz"
   touch "$pkg.done"

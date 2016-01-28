@@ -1,23 +1,23 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/arch.sh"
-source "$DIR/mkroot.sh"
-source "$DIR/escape.sh"
-source "$DIR/flag.sh"
+source "$(DIR)/arch.sh"
+source "$(DIR)/mkroot.sh"
+source "$(DIR)/escape.sh"
+source "$(DIR)/flag.sh"
 
 add_flag --array pkg "Package name to install."
 add_flag --default="" name "Name of container to create -- default is random."
 parse_flags "$@"
 
-ip="$("$DIR/create_ip.sh" --owner="lxc:$F_name")"
+ip="$("$(DIR)/create_ip.sh" --owner="lxc:$F_name")"
 echo "Will use IP address '$ip' for container"
 
 echo "Will install: ${F_pkg[@]}"
 
 make_temp_dir tmp
-"$DIR/create_chroot.sh" "${F_pkg[@]}" 2>&1 \
+"$(DIR)/create_chroot.sh" "${F_pkg[@]}" 2>&1 \
   | tee "$tmp/create_chroot.log"
 
 root="$(grep "Environment available:" "$tmp/create_chroot.log" \
@@ -61,7 +61,7 @@ lxc.utsname = $name
 lxc.network.type = veth
 lxc.network.flags = up
 lxc.network.link = virbr0
-lxc.network.hwaddr = $("$DIR/create_mac.sh")
+lxc.network.hwaddr = $("$(DIR)/create_mac.sh")
 #lxc.network.hwaddr = 53:6C:79:2F:D3:0D # FAILS NEVER USE ODD NUMBER IN FIRST
 # OCTET FOR MORE INFORMATION:
 # http://comments.gmane.org/gmane.linux.kernel.containers.lxc.general/746

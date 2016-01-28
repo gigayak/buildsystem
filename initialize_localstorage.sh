@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 # TODO: This whole script is a horrific TODO.  Better bootstrap needed.
 #
@@ -8,7 +8,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # months" - meaning, I'll be eating these words in February 2020.)
 
 # TODO: Use a .gitignore-ed subdirectory if a global directory is not ready.
-tgt="$( cd "$DIR/.." && pwd )/localstorage"
+tgt="$( cd "$(DIR)/.." && pwd )/localstorage"
 if [[ -e "$tgt" ]]
 then
   echo "$(basename "$0"): local storage directory '$tgt' already exists." >&2
@@ -58,4 +58,4 @@ ln -sv /var/www/html/public_html www/www
 # Make sure to kick off certificate generation - these are inserted into the
 # empty directories we just created, and most services won't start without
 # certificates and keys.
-bash -x "$DIR/create_crypto.sh"
+bash -x "$(DIR)/create_crypto.sh"

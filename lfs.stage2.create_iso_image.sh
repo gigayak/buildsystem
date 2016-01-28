@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 echo "$(basename "$0") is deprecated" >&2
 echo "Code remains to allow an installation CD to be created for stage3." >&2
@@ -8,11 +8,11 @@ echo "Use lfs.stage2.create_raw_image.sh to create stage2 image." >&2
 echo "Use lfs.stage2.sh to boot stage2 image and build stage3." >&2
 exit 1
 
-source "$DIR/arch.sh"
-source "$DIR/flag.sh"
-source "$DIR/cleanup.sh"
-source "$DIR/mkroot.sh"
-source "$DIR/escape.sh"
+source "$(DIR)/arch.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/cleanup.sh"
+source "$(DIR)/mkroot.sh"
+source "$(DIR)/escape.sh"
 
 add_flag --required output_path "Where to store the image."
 add_flag --required mac_address "MAC address to assign to eth0."
@@ -40,13 +40,13 @@ then
     then
       continue
     fi
-    "$DIR/install_pkg.sh" --install_root="$dir" --pkg_name="$pkg"
+    "$(DIR)/install_pkg.sh" --install_root="$dir" --pkg_name="$pkg"
   done
 fi
 
 target_buildsystem="$dir/buildsystem"
 mkdir -pv "$target_buildsystem"
-"$DIR/install_buildsystem.sh" \
+"$(DIR)/install_buildsystem.sh" \
   --output_path="$target_buildsystem"
 
 target_pkgdir="$dir/pkgs"
@@ -54,7 +54,7 @@ mkdir -pv "$target_pkgdir"
 cp -v /var/www/html/tgzrepo/i686-tools2:* "$target_pkgdir/"
 
 # Ensure that internal DNS is available.
-"$DIR/create_resolv.sh" > "$dir/root/resolv.conf"
+"$(DIR)/create_resolv.sh" > "$dir/root/resolv.conf"
 
 cat > "$dir/root/generate_image.sh" <<'EOF_GEN_IMAGE'
 #!/bin/bash

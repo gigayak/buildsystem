@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/arch.sh"
-source "$DIR/mkroot.sh"
+source "$(DIR)/arch.sh"
+source "$(DIR)/mkroot.sh"
 
 mkroot dir
 tar \
@@ -11,5 +11,5 @@ tar \
   --directory="$dir" \
   --exclude="proc" \
   --exclude="dev" \
-  -cf "$DIR/base_image.tar" "."
+  -cf "$(DIR)/base_image.tar" "."
 

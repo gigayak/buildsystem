@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 echo "This script builds all of Linux."
 start_from="$1"
@@ -37,7 +37,7 @@ build()
   p="${arch}-${distro}-${pkg}"
   echo "Building package '$p'"
   retval=0
-  "$DIR/pkg.from_name.sh" \
+  "$(DIR)/pkg.from_name.sh" \
     --pkg_name="$pkg" \
     --target_architecture="$arch" \
     --target_distribution="$distro" \

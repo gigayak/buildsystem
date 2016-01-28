@@ -1,11 +1,11 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/cleanup.sh"
-source "$DIR/flag.sh"
-source "$DIR/repo.sh"
-source "$DIR/mkroot.sh"
+source "$(DIR)/cleanup.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/repo.sh"
+source "$(DIR)/mkroot.sh"
 add_flag --required pkg_name "Name of the package to build."
 add_flag --default="" target_architecture \
   "Name of architecture to build for.  Defaults to host architecture."
@@ -17,18 +17,18 @@ parse_flags "$@"
 arch="$F_target_architecture"
 if [[ -z "$arch" ]]
 then
-  arch="$("$DIR/os_info.sh" --architecture)"
+  arch="$("$(DIR)/os_info.sh" --architecture)"
 fi
 distro="$F_target_distribution"
 if [[ -z "$distro" ]]
 then
-  distro="$("$DIR/os_info.sh" --distribution)"
+  distro="$("$(DIR)/os_info.sh" --distribution)"
 fi
 
 found=0
 bootstrap_files=()
-bootstrap_files+=("$DIR/pkgspecs/${F_pkg_name}.bootstrap.sh")
-bootstrap_files+=("$DIR/pkgspecs/${arch}-${distro}-${F_pkg_name}.bootstrap.sh")
+bootstrap_files+=("$(DIR)/pkgspecs/${F_pkg_name}.bootstrap.sh")
+bootstrap_files+=("$(DIR)/pkgspecs/${arch}-${distro}-${F_pkg_name}.bootstrap.sh")
 for bootstrap in "${bootstrap_files[@]}"
 do
   if [[ -e "$bootstrap" ]]

@@ -1,10 +1,10 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/arch.sh"
-source "$DIR/mkroot.sh"
-source "$DIR/escape.sh"
+source "$(DIR)/arch.sh"
+source "$(DIR)/mkroot.sh"
+source "$(DIR)/escape.sh"
 
 pkgs=("$@")
 echo "Will install: ${pkgs[@]}"
@@ -20,7 +20,7 @@ then
     then
       continue
     fi
-    "$DIR/install_pkg.sh" --install_root="$dir" --pkg_name="$pkg"
+    "$(DIR)/install_pkg.sh" --install_root="$dir" --pkg_name="$pkg"
   done
 fi
 

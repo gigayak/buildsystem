@@ -1,8 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/flag.sh"
+source "$(DIR)/flag.sh"
 add_flag --required pkg_name "Name of the package to build."
 add_flag --boolean \
   check_only "Only checks if we *can* build when passed."
@@ -15,8 +15,8 @@ parse_flags "$@"
 pkgname="$F_pkg_name"
 
 # Determine host characteristics.
-host_os="$("$DIR/os_info.sh" --distribution)"
-host_arch="$("$DIR/os_info.sh" --architecture)"
+host_os="$("$(DIR)/os_info.sh" --distribution)"
+host_arch="$("$(DIR)/os_info.sh" --architecture)"
 target_os="$host_os"
 if [[ ! -z "$F_target_distribution" ]]
 then
@@ -29,7 +29,7 @@ then
 fi
 
 # Check that the package actually exists!
-SPECS="$DIR/pkgspecs"
+SPECS="$(DIR)/pkgspecs"
 
 spec_names=()
 spec_names+=("${target_arch}-${target_os}-${pkgname}")
@@ -74,6 +74,7 @@ fi
 
 # Pass in all available scripts, and no more than that.
 args=()
+args+=(--pkg_name="$pkgname")
 args+=(--target_distribution="$target_os")
 args+=(--target_architecture="$target_arch")
 for script_name in builddeps make install version deps
@@ -86,6 +87,6 @@ do
 done
 
 # Fire the packaging script.
-"$DIR/pkg.sh" \
+"$(DIR)/pkg.sh" \
   "${args[@]}" \
   "${ARGS[@]}"

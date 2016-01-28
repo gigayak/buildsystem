@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 container()
 {
@@ -16,7 +16,7 @@ container()
     echo "Skipping already-created container '$container_name'"
   else
     echo "Creating container '$container_name'"
-    "$DIR/create_container.sh" \
+    "$(DIR)/create_container.sh" \
       --name="$container_name" \
       --pkg="$package_name"
   fi
@@ -28,13 +28,13 @@ container()
     echo "Skipping already-running container '$container_name'"
   else
     echo "Launching container '$container_name'"
-    "$DIR/launch_container.sh" \
+    "$(DIR)/launch_container.sh" \
       --name="$container_name"
   fi
 }
 
 # Network must be up before containers are created.
-"$DIR/create_network.sh"
+"$(DIR)/create_network.sh"
 
 # Everything requires the DNS/DHCP server.  Always boot this first.
 # TODO: Figure out how to replicate DHCP.
@@ -46,7 +46,7 @@ container proxy   01
 container proxy   02
 
 # Network scripts will set up port forwarding to proxies if they exist.
-"$DIR/create_network.sh"
+"$(DIR)/create_network.sh"
 
 # Package management:
 container repo    01

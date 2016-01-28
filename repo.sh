@@ -1,6 +1,6 @@
 # /bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 if [[ ! -z "$_REPO_SH_INCLUDED" ]]
 then
@@ -8,8 +8,8 @@ then
 fi
 _REPO_SH_INCLUDED=1
 
-source "$DIR/cleanup.sh"
-source "$DIR/escape.sh"
+source "$(DIR)/cleanup.sh"
+source "$(DIR)/escape.sh"
 
 
 # This file contains repository management related functions.

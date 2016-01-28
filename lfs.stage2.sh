@@ -1,12 +1,12 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/arch.sh"
-source "$DIR/flag.sh"
-source "$DIR/cleanup.sh"
-source "$DIR/mkroot.sh"
-source "$DIR/escape.sh"
+source "$(DIR)/arch.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/cleanup.sh"
+source "$(DIR)/mkroot.sh"
+source "$(DIR)/escape.sh"
 
 add_flag --boolean interactive "If set, pauses for interactive login at end."
 add_flag --required ip_address "IP address we should expect the VM to use."
@@ -44,7 +44,7 @@ then
     then
       continue
     fi
-    "$DIR/install_pkg.sh" --install_root="$dir" --pkg_name="$pkg"
+    "$(DIR)/install_pkg.sh" --install_root="$dir" --pkg_name="$pkg"
   done
 fi
 
@@ -55,7 +55,7 @@ cp -v "$F_image_path" "$dir/root/$image_name"
 # while running this.
 echo "Installing current buildsystem to chroot."
 mkdir "$dir/root/buildsystem"
-"$DIR/install_buildsystem.sh" --output_path="$dir/root/buildsystem"
+"$(DIR)/install_buildsystem.sh" --output_path="$dir/root/buildsystem"
 
 echo "Starting VM; logging to $dir/root/log.qemu"
 

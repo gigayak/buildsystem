@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR(){(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 # You'd think this would fail - but remember: bootstrap scripts are unique
 # in that they DON'T execute in a chroot.  Thus, we CAN import stuff from

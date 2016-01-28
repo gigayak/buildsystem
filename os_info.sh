@@ -1,8 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/flag.sh"
+source "$(DIR)/flag.sh"
 add_flag --boolean distribution "Get name of distribution."
 add_flag --boolean architecture "Get name of architecture."
 parse_flags "$@"

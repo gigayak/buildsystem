@@ -1,10 +1,10 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/cleanup.sh"
-source "$DIR/escape.sh"
-source "$DIR/flag.sh"
+source "$(DIR)/cleanup.sh"
+source "$(DIR)/escape.sh"
+source "$(DIR)/flag.sh"
 add_usage_note <<EOF
 This script finds dependencies for a given set of paths using LDD lookups.
 It's a total kludge, but I've been using it for sorting out i686-tools-

@@ -1,8 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/repo.sh"
+source "$(DIR)/repo.sh"
 
 repodir="$_REPO_LOCAL_PATH"
 
@@ -11,12 +11,12 @@ repodir="$_REPO_LOCAL_PATH"
 # provided by debootstrap are resolved by the Gigayak dependency resolver.
 if [[ ! -e "$repodir/base-ubuntu.tar.gz" ]]
 then
-  "$DIR/pkg.from_name.sh" --pkg_name=base-ubuntu
+  "$(DIR)/pkg.from_name.sh" --pkg_name=base-ubuntu
 fi
 
 while read -r pkg
 do
-  "$DIR/pkg.alias.sh" --target=base-ubuntu --alias="$pkg"
+  "$(DIR)/pkg.alias.sh" --target=base-ubuntu --alias="$pkg"
 done < <(tar -zx \
   -f /var/www/html/tgzrepo/base-ubuntu.tar.gz \
   --to-stdout ./etc/base-ubuntu-packages)

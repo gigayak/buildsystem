@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 set -E
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 # make sure base directories exist
 mkdir -p "/usr"

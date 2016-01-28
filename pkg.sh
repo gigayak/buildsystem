@@ -1,10 +1,10 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/escape.sh"
-source "$DIR/flag.sh"
-source "$DIR/repo.sh"
+source "$(DIR)/escape.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/repo.sh"
 add_usage_note <<EOF
 This script is used internally to take some package specs and turn them into
 usable binary packages.  It provides enough indirection to be able to change
@@ -75,8 +75,8 @@ version="$F_version_script"
 
 # Manually export a select set of environment variables.
 # These are all hacks to accomplish something dirty.
-host_os="$("$DIR/os_info.sh" --distribution)"
-host_arch="$("$DIR/os_info.sh" --architecture)"
+host_os="$("$(DIR)/os_info.sh" --distribution)"
+host_arch="$("$(DIR)/os_info.sh" --architecture)"
 
 target_arch=""
 target_os=""
@@ -118,7 +118,7 @@ outputname="$(qualify_dep "$target_arch" "$target_os" "$pkgname")"
 
 
 # Check that the package actually exists!
-SPECS="$DIR/pkgspecs"
+SPECS="$(DIR)/pkgspecs"
 for path in "$version"
 do
   if [[ ! -e "$path" ]]
@@ -156,8 +156,8 @@ fi
 
 
 # Bring in dependencies and initialize system.
-source "$DIR/arch.sh"
-source "$DIR/mkroot.sh"
+source "$(DIR)/arch.sh"
+source "$(DIR)/mkroot.sh"
 
 mkroot dir
 echo "Operating on $dir"
@@ -256,7 +256,7 @@ install_deps()
       _hist_flags+=(--dependency_history="$_hist_entry")
     done
 
-    "$DIR/install_pkg.sh" \
+    "$(DIR)/install_pkg.sh" \
       --pkg_name="$_dep" \
       --install_root="$dir" \
       "${_hist_flags[@]}"
@@ -273,7 +273,7 @@ make_temp_dir workdir
 # TODO: Stop relying on /root/ as a general place to pollute with build temp
 #     material.
 mkdir -pv "$dir/root/buildsystem"
-"$DIR/install_buildsystem.sh" --output_path="$dir/root/buildsystem"
+"$(DIR)/install_buildsystem.sh" --output_path="$dir/root/buildsystem"
 
 # build-only deps
 for builddeps in "${F_builddeps_script[@]}"
@@ -491,7 +491,7 @@ rsync \
 make_temp_dir pkgdir
 echo "Packaging to '$pkgdir'"
 retval=0
-"$DIR/copy_diff_files.sh" "$dir" "$pkgdir" < "$diff" \
+"$(DIR)/copy_diff_files.sh" "$dir" "$pkgdir" < "$diff" \
   || retval=$?
 if (( "$retval" ))
 then

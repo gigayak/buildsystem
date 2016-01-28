@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 pass()
 {
@@ -35,7 +35,7 @@ expect_success()
 
 # Check basic function of required flags.
 (
-  source "$DIR/flag.sh"
+  source "$(DIR)/flag.sh"
   add_flag --required req_flag "required flag"
   _program_name="test_required_flag_omitted"
   _program_params=()
@@ -45,7 +45,7 @@ expect_success()
 )
 
 (
-  source "$DIR/flag.sh"
+  source "$(DIR)/flag.sh"
   add_flag --required req_flag "required flag"
   _program_name="test_required_flag_provided"
   _program_params=("--req_flag=wat")
@@ -56,7 +56,7 @@ expect_success()
 
 # Basic functionality of boolean flags.
 (
-  source "$DIR/flag.sh"
+  source "$(DIR)/flag.sh"
   add_flag --boolean bool_flag "boolean flag"
   _program_name="test_boolean_flag_true"
   _program_params=("--bool_flag")
@@ -68,7 +68,7 @@ expect_success()
 )
 
 (
-  source "$DIR/flag.sh"
+  source "$(DIR)/flag.sh"
   add_flag --boolean bool_flag "boolean flag"
   _program_name="test_boolean_flag_true"
   _program_params=()
@@ -81,7 +81,7 @@ expect_success()
 
 # Check unknown flag.
 (
-  source "$DIR/flag.sh"
+  source "$(DIR)/flag.sh"
   _program_name="test_unknown_flag"
   _program_params=("--unknown=die")
   retval=0
@@ -91,7 +91,7 @@ expect_success()
 
 # Check array functionality.
 (
-  source "$DIR/flag.sh"
+  source "$(DIR)/flag.sh"
   add_flag --array a "array flag"
   _program_name="test_array"
   _program_params=("--a=wat" "--a=two" "--a=three")
@@ -105,7 +105,7 @@ expect_success()
 
 # Check that defaults are populated.
 (
-  source "$DIR/flag.sh"
+  source "$(DIR)/flag.sh"
   add_flag --default="wat" d "flag with default"
   _program_name="test_default"
   _program_params=()
@@ -119,7 +119,7 @@ expect_success()
 
 # Check that defaults are overridden.
 (
-  source "$DIR/flag.sh"
+  source "$(DIR)/flag.sh"
   add_flag --default="wat" d "flag with default"
   _program_name="test_default"
   _program_params=("--d=nope")
@@ -133,7 +133,7 @@ expect_success()
 
 # Check that defaults are overridden, even with a null.
 (
-  source "$DIR/flag.sh"
+  source "$(DIR)/flag.sh"
   add_flag --default="wat" d "flag with default"
   _program_name="test_default"
   _program_params=("--d=")
@@ -147,7 +147,7 @@ expect_success()
 
 # Check that nothing after -- is parsed.
 (
-  source "$DIR/flag.sh"
+  source "$(DIR)/flag.sh"
   _program_name="test_default"
   _program_params=("--" "--test_flag")
   retval=0
@@ -162,7 +162,7 @@ expect_success()
 
 # Check that multiple functions can use flags.
 (
-  source "$DIR/flag.sh"
+  source "$(DIR)/flag.sh"
   func1()
   {
     add_flag --default="wat" d "flag with default"

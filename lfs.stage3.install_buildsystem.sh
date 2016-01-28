@@ -1,8 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/cleanup.sh"
+source "$(DIR)/cleanup.sh"
 
 ip="$1"
 if [[ -z "$ip" ]]
@@ -13,7 +13,7 @@ fi
 
 make_temp_dir temp
 
-"$DIR/install_buildsystem.sh" \
+"$(DIR)/install_buildsystem.sh" \
   --output_path="$temp"
 tar -c -C "$temp" . \
   | ssh \

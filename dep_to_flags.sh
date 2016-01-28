@@ -1,10 +1,10 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/escape.sh"
-source "$DIR/repo.sh"
-source "$DIR/flag.sh"
+source "$(DIR)/escape.sh"
+source "$(DIR)/repo.sh"
+source "$(DIR)/flag.sh"
 add_flag --required dep "Name of dependency to convert to flags."
 add_usage_note <<'EOF'
 This utility accepts a dependency via the --dep flag and outputs flags which

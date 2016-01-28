@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 set -E
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 #require ca-certificates wget
 pkg_name="go"
@@ -9,7 +9,7 @@ pkg_version="1.4.1" # TODO: version crawler
 echo "$pkg_version" > "/root/go.version"
 pkg_ext="tar.gz"
 pkg_url="https://storage.googleapis.com/golang/${pkg_name}${pkg_version}.src.${pkg_ext}"
-pkg_path="$DIR/${pkg_name}-${pkg_version}-src.${pkg_ext}"
+pkg_path="$(DIR)/${pkg_name}-${pkg_version}-src.${pkg_ext}"
 pkg_archs=("x86_64" "i386") # valid architectures
 pkg_arch="i386" # selected architecture
 

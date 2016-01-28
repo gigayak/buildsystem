@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/repo.sh"
-source "$DIR/flag.sh"
+source "$(DIR)/repo.sh"
+source "$(DIR)/flag.sh"
 add_flag --required pkg_name "Name of the dependency to install."
 add_flag --default="" installed_list \
   "Directory containing filelists of packages which have already been installed."
@@ -23,12 +23,12 @@ then
 fi
 echo "$(basename "$0"): resolving package '$F_pkg_name' deps" >&2
 
-arch="$("$DIR/os_info.sh" --architecture)"
+arch="$("$(DIR)/os_info.sh" --architecture)"
 if [[ ! -z "$F_target_architecture" ]]
 then
   arch="$F_target_architecture"
 fi
-distro="$("$DIR/os_info.sh" --distribution)"
+distro="$("$(DIR)/os_info.sh" --distribution)"
 if [[ ! -z "$F_target_distribution" ]]
 then
   distro="$F_target_distribution"

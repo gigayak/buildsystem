@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/flag.sh"
-source "$DIR/cleanup.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/cleanup.sh"
 
 add_flag --required rpm "Path of RPM to convert to tar."
 add_flag --required out "Path to store the resulting tarball at."

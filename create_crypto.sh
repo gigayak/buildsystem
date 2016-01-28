@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-source "$DIR/cleanup.sh"
-source "$DIR/escape.sh"
+source "$(DIR)/cleanup.sh"
+source "$(DIR)/escape.sh"
 
 echo "$(basename "$0"): Regenerating all missing crypto files."
 echo "$(basename "$0"): These should never be checked in."
@@ -33,7 +33,7 @@ ssh_key()
   algo_name="$(echo "$algo" | tr '[:lower:]' '[:upper:]')"
   strength_name="${algo}_key_strength"
   key_strength="${!strength_name}"
-  key_path="$("$DIR/get_crypto.sh" \
+  key_path="$("$(DIR)/get_crypto.sh" \
     --path_only \
     --private \
     --key_type="$algo" \
@@ -84,7 +84,7 @@ root="$temp_root/chroot.certificate_authority"
 if [[ ! -e "$root" ]]
 then
   mkdir -pv "$root"{,/proc,/sys,/opt/ca}
-  "$DIR/install_pkg.sh" \
+  "$(DIR)/install_pkg.sh" \
     --install_root="$root" \
     --pkg_name="env-ca"
 fi
