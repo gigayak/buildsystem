@@ -20,7 +20,7 @@ a bit of a nightmare to redo upon reboot still...
 WARNING: It assumes eth1 is connected to the internet.  This is not standard.
 TODO: Default to eth0, allow it to be configured.
 EOF
-parse_flags
+parse_flags "$@"
 
 # Ensure a network bridge exists and is up.
 # CentOS-specific implementation.

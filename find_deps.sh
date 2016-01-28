@@ -12,7 +12,7 @@ dependencies to reduce the size of the initrd image, which can't be too
 large.
 EOF
 add_flag --required pkg_name "Name of package to inspect"
-parse_flags
+parse_flags "$@"
 
 pkg="$F_pkg_name"
 

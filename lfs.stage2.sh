@@ -18,7 +18,7 @@ EOF
 add_flag --required image_path "Path to output of lfs.stage2.create_image.sh"
 add_flag --boolean preserve_chroot "If set, does not clean up execution chroot"
 add_flag --default="" start_at "If set, name of package to start building at"
-parse_flags
+parse_flags "$@"
 
 if [[ -z "$F_image_path" || ! -e "$F_image_path" ]]
 then

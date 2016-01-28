@@ -21,7 +21,7 @@ add_flag --default "tools2" target_distribution \
   "Distribution name to convert to."
 add_flag --default="" target_architecture \
   "Architecture to convert.  Defaults to host architecture."
-parse_flags
+parse_flags "$@"
 
 repo="$_REPO_LOCAL_PATH"
 

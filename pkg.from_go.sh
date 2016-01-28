@@ -5,7 +5,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/cleanup.sh"
 source "$DIR/flag.sh"
 add_flag --required pkg_name "Name of the package to build."
-parse_flags
+parse_flags "$@"
 
 # Fire the packaging script.
 args=()

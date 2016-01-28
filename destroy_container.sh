@@ -6,7 +6,7 @@ source "$DIR/flag.sh"
 source "$DIR/cleanup.sh"
 
 add_flag --required name "Name of container to destroy."
-parse_flags
+parse_flags "$@"
 
 
 name="${F_name}"

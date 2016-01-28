@@ -14,7 +14,7 @@ add_flag --default="" target_architecture \
   "Architecture to resolve for.  Default is host architecture."
 add_flag --default="" target_distribution \
   "Distribution to resolve for.  Default is host distribution."
-parse_flags
+parse_flags "$@"
 
 if [[ -z "$F_pkg_name" ]]
 then

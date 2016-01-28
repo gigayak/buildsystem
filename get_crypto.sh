@@ -22,7 +22,7 @@ add_flag --boolean public "Fetch the public key.  Mutex /w --private."
 add_flag --required key_name "Name of key to fetch."
 add_flag --required key_type "Type of key to fetch (rsa, dsa, ssl)."
 
-parse_flags
+parse_flags "$@"
 
 storage_dir="/root/crypto"
 key_types=(rsa dsa ssl)

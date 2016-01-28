@@ -4,7 +4,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source "$DIR/flag.sh"
 add_flag --boolean continue "Whether to avoid wiping state."
-parse_flags
+parse_flags "$@"
 
 # This script attempts to take over a clean host and use it to build the whole
 # world.  This can cause bad side effects at the moment (such as reconfiguring

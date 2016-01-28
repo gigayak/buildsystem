@@ -9,7 +9,7 @@ add_flag --default "" target_architecture \
   "Architecture to build for.  Default is host's architecture."
 add_flag --default "" target_distribution \
   "Distribution to build for.  Default is host's distribution."
-parse_flags
+parse_flags "$@"
 
 name="${F_pkg_name}"
 host_distro="$("$DIR/os_info.sh" --distribution)"

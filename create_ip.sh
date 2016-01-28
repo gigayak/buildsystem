@@ -51,7 +51,7 @@ add_flag lease_file --default=/tmp/ip.gigayak.allocations \
   "Where the IP lease information should be stored."
 
 add_flag --boolean read_only "Does not generate a new lease when set."
-parse_flags
+parse_flags "$@"
 
 # Check to make sure the owner specification is valid.
 owner_type="$(echo "$F_owner" | sed -nre 's@^([^:]+):.*$@\1@gp')"

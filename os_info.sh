@@ -5,7 +5,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/flag.sh"
 add_flag --boolean distribution "Get name of distribution."
 add_flag --boolean architecture "Get name of architecture."
-parse_flags
+parse_flags "$@"
 if (( "$F_distribution" && "$F_architecture" )) \
   || (( ! "$F_distribution" && ! "$F_architecture" ))
 then

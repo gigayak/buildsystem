@@ -66,7 +66,7 @@ have no postinst scripts first, which pkg.sh does not attempt to mirror, but
 this should at least somewhat unbreak the gcc <-> libgcc interdependencies when
 building with Ubuntu as a host OS.
 EOF
-parse_flags
+parse_flags "$@"
 
 pkgname="$F_pkg_name"
 export PKG_NAME="$pkgname"

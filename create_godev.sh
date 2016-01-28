@@ -6,7 +6,7 @@ source "$DIR/flag.sh"
 source "$DIR/mkroot.sh"
 source "$DIR/cleanup.sh"
 add_flag --required pkg_name "Name of Go package to create environment for."
-parse_flags
+parse_flags "$@"
 
 # Strip go- prefix if it was given.
 # This may cause odd behaviors if we name a package go-go-power-rangers...

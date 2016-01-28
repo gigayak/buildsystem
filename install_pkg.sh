@@ -17,7 +17,7 @@ add_flag --default="" target_architecture \
   "Name of architecture to install packages for.  Defaults to detected value."
 add_flag --default="" target_distribution \
   "Name of distribution to install packages for.  Defaults to detected value."
-parse_flags
+parse_flags "$@"
 
 pkg="$F_pkg_name"
 if [[ -z "$pkg" ]]

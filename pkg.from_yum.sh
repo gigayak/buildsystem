@@ -6,7 +6,7 @@ source "$DIR/flag.sh"
 source "$DIR/cleanup.sh"
 add_flag --required pkg_name "Name of the package to convert."
 add_flag --default="/var/www/html/tgzrepo" repo_path "Path to output packages."
-parse_flags
+parse_flags "$@"
 
 outdir="${F_repo_path}"
 make_temp_dir workdir

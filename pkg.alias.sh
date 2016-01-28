@@ -6,7 +6,7 @@ source "$(DIR)/repo.sh"
 source "$(DIR)/flag.sh"
 add_flag --required alias "Name of the virtual package to create."
 add_flag --required target "Name of actual package to be installed"
-parse_flags
+parse_flags "$@"
 
 if [[ -e "$_REPO_LOCAL_PATH/$F_alias.done" ]]
 then

@@ -19,14 +19,19 @@ source "$DIR/escape.sh" # needed for some eval'ed array manipulation :[
 #   DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 #   source "$DIR/flag.sh"
 #   add_flag test_flag dflt "A test flag."
-#   parse_flags
+#   parse_flags "$@"
 #   echo "Test flag value: $F_test_flag"
 #
 # Commandline arguments (stuff after a '--' token) are preserved and exported
 # as the ${ARGS[@]} array.
+#
+# ABSOLUTELY NEVER define flags in a loop, as flag redefinitions from the same
+# location in code will be ignored.
 
 _flags=()
 _usage_notes=()
+declare -A _flag_program_names
+declare -A _flag_names
 declare -A _flag_descriptions
 declare -A _flag_defaults
 declare -A _flag_default_set
@@ -34,20 +39,29 @@ declare -A _flag_boolean
 declare -A _flag_array
 declare -A _flag_optional
 declare -A _flag_exists
+declare -A _flag_definition_location
 
-# These are for mock data!  Update the tests if you change their names.
-_program_name="$(basename "$0")"
-_program_params=("$0" "$@")
+# Function to return a scoping identifier for flags, to allow multiple flag
+# scopes to exist - one for the top-level main, and then one per function.
+#
+# Caveat: DOES NOT SUPPORT RECURSION.  It silently fails for recursive cases,
+# as it isn't aware of recursion at all.
+#
+# Returns "main@:" for functions called from a top-level shell script.
+# Returns "func@source.sh:" for a function name func called from source.sh.
+flag_scope()
+{
+  echo "${FUNCNAME[2]}@${BASH_SOURCE[3]}:"
+}
 
-# Add special help flag by default.
-_flags+=("help")
-_flag_descriptions["help"]="Displays this help message."
-_flag_defaults["help"]=""
-_flag_default_set["help"]="0"
-_flag_boolean["help"]="1"
-_flag_array["help"]="0"
-_flag_optional["help"]="1"
-_flag_exists["help"]="1"
+# Function to return exact location at which caller was called.   This serves
+# as a unique identifier for each flag definition, allowing distinct flag
+# definitions for the same name to result in errors without having multiple
+# calls to a function that defines flag barf.
+flag_location()
+{
+  echo "${BASH_SOURCE[2]}:${BASH_LINENO[1]}"
+}
 
 add_flag()
 {
@@ -66,6 +80,7 @@ add_flag()
     return 1
   fi
 
+  local _scope="$(flag_scope)"
   local _name
   local _description
   local _default
@@ -73,6 +88,7 @@ add_flag()
   local _boolean=0
   local _optional=1
   local _array=0
+  local _definition_location="$(flag_location)"
 
   eval set -- "$_vars"
   while true
@@ -138,6 +154,7 @@ add_flag()
   # Remaining arguments: name and description
   _name="$1"
   _description="$2"
+  local _id="${_scope}${_name}"
 
   # Sanity checks!  YAY!
   if [[ -z "$_name" ]]
@@ -150,8 +167,16 @@ add_flag()
     echo "${FUNCNAME[0]}: cannot use reserved word 'help' as a flag name" >&2
     return 1
   fi
-  if (( "${_flag_exists[$_name]}" ))
+  if (( "${_flag_exists[$_id]}" ))
   then
+    # Ignore multiple flag definitions from the same spot in code - they
+    # should theoretically not be based on variables, and thus have the exact
+    # same parameters each time.  This situation will come up whenever flags
+    # are defined in a function that is called multiple times.
+    if [[ "${_flag_definition_location[$_id]}" == "$_definition_location" ]]
+    then
+      return 0
+    fi
     echo "${FUNCNAME[0]}: duplicate definition of flag --$_name" >&2
     return 1
   fi
@@ -173,55 +198,79 @@ add_flag()
     return 1
   fi
 
-  # Pre-initialize array to make sure +=(val) works properly.
-  if (( "$_array" ))
-  then
-    declare -a "F_$_name"
-  fi
-
-  _flags+=("$_name")
-  _flag_descriptions["$_name"]="$_description"
-  _flag_exists["$_name"]="1"
-  _flag_default_set["$_name"]="$_has_default"
-  _flag_defaults["$_name"]="$_default"
-  _flag_boolean["$_name"]="$_boolean"
-  _flag_array["$_name"]="$_array"
-  _flag_optional["$_name"]="$_optional"
+  _flags+=("$_id")
+  _flag_names["$_id"]="$_name"
+  _flag_descriptions["$_id"]="$_description"
+  _flag_exists["$_id"]="1"
+  _flag_default_set["$_id"]="$_has_default"
+  _flag_defaults["$_id"]="$_default"
+  _flag_boolean["$_id"]="$_boolean"
+  _flag_array["$_id"]="$_array"
+  _flag_optional["$_id"]="$_optional"
+  _flag_definition_location["$_id"]="$_definition_location"
 }
 
 usage()
 {
-  echo "Usage: $_program_name <option>" >&2
+  local _scope="$1"
+  local _program_name=""
+  if [[ ! -z "$_scope" ]]
+  then
+    _program_name="${_flag_program_names[${_scope}]}"
+  fi
+  if [[ -z "$_program_name" ]]
+  then
+    _program_name="<unknown program name>"
+  fi
+
+  echo "Usage: ${_program_name} <option>" >&2
   echo >&2
 
-  if (( "${#_usage_notes}" ))
+  if [[ ! -z "$_scope" ]]
   then
-    for _note in "${_usage_notes[@]}"
-    do
-      echo "${_note}" >&2
-    done
+    if (( "${#_usage_notes}" ))
+    then
+      for _note in "${_usage_notes[@]}"
+      do
+        if [[ \
+          "$(echo "$_note" \
+            | head -n 1 \
+            | sed -nre 's@([^:]+:).*$@\1@gp' \
+          )" != "$_scope" \
+        ]]
+        then
+          continue
+        fi
+        echo "${_note}" | head -n 1 | sed -nre 's@^[^:]+:(.*)$@\1@gp' >&2
+        echo "${_note}" | tail -n +2 >&2
+      done
+    fi
+  else
+    echo "WARNING: Usage notes not available due to unknown program name." >&2
   fi
 
   echo "Options:" >&2
 
-  local name
-  for name in "${_flags[@]}"
+  local _name
+  local _id
+  for _id in "${_flags[@]}"
   do
+    _name="$(echo "$_id" | sed -nre 's@^[^:]+:(.*)$@\1@gp')"
     # TODO: this logic is way too complicated and unreadable
-    echo -n "  --$name" >&2
-    if (( ! "${_flag_boolean[$name]}" )) \
-      && (( "${_flag_optional[$name]}" ))
+    echo -n "  --$_name" >&2
+    if (( ! "${_flag_boolean[$_id]}" )) \
+      && (( "${_flag_optional[$_id]}" ))
     then
-      echo -n "=[${_flag_defaults[$name]}]" >&2
-    elif (( "${_flag_array[$name]}" ))
+      echo -n "=[${_flag_defaults[$_id]}]" >&2
+    elif (( "${_flag_array[$_id]}" ))
     then
       echo -n "=<value> (mult. ok)"
-    elif (( ! "${_flag_optional[$name]}" ))
+    elif (( ! "${_flag_optional[$_id]}" ))
     then
       echo -n "=<value>"
     fi
     echo -n ": " >&2
-    echo "${_flag_descriptions[$name]}" >&2
+    echo "${_flag_descriptions[$_id]}" >&2
   done
 }
 
@@ -231,30 +280,64 @@ usage()
 # EOF
 add_usage_note()
 {
+  local _scope="$(flag_scope)"
   DONE=false
   OLD_IFS="$IFS"
   IFS="\n"
   until "$DONE"
   do
     read -r _note || DONE=true
-    _usage_notes+=("$_note")
+    _usage_notes+=("${_scope}${_note}")
   done
   IFS="$OLD_IFS"
 }
 
+# Usage: parse_flags "$@"
+#
+# Parses all flags for the currently-executing program or function.
+#
+# See documentation at top of library for how to define flags.
 parse_flags()
 {
   # Generate list of flags to parse.
-  local flaglist=""
+  local flaglist="help"
+  local _callername
+  local _scope="$(flag_scope)"
+  if [[ "$_scope" == "main@:" ]]
+  then
+    _callername="${BASH_SOURCE[1]}"
+  else
+    _callername="${FUNCNAME[1]}"
+  fi
+  if [[ -z "${_flag_program_names[$_scope]}" ]]
+  then
+    _flag_program_names["$_scope"]="$_callername"
+  fi
+
+  local dest
   local name
   for name in "${_flags[@]}"
   do
+    if [[ "$(echo "$name" | sed -nre 's@^([^:]+:).*$@\1@gp')" != "$_scope" ]]
+    then
+      continue
+    fi
+    name="$(echo "$name" | sed -nre 's@^[^:]+:(.*)$@\1@gp')"
+
+    # Unset already-set variable destinations.  This prevents being able to
+    # export F_required to override the --required argument to add_flag.
+    dest="F_${name}"
+    if [ -n "${!dest+1}" ]
+    then
+      unset "$dest"
+    fi
+
     if [[ ! -z "$flaglist" ]]
     then
       flaglist="${flaglist},"
     fi
 
-    if (( "${_flag_boolean[$name]}" ))
+    if (( "${_flag_boolean[${_scope}${name}]}" ))
     then
       flaglist="${flaglist}${name}"
     else
@@ -267,9 +350,9 @@ parse_flags()
   local vars
   vars="$(getopt \
     --longoptions "$flaglist" \
-    --name "$_program_name" \
+    --name "$_callername" \
     -- \
-    "${_program_params[@]}")"
+    "$_callername" "$@")"
   retval="$?"
   if (( "$retval" ))
   then
@@ -299,28 +382,28 @@ parse_flags()
 
     if [[ "$name" == "help" ]]
     then
-      usage
+      usage "$_scope"
       return 1
     fi
 
-    if (( ! "${_flag_exists[$name]}" ))
+    if (( ! "${_flag_exists[${_scope}${name}]}" ))
     then
       echo "${FUNCNAME[0]}: got unknown flag --$name" >&2
       return 1
     fi
 
     local val
-    if (( "${_flag_boolean[$name]}" ))
+    if (( "${_flag_boolean[${_scope}${name}]}" ))
     then
       val="1"
       shift
     else
-      local val="$2"
+      val="$2"
       shift 2
     fi
 
-    local dest="F_${name}"
-    if (( "${_flag_array[$name]}" ))
+    dest="F_${name}"
+    if (( "${_flag_array[${_scope}${name}]}" ))
     then
       eval "$dest+=($(sq "$val"))"
       export "$dest"
@@ -335,18 +418,25 @@ parse_flags()
 
   for name in "${_flags[@]}"
   do
+    if [[ "$(echo "$name" | sed -nre 's@^([^:]+:).*$@\1@gp')" != "$_scope" ]]
+    then
+      continue
+    fi
+    name="$(echo "$name" | sed -nre 's@^[^:]+:(.*)$@\1@gp')"
+
     local dest="F_${name}"
+    local _id="${_scope}$name"
     # Note that the [ ! -n ... ] test checks whether a variable is defined.
     # Doing $dest="" still quiets this check (but not [[ -z ... ]]).
     # For example:
     #   a=""
     #   [[ -z "$a" ]] && echo "yes" # echoes yes
     #   [ ! -n "$a" ]] && echo "yes" # silence
-    if (( "${_flag_default_set[$name]}" )) && [ ! -n "${!dest+1}" ]
+    if (( "${_flag_default_set[$_id]}" )) && [ ! -n "${!dest+1}" ]
     then
-      export "$dest"="${_flag_defaults[$name]}"
+      export "$dest"="${_flag_defaults[$_id]}"
     fi
-    if (( ! "${_flag_optional[$name]}" )) && [ ! -n "${!dest+1}" ]
+    if (( ! "${_flag_optional[$_id]}" )) && [ ! -n "${!dest+1}" ]
     then
       echo "${FUNCNAME[0]}: required flag --$name missing" >&2
       return 1

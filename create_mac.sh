@@ -5,7 +5,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/flag.sh"
 # Default prefix of 52:54:00 is qemu's registered OUI.
 add_flag prefix --default="52:54:00" "First 3 bytes of MAC address to generate."
-parse_flags
+parse_flags "$@"
 
 random_mac()
 {

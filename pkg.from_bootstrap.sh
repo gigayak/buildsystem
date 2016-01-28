@@ -12,7 +12,7 @@ add_flag --default="" target_architecture \
 add_flag --default="" target_distribution \
   "Name of distribution to build for.  Defaults to host distribution."
 add_flag --boolean check_only "Whether to only check if build is possible."
-parse_flags
+parse_flags "$@"
 
 arch="$F_target_architecture"
 if [[ -z "$arch" ]]

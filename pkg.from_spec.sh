@@ -10,7 +10,7 @@ add_flag --default "" target_architecture \
   "Name of architecture to build for.  Defaults to host architecture."
 add_flag --default "" target_distribution \
   "Name of distribution to build for.  Defaults to host distribution."
-parse_flags
+parse_flags "$@"
 
 pkgname="$F_pkg_name"
 

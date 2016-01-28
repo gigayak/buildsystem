@@ -8,7 +8,7 @@ source "$DIR/flag.sh"
 
 add_flag --boolean active "even destroy active LXC container roots"
 add_flag --boolean persistent "even destroy persistent chroots"
-parse_flags
+parse_flags "$@"
 
 unmount_chroot()
 {

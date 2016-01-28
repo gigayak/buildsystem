@@ -6,7 +6,7 @@ source "$DIR/cleanup.sh"
 source "$DIR/flag.sh"
 source "$DIR/buildtools/all.sh"
 add_flag --required pkg_name "Name of the package to build."
-parse_flags
+parse_flags "$@"
 
 pkgname="$F_pkg_name"
 

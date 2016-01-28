@@ -5,7 +5,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/flag.sh"
 
 add_flag --required output_path "Where to store the build system"
-parse_flags
+parse_flags "$@"
 
 if [[ ! -e "$F_output_path" ]]
 then

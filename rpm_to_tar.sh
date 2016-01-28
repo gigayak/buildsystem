@@ -7,7 +7,7 @@ source "$DIR/cleanup.sh"
 
 add_flag --required rpm "Path of RPM to convert to tar."
 add_flag --required out "Path to store the resulting tarball at."
-parse_flags
+parse_flags "$@"
 
 if [[ ! -e "${F_rpm}" ]]
 then

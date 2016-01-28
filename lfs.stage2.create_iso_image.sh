@@ -17,7 +17,7 @@ source "$DIR/escape.sh"
 add_flag --required output_path "Where to store the image."
 add_flag --required mac_address "MAC address to assign to eth0."
 add_flag --required ip_address "IP address to assign to eth0."
-parse_flags
+parse_flags "$@"
 
 pkgs=()
 pkgs+=(qemu) # qemu-img

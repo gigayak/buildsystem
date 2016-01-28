@@ -11,7 +11,7 @@ This utility accepts a dependency via the --dep flag and outputs flags which
 can be passed to pkg.from_name.sh to build a package satisfying the dependency,
 or to install_pkg.sh to install the dependency.
 EOF
-parse_flags
+parse_flags "$@"
 
 dep="$F_dep"
 name="$(dep2name "" "" "$dep")"
