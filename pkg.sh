@@ -256,6 +256,7 @@ install_deps()
       _hist_flags+=(--dependency_history="$_hist_entry")
     done
 
+    # TODO: Dependencies should be parsed before being passed to install_pkg.
     "$(DIR)/install_pkg.sh" \
       --pkg_name="$_dep" \
       --install_root="$dir" \

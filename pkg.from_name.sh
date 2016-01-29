@@ -3,6 +3,7 @@ set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/flag.sh"
+source "$(DIR)/repo.sh"
 source "$(DIR)/buildtools/all.sh"
 add_flag --required pkg_name "Name of the package to build."
 add_flag --default "" target_architecture \
@@ -11,11 +12,13 @@ add_flag --default "" target_distribution \
   "Distribution to build for.  Default is host's distribution."
 parse_flags "$@"
 
-name="${F_pkg_name}"
 host_distro="$("$(DIR)/os_info.sh" --distribution)"
-distro="${F_target_distribution}"
 host_arch="$("$(DIR)/os_info.sh" --architecture)"
-arch="${F_target_architecture}"
+dep="$(qualify_dep "$host_arch" "$host_distro" "$F_pkg_name")"
+arch="$(dep2arch "$host_arch" "$host_distro" "$dep")"
+distro="$(dep2distro "$host_arch" "$host_distro" "$dep")"
+name="$(dep2name "$host_arch" "$host_distro" "$dep")"
+
 constraint_flags=()
 constraints_enabled=0
 if [[ ! -z "$arch" && "$arch" != "$host_arch" ]]
