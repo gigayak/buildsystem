@@ -2,6 +2,6 @@
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
-dep i686-tools-root
+dep --arch="$TARGET_ARCH" --distro=tools root
 
-dep i686-tools-glibc
+dep --arch="$TARGET_ARCH" --distro=tools glibc

@@ -1,8 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
-dep i686-yak-glibc
-dep i686-yak-gdbm
-dep i686-yak-groff
-dep i686-yak-gzip
-dep i686-yak-util-linux # depends on more utility
+dep --arch="$TARGET_ARCH" --distro=yak glibc
+dep --arch="$TARGET_ARCH" --distro=yak gdbm
+dep --arch="$TARGET_ARCH" --distro=yak groff
+dep --arch="$TARGET_ARCH" --distro=yak gzip
+dep --arch="$TARGET_ARCH" --distro=yak util-linux # depends on more utility

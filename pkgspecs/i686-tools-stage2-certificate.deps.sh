@@ -1,4 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
-dep i686-tools-internal-ca-certificates
+dep --arch="$TARGET_ARCH" --distro=tools internal-ca-certificates

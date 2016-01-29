@@ -3,7 +3,7 @@ set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
 # Need $CLFS in install.
-dep i686-tools-env
+dep --arch="$TARGET_ARCH" --distro=tools env
 
 # Need to clone upstream repo.
 dep git

@@ -58,7 +58,11 @@ make_temp_dir scratch
 ordered_deps="$scratch/ordered_deps"
 
 # Build requested package if it's not yet been built...
-pkgfile="${target_arch}-${target_os}:${pkg}"
+dep="$(qualify_dep "$target_arch" "$target_os" "$pkg")"
+pkgfile="$dep"
+constraint_flags=()
+constraint_flags+=(--target_distribution="$(dep2distro "$dep")")
+constraint_flags+=(--target_architecture="$(dep2arch "$dep")")
 if ! repo_get "$pkgfile.done" > "$scratch/$pkgfile.done"
 then
   echo "$(basename "$0"): could not find package '$pkg', building..." >&2
@@ -69,8 +73,7 @@ then
   done
   "$(DIR)/pkg.from_name.sh" \
     --pkg_name="$pkg" \
-    --target_distribution="$target_os" \
-    --target_architecture="$target_arch" \
+    "${constraint_flags[@]}" \
     -- \
       "${hist_args[@]}"
 fi

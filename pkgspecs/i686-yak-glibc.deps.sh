@@ -2,4 +2,4 @@
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
-dep i686-yak-linux-headers
+dep --arch="$TARGET_ARCH" --distro=yak linux-headers

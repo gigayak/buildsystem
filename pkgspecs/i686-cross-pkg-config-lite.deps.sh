@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
-dep i686-cross-root
-dep i686-cross-env
+dep --arch="$TARGET_ARCH" --distro=cross root
+dep --arch="$TARGET_ARCH" --distro=cross env

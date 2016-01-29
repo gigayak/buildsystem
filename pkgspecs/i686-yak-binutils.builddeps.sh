@@ -1,15 +1,15 @@
 #!/bin/bash
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
-dep i686-tools2-wget
-dep i686-tools2-tar
-dep i686-tools3-gcc
+dep --arch="$TARGET_ARCH" --distro=tools2 wget
+dep --arch="$TARGET_ARCH" --distro=tools2 tar
+dep --arch="$TARGET_ARCH" --distro=tools3 gcc
 
-dep i686-yak-gmp
-dep i686-yak-mpfr
-dep i686-yak-mpc
-dep i686-yak-isl
-dep i686-yak-cloog
+dep --arch="$TARGET_ARCH" --distro=yak gmp
+dep --arch="$TARGET_ARCH" --distro=yak mpfr
+dep --arch="$TARGET_ARCH" --distro=yak mpc
+dep --arch="$TARGET_ARCH" --distro=yak isl
+dep --arch="$TARGET_ARCH" --distro=yak cloog
 
-dep i686-yak-zlib
-dep i686-tools3-texinfo
+dep --arch="$TARGET_ARCH" --distro=yak zlib
+dep --arch="$TARGET_ARCH" --distro=tools3 texinfo

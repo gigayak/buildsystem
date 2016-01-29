@@ -2,7 +2,7 @@
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
-dep i686-yak-wget
-dep i686-yak-tar
-dep i686-yak-gcc
-dep i686-yak-make
+dep --arch="$TARGET_ARCH" --distro=yak wget
+dep --arch="$TARGET_ARCH" --distro=yak tar
+dep --arch="$TARGET_ARCH" --distro=yak gcc
+dep --arch="$TARGET_ARCH" --distro=yak make

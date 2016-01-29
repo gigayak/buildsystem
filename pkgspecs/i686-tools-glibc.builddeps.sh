@@ -7,8 +7,8 @@ dep wget
 dep tar
 
 # To build.
-dep i686-cross-env
-dep i686-cross-gcc-static
+dep --arch="$TARGET_ARCH" --distro=cross env
+dep --arch="$TARGET_ARCH" --distro=cross gcc-static
 dep awk
 dep gcc
 

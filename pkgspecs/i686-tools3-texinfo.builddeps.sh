@@ -2,4 +2,4 @@
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
-dep i686-tools2-texinfo
+dep --arch="$TARGET_ARCH" --distro=tools2 texinfo

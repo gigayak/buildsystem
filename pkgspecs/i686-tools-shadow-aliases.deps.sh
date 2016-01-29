@@ -4,6 +4,6 @@ source "$BUILDTOOLS/all.sh"
 
 # TODO: All of the i686-tools-*-aliases.deps.sh files could be merged.
 
-dep i686-clfs-root
-dep i686-tools-root
-dep i686-tools-shadow
+dep --arch="$TARGET_ARCH" --distro=clfs root
+dep --arch="$TARGET_ARCH" --distro=tools root
+dep --arch="$TARGET_ARCH" --distro=tools shadow

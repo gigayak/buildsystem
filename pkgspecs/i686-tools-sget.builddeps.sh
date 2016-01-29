@@ -9,4 +9,4 @@ dep internal-ca-certificates
 dep go
 dep go14
 dep gcc
-dep i686-cross-gcc
+dep --arch="$TARGET_ARCH" --distro=cross gcc

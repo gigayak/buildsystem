@@ -3,4 +3,4 @@ set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
 # We need /cross-tools to exist.
-dep i686-cross-root
+dep --arch="$TARGET_ARCH" --distro=cross root

@@ -100,7 +100,10 @@ then
 # tools -> tools2
 elif [[ "$distro" == "tools2" ]]
 then
-  "$(DIR)/pkg.tools_to_tools2.sh" --pkg_name="$name" -- "${ARGS[@]}"
+  "$(DIR)/pkg.tools_to_tools2.sh" \
+  --pkg_name="$name" \
+  "${constraint_flags[@]}" \
+  -- "${ARGS[@]}"
   exit $?
 
 # try a bootstrap package

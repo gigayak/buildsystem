@@ -2,16 +2,16 @@
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
-dep i686-tools2-wget
-dep i686-tools2-tar
-dep i686-tools3-gcc
+dep --arch="$TARGET_ARCH" --distro=tools2 wget
+dep --arch="$TARGET_ARCH" --distro=tools2 tar
+dep --arch="$TARGET_ARCH" --distro=tools3 gcc
 
 # TODO: Check whether this block is necessary.
-dep i686-yak-gmp
-dep i686-yak-mpfr
-dep i686-yak-mpc
-dep i686-yak-isl
-dep i686-yak-cloog
+dep --arch="$TARGET_ARCH" --distro=yak gmp
+dep --arch="$TARGET_ARCH" --distro=yak mpfr
+dep --arch="$TARGET_ARCH" --distro=yak mpc
+dep --arch="$TARGET_ARCH" --distro=yak isl
+dep --arch="$TARGET_ARCH" --distro=yak cloog
 
-dep i686-yak-m4
-dep i686-tools3-perl
+dep --arch="$TARGET_ARCH" --distro=yak m4
+dep --arch="$TARGET_ARCH" --distro=tools3 perl

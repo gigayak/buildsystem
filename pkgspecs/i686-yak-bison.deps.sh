@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
-dep i686-yak-glibc
-dep i686-yak-flex
+dep --arch="$TARGET_ARCH" --distro=yak glibc
+dep --arch="$TARGET_ARCH" --distro=yak flex

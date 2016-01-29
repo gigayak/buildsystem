@@ -3,8 +3,8 @@ set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
 # Gonna need our environment.
-dep i686-tools-root
-dep i686-tools-env
+dep --arch="$TARGET_ARCH" --distro=tools root
+dep --arch="$TARGET_ARCH" --distro=tools env
 
 # Gonna need gnutls.
-dep i686-tools-gnutls
+dep --arch="$TARGET_ARCH" --distro=tools gnutls

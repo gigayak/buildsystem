@@ -2,4 +2,4 @@
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
-dep i686-yak-gmp
+dep --arch="$TARGET_ARCH" --distro=yak gmp

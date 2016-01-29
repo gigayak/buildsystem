@@ -2,7 +2,7 @@
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
-dep i686-clfs-root
-dep i686-tools-root
-dep i686-tools-env
-dep i686-tools-linux
+dep --arch="$TARGET_ARCH" --distro=clfs root
+dep --arch="$TARGET_ARCH" --distro=tools root
+dep --arch="$TARGET_ARCH" --distro=tools env
+dep --arch="$TARGET_ARCH" --distro=tools linux

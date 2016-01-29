@@ -2,5 +2,5 @@
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
-dep i686-tools2-gcc
-dep i686-tools3-perl
+dep --arch="$TARGET_ARCH" --distro=tools2 gcc
+dep --arch="$TARGET_ARCH" --distro=tools3 perl

@@ -3,7 +3,7 @@ set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
 # We need /tools to exist.
-dep i686-tools-root
+dep --arch="$TARGET_ARCH" --distro=tools root
 
 # We need /cross-tools/env.sh to exist.
-dep i686-cross-env
+dep --arch="$TARGET_ARCH" --distro=cross env

@@ -3,9 +3,9 @@ set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
 # Shared directory structure.
-dep i686-cross-root
-dep i686-cross-env
+dep --arch="$TARGET_ARCH" --distro=cross root
+dep --arch="$TARGET_ARCH" --distro=cross env
 
 # Libraries we link against.
-dep i686-cross-gmp
-dep i686-cross-isl
+dep --arch="$TARGET_ARCH" --distro=cross gmp
+dep --arch="$TARGET_ARCH" --distro=cross isl

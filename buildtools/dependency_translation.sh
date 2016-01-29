@@ -2,6 +2,9 @@
 set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
+source "$(DIR)/../flag.sh"
+source "$(DIR)/../repo.sh"
+
 # This file allows you to translate Gigayak dependency names to names from
 # other operating systems (for very small numbers of "other operating
 # systems": think CentOS, RedHat, and Gigayak).
@@ -16,6 +19,9 @@ re_escape()
 }
 
 # dep outputs a dependency name using the input dependency name.
+#
+# If --arch and/or --distro are passed and not equal to HOST_ARCH/HOST_OS,
+# then the dependency is fully qualified and output.
 #
 # If OS is unknown, or no translation is found, it silently outputs the input.
 # Use dep_rewrite if OS must be detected and/or rewriting must be done.
@@ -33,7 +39,27 @@ re_escape()
 # multiple lines).
 dep()
 {
-  input="$@"
+  add_flag --default="" arch "Target architecture."
+  add_flag --default="" distro "Target distribution."
+  parse_flags "$@"
+  input="${ARGS[@]}"
+
+  arch="$F_arch"
+  if [[ -z "$arch" ]]
+  then
+    arch="$HOST_ARCH"
+  fi
+  os="$F_distro"
+  if [[ -z "$os" ]]
+  then
+    os="$HOST_OS"
+  fi
+  if [[ "$arch" != "$HOST_ARCH" || "$os" != "$HOST_OS" ]]
+  then
+    qualify_dep "$arch" "$os" "$input"
+    return 0
+  fi
+
   dep_rewrite "$input" || echo "$input"
 }
 

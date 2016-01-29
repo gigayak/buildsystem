@@ -2,4 +2,4 @@
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
-dep i686-tools-env
+dep --arch="$TARGET_ARCH" --distro=tools env

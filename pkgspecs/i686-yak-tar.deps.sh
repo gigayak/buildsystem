@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
-dep i686-yak-glibc
-dep i686-yak-xz
-dep i686-yak-bzip2
-dep i686-yak-zlib
+dep --arch="$TARGET_ARCH" --distro=yak glibc
+dep --arch="$TARGET_ARCH" --distro=yak xz
+dep --arch="$TARGET_ARCH" --distro=yak bzip2
+dep --arch="$TARGET_ARCH" --distro=yak zlib

@@ -2,8 +2,8 @@
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
-dep i686-yak-glibc
-dep i686-yak-gmp
-dep i686-yak-mpfr
-dep i686-yak-mpc
-dep i686-yak-isl
+dep --arch="$TARGET_ARCH" --distro=yak glibc
+dep --arch="$TARGET_ARCH" --distro=yak gmp
+dep --arch="$TARGET_ARCH" --distro=yak mpfr
+dep --arch="$TARGET_ARCH" --distro=yak mpc
+dep --arch="$TARGET_ARCH" --distro=yak isl

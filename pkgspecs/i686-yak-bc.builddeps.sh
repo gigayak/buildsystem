@@ -2,8 +2,8 @@
 set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 
-dep i686-tools2-wget
-dep i686-tools2-tar
-dep i686-yak-gcc
-dep i686-yak-flex
-dep i686-yak-perl
+dep --arch="$TARGET_ARCH" --distro=tools2 wget
+dep --arch="$TARGET_ARCH" --distro=tools2 tar
+dep --arch="$TARGET_ARCH" --distro=yak gcc
+dep --arch="$TARGET_ARCH" --distro=yak flex
+dep --arch="$TARGET_ARCH" --distro=yak perl
