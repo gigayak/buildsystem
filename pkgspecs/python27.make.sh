@@ -6,7 +6,7 @@ echo "$version" > /root/version
 cd /root
 wget "https://www.python.org/ftp/python/$version/Python-$version.tgz"
 tar -zxf *.tgz
-cd */
+cd *-*/
 
 ./configure \
   --prefix=/usr

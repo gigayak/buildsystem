@@ -6,7 +6,7 @@ echo "$version" > /root/version
 cd /root
 wget "http://gnu.mirror.vexxhost.com/libtool/libtool-$version.tar.gz"
 tar -zxf *.tar.gz
-cd */
+cd *-*/
 
 ./configure \
   --prefix=/usr

@@ -15,7 +15,7 @@ echo "$version" > /root/version
 cd /root
 wget "http://ftp.gnu.org/gnu/autoconf/autoconf-$version.tar.gz"
 tar -zxf *.tar.*
-cd */
+cd *-*/
 
 ./configure \
   --prefix=/usr

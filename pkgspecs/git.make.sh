@@ -8,6 +8,6 @@ wget \
   "https://github.com/git/git/archive/v$version.tar.gz" \
   -O git.tar.gz
 tar -zxf git.tar.gz
-cd */
+cd *-*/
 
 make prefix=/usr all

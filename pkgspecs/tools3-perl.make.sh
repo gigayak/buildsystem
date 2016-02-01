@@ -9,7 +9,7 @@ url="http://www.cpan.org/src/$major_version/perl-$version.tar.gz"
 wget "$url"
 tar -zxf *.tar.gz
 
-cd */
+cd *-*/
 # Per the CLFS book:
 #   Change a hardcoded path from /usr/include to /tools/.../include
 sed -i 's@/usr/include@/tools/i686/include@g' ext/Errno/Errno_pm.PL

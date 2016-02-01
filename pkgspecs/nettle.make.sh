@@ -9,7 +9,7 @@ url="https://ftp.gnu.org/gnu/nettle/nettle-$version.tar.gz"
 cd /root
 wget "$url"
 tar -zxf *.tar.gz
-cd */
+cd *-*/
 
 ./configure --prefix=/usr
 make

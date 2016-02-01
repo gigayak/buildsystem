@@ -6,6 +6,6 @@ echo "$version" > /root/version
 cd /root
 wget "http://sethwklein.net/iana-etc-$version.tar.bz2"
 tar -jxf *.tar.*
-cd */
+cd *-*/
 
 make

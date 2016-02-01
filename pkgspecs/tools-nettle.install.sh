@@ -3,7 +3,7 @@ set -Eeo pipefail
 source /tools/env.sh
 
 version="$(</root/version)"
-cd /root/*/
+cd /root/*-*/
 make install
 
 # See make.sh for the dirty details on this line.

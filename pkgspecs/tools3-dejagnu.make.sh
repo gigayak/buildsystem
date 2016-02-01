@@ -8,5 +8,5 @@ url="http://ftp.gnu.org/gnu/dejagnu/dejagnu-$version.tar.gz"
 wget "$url"
 tar -zxf *.tar.gz
 
-cd */
+cd *-*/
 ./configure --prefix=/tools/i686

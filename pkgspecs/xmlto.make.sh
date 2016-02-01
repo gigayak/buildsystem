@@ -6,7 +6,7 @@ echo "$version" > /root/version
 cd /root
 wget "https://fedorahosted.org/releases/x/m/xmlto/xmlto-$version.tar.gz"
 tar -zxf *.tar.gz
-cd */
+cd *-*/
 
 ./configure \
   --prefix=/usr

@@ -6,7 +6,7 @@ echo "$version" > /root/version
 cd /root
 wget "http://ftp.gnu.org/gnu/gdb/gdb-$version.tar.gz"
 tar -xf *.tar.*
-cd */
+cd *-*/
 
 # tools2-texinfo will be pointing at the original build host's
 # perl binary at /usr/bin/perl.  This hopefully points it at the

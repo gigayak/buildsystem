@@ -7,7 +7,7 @@ cd /root
 echo "$version" > version
 wget --no-check-certificate "$url" -O "procps-ng-$version.tar.gz"
 tar -zxf *.tar.gz
-cd */
+cd *-*/
 
 # Since this is pulling from a Git tag - `configure` and `Makefile` will not
 # exist.  `autogen.sh` will create them.

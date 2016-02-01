@@ -6,7 +6,7 @@ echo "$version" > /root/version
 cd /root
 wget "http://ftp.gnu.org/gnu/gmp/gmp-$version.tar.xz"
 tar -xf *.tar.*
-cd */
+cd *-*/
 
 CC="gcc -isystem /usr/include" \
 CXX="g++ -isystem /usr/include" \

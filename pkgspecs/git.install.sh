@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
-cd /root/*/
+cd /root/*-*/
 # TODO: install documentation and stuff
 make prefix=/usr install

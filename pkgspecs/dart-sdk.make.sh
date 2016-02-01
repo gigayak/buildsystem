@@ -23,7 +23,7 @@ ln -sfv python2.7 /usr/bin/python
 #      -e 's@python([^2])@python2.7\1@g' \
 #      -e 's@python$@python2.7@g'
 
-# Prevent "cd */" from slurping up "depot_tools/"
+# Prevent "cd *-*/" from slurping up "depot_tools/"
 mkdir dart-sdk
 cd dart-sdk
 gclient.py config https://github.com/dart-lang/sdk.git

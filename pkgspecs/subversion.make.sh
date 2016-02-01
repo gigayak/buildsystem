@@ -9,7 +9,7 @@ cd /root/
 # truth for Apache mirrors.
 wget "http://www.us.apache.org/dist/subversion/subversion-$version.tar.gz"
 tar -zxf *.tar.gz
-cd */
+cd *-*/
 
 ./configure \
   --prefix=/usr \

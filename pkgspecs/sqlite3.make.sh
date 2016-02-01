@@ -8,7 +8,7 @@ version_id="3090200" # WTF?  TODO: derive this
 url="https://www.sqlite.org/2015/sqlite-autoconf-${version_id}.tar.gz"
 wget "$url"
 tar -zxf *.tar.gz
-cd */
+cd *-*/
 ./configure \
   --prefix=/usr
 make

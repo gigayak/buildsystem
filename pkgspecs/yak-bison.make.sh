@@ -6,7 +6,7 @@ cd /root
 echo "$version" > version
 wget "http://ftp.gnu.org/gnu/bison/bison-$version.tar.gz"
 tar -xf *.tar.*
-cd */
+cd *-*/
 
 ./configure \
   --prefix=/usr

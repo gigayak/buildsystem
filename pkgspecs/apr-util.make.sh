@@ -6,7 +6,7 @@ echo "$version" > /root/version
 cd /root
 wget "http://www.us.apache.org/dist//apr/apr-util-$version.tar.gz"
 tar -xf *.tar.*
-cd */
+cd *-*/
 ./configure \
   --prefix=/usr \
   --with-apr=/usr

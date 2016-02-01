@@ -8,7 +8,7 @@ url="http://www.thekelleys.org.uk/dnsmasq/dnsmasq-$version.tar.gz"
 cd /root
 wget "$url"
 tar -zxf *.tar.gz
-cd */
+cd *-*/
 
 make PREFIX=/usr
 

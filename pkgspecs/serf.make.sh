@@ -6,7 +6,7 @@ echo "$version" > /root/version
 cd /root
 wget "https://archive.apache.org/dist/serf/serf-$version.tar.bz2"
 tar -xf *.tar.*
-cd */
+cd *-*/
 scons \
   PREFIX=/usr
 #  APR= \

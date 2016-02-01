@@ -8,7 +8,7 @@ wget \
   "http://sourceforge.net/projects/flex/files/flex-$version.tar.gz/download" \
   -O flex.tar.gz
 tar -zxf *.tar.*
-cd */
+cd *-*/
 
 ./configure \
   --prefix=/usr \
