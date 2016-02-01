@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 
-version=1.9.2
+version=1.9.3
 echo "$version" > /root/version
 cd /root/
 # TODO: Should have mirror selection logic here...  distributing this
