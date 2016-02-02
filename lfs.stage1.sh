@@ -22,9 +22,9 @@ build()
     echo "Usage: ${FUNCNAME[0]} <distro> <package>" >&2
     return 1
   fi
-  distro="$1"
-  pkg="$2"
-  arch="$target_arch"
+  local distro="$1"
+  local pkg="$2"
+  local arch="$target_arch"
   if (( "$waiting" )) \
     && [[ "$pkg" != "$start_from" \
       && "${arch}-${distro}-${pkg}" != "$start_from" ]]
@@ -34,7 +34,7 @@ build()
   fi
   export waiting=0
 
-  p="${arch}-${distro}-${pkg}"
+  local p="${arch}-${distro}-${pkg}"
   echo "Building package '$p'"
   retval=0
   "$(DIR)/pkg.from_name.sh" \
