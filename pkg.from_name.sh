@@ -14,7 +14,10 @@ parse_flags "$@"
 
 host_distro="$("$(DIR)/os_info.sh" --distribution)"
 host_arch="$("$(DIR)/os_info.sh" --architecture)"
-dep="$(qualify_dep "$host_arch" "$host_distro" "$F_pkg_name")"
+dep="$(qualify_dep \
+  "$F_target_architecture" \
+  "$F_target_distribution" \
+  "$F_pkg_name")"
 arch="$(dep2arch "$host_arch" "$host_distro" "$dep")"
 distro="$(dep2distro "$host_arch" "$host_distro" "$dep")"
 name="$(dep2name "$host_arch" "$host_distro" "$dep")"
