@@ -14,7 +14,7 @@ for p in \
   iproute2 dhcp dhcp-config dropbear dropbear-config nettle gnutls \
   internal-ca-certificates wget rsync buildsystem
 do
-  if [[ "$PKG_NAME" == "i686-tools-$p" ]]
+  if [[ "$PKG_NAME" == "$p" ]]
   then
     exit 0
   fi
@@ -25,17 +25,17 @@ do
   # just drop in a new kernel and have it magically work.
   #
   # TODO: We need to figure out a way to do kernel dependencies properly...
-  if [[ "$PKG_NAME" == "i686-tools-linux" ]]
+  if [[ "$PKG_NAME" == "linux" ]]
   then
     continue
   fi
 
-  dep "i686-tools-$p"
+  dep --arch="$TARGET_ARCH" --distro="$TARGET_OS" "$p"
 
   if [[
     ( \
-      "$PKG_NAME" == "i686-tools-linux-fstab-cd" \
-      || "$PKG_NAME" == "i686-tools-linux-fstab-hd" \
+      "$PKG_NAME" == "linux-fstab-cd" \
+      || "$PKG_NAME" == "linux-fstab-hd" \
     ) \
     && "$p" == "linux" \
   ]]
