@@ -61,8 +61,8 @@ ordered_deps="$scratch/ordered_deps"
 dep="$(qualify_dep "$target_arch" "$target_os" "$pkg")"
 pkgfile="$dep"
 constraint_flags=()
-constraint_flags+=(--target_distribution="$(dep2distro "$dep")")
-constraint_flags+=(--target_architecture="$(dep2arch "$dep")")
+constraint_flags+=(--target_distribution="$(dep2distro "" "" "$dep")")
+constraint_flags+=(--target_architecture="$(dep2arch "" "" "$dep")")
 if ! repo_get "$pkgfile.done" > "$scratch/$pkgfile.done"
 then
   echo "$(basename "$0"): could not find package '$pkg', building..." >&2
@@ -71,11 +71,13 @@ then
   do
     hist_args+=(--dependency_history="$hist_entry")
   done
-  "$(DIR)/pkg.from_name.sh" \
+  cmd=("$(DIR)/pkg.from_name.sh" \
     --pkg_name="$pkg" \
     "${constraint_flags[@]}" \
     -- \
-      "${hist_args[@]}"
+      "${hist_args[@]}")
+  echo "$(basename "$0"): using build command: ${cmd[@]}" >&2
+  "${cmd[@]}"
 fi
 if ! repo_get "$pkgfile.done" > "$scratch/$pkgfile.done"
 then
