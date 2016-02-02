@@ -1,1 +1,1 @@
-i686-tools.builddeps.sh
+tools.builddeps.sh

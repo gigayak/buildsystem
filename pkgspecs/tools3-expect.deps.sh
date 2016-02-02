@@ -1,1 +1,1 @@
-i686-tools3.deps.sh
+tools3.deps.sh
