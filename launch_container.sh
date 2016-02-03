@@ -13,7 +13,8 @@ root="$(lxc-info --name="${F_name}" -c lxc.rootfs \
 populate_dynamic_fs_pieces "$root"
 dont_depopulate_dynamic_fs_pieces "$root"
 
-storage_root="$HOME/localstorage/${F_name}"
+localstorage="$("$(DIR)/find_localstorage.sh")"
+storage_root="$localstorage/${F_name}"
 mkdir -pv "$storage_root"
 while read -r mountinfo
 do

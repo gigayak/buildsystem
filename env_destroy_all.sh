@@ -93,7 +93,8 @@ lease_file=/tmp/ip.gigayak.allocations
 lease_file_new="$lease_file.new"
 rm -fv "$lease_file_new"
 touch "$lease_file_new"
-hosts_file=/root/localstorage/dns/dns/hosts.autogen
+localstorage="$("$(DIR)/find_localstorage.sh")"
+hosts_file="$localstorage/dns/dns/hosts.autogen"
 hosts_file_new="$hosts_file.new"
 rm -fv "$hosts_file_new"
 touch "$hosts_file_new"

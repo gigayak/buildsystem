@@ -99,14 +99,16 @@ do
     mount --bind "$mnt" "$root$mnt"
   fi
 done
+
 ca_root="$root/opt/ca"
+localstorage="$("$(DIR)/find_localstorage.sh")"
 if [[ ! -e "$ca_root" ]]
 then
   mkdir -p "$ca_root"
 fi
 if ! mountpoint -q -- "$ca_root"
 then
-  mount --bind /root/localstorage/certificate-authority/ca "$ca_root"
+  mount --bind "$localstorage/certificate-authority/ca" "$ca_root"
 fi
 if [[ ! -e "$ca_root/.initialized" ]]
 then
@@ -135,7 +137,7 @@ ssl_server_cert()
     echo "${FUNCNAME[0]}: adding alternate name $(sq "$san")" >&2
   done
   chroot "$root" ca_generate_certificate "$key_name" "$domain" "$@"
-  tgt_path="/root/localstorage/$key_name/ssl"
+  tgt_path="$localstorage/$key_name/ssl"
   if [[ ! -e "$tgt_path" ]]
   then
     mkdir -pv "$tgt_path"

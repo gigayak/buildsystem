@@ -257,11 +257,12 @@ echo "$(basename "$0"): doing a super hacky DNS update to register '$host'" >&2
 # We'll take care to also remove the replica numbers from the host name, so that
 # we get some DNS load balancing if we're lucky.
 shared_host="$(echo "$host" | sed -nre 's@^([a-zA-Z0-9_-]+)-[0-9]+$@\1@gp')"
+localstorage="$("$(DIR)/find_localstorage.sh")"
 echo "$ip $host $host.jgilik.com $shared_host $shared_host.jgilik.com" \
-  >> /root/localstorage/dns/dns/hosts.autogen
+  >> "$localstorage/dns/dns/hosts.autogen"
 # HACK: Some of my code relies on git.jgilik.com and should be ashamed.
 if [[ "$shared_host" == "gitzebo" ]]
 then
-  echo "$ip git git.jgilik.com" >> /root/localstorage/dns/dns/hosts.autogen
+  echo "$ip git git.jgilik.com" >> "$localstorage/dns/dns/hosts.autogen"
 fi
 "$(DIR)/reload_dnsmasq.sh"

@@ -8,7 +8,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 # months" - meaning, I'll be eating these words in February 2020.)
 
 # TODO: Use a .gitignore-ed subdirectory if a global directory is not ready.
-tgt="$( cd "$(DIR)/.." && pwd )/localstorage"
+tgt="$("$(DIR)/find_localstorage.sh")"
 if [[ -e "$tgt" ]]
 then
   echo "$(basename "$0"): local storage directory '$tgt' already exists." >&2
