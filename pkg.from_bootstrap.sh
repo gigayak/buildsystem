@@ -15,19 +15,22 @@ add_flag --boolean check_only "Whether to only check if build is possible."
 parse_flags "$@"
 
 arch="$F_target_architecture"
+host_arch="$("$(DIR)/os_info.sh" --architecture)"
 if [[ -z "$arch" ]]
 then
-  arch="$("$(DIR)/os_info.sh" --architecture)"
+  arch="$host_arch"
 fi
 distro="$F_target_distribution"
+host_distro="$("$(DIR)/os_info.sh" --distribution)"
 if [[ -z "$distro" ]]
 then
-  distro="$("$(DIR)/os_info.sh" --distribution)"
+  distro="$host_distro"
 fi
 
 found=0
 bootstrap_files=()
 bootstrap_files+=("$(DIR)/pkgspecs/${F_pkg_name}.bootstrap.sh")
+bootstrap_files+=("$(DIR)/pkgspecs/${distro}-${F_pkg_name}.bootstrap.sh")
 bootstrap_files+=("$(DIR)/pkgspecs/${arch}-${distro}-${F_pkg_name}.bootstrap.sh")
 for bootstrap in "${bootstrap_files[@]}"
 do
@@ -55,7 +58,16 @@ fi
 dep="$(qualify_dep "$arch" "$distro" "$F_pkg_name")"
 
 make_temp_dir tmprepo
-"$bootstrap" > "$tmprepo/${dep}.tar.gz"
+
+env=()
+env+=(HOST_ARCH="$host_arch")
+env+=(HOST_OS="$host_distro")
+env+=(TARGET_ARCH="$arch")
+env+=(TARGET_OS="$distro")
+env+=(BUILDTOOLS="BUILDTOOLS is not set for bootstrap scripts")
+env+=(WORKSPACE="$tmprepo")
+
+env "${env[@]}" "$bootstrap" > "$tmprepo/${dep}.tar.gz"
 echo 1.0 > "$tmprepo/${dep}.version"
 depscript="$(dirname "$bootstrap")"
 depscript="${depscript}$(basename "$bootstrap" .bootstrap.sh)"
