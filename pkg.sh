@@ -100,7 +100,9 @@ env_string="$env_string TARGET_OS=$target_os"
 env_string="$env_string TARGET_ARCH=$target_arch"
 # TODO: Migrate to something other than /root...
 #     (First step is to make all instances of "/root" be "$WORKSPACE".)
+# TODO: Fully remove BUILDTOOLS in favor of BUILDSYSTEM.
 env_string="$env_string BUILDTOOLS=/root/buildsystem/buildtools"
+env_string="$env_string BUILDSYSTEM=/root/buildsystem"
 env_string="$env_string WORKSPACE=/root"
 echo "Propagating following environment variables:"
 echo "$env_string"

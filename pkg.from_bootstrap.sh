@@ -65,6 +65,7 @@ env+=(HOST_OS="$host_distro")
 env+=(TARGET_ARCH="$arch")
 env+=(TARGET_OS="$distro")
 env+=(BUILDTOOLS="BUILDTOOLS is not set for bootstrap scripts")
+env+=(BUILDSYSTEM="$(DIR)")
 env+=(WORKSPACE="$tmprepo")
 
 env "${env[@]}" "$bootstrap" > "$tmprepo/${dep}.tar.gz"
