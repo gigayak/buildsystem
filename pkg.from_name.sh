@@ -14,12 +14,17 @@ parse_flags "$@"
 
 host_distro="$("$(DIR)/os_info.sh" --distribution)"
 host_arch="$("$(DIR)/os_info.sh" --architecture)"
-dep="$(qualify_dep \
-  "$F_target_architecture" \
-  "$F_target_distribution" \
-  "$F_pkg_name")"
-arch="$(dep2arch "$host_arch" "$host_distro" "$dep")"
-distro="$(dep2distro "$host_arch" "$host_distro" "$dep")"
+arch="$F_target_architecture"
+if [[ -z "$arch" ]]
+then
+  arch="$host_arch"
+fi
+distro="$F_target_distribution"
+if [[ -z "$distro" ]]
+then
+  distro="$host_distro"
+fi
+dep="$(qualify_dep "$arch" "$distro" "$F_pkg_name")"
 name="$(dep2name "$host_arch" "$host_distro" "$dep")"
 
 constraint_flags=()
