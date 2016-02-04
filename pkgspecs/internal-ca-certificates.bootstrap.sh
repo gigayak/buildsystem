@@ -16,49 +16,37 @@ update_command=()
 if [[ "$HOST_OS" == "centos" ]]
 then
   echo "Found CentOS host" >&2
-  cert_dir="$root/etc/pki/ca-trust/source/anchors"
+  cert_dir="etc/pki/ca-trust/source/anchors"
   update_command=(update-ca-trust extract)
 elif [[ "$HOST_OS" == "ubuntu" ]]
 then
   echo "Found Ubuntu host" >&2
-  cert_dir="$root/usr/local/share/ca-certificates"
+  cert_dir="usr/local/share/ca-certificates"
   update_command=(update-ca-certificates --verbose)
 else
   echo "Unknown host OS '$HOST_OS'" >&2
   exit 1
 fi
-mkdir -p "$cert_dir"
+cert_path="$root/$cert_dir"
+mkdir -p "$cert_path"
 
 localstorage="$("$BUILDSYSTEM/find_localstorage.sh")"
 cp \
   "$localstorage/certificate-authority/ca/authority/ca.crt" \
-  "$cert_dir/gigayak.pem"
+  "$cert_path/gigayak.pem"
 
 # Ubuntu appears to demand that it see a PEM file with suffix .crt.
 # Which... makes no sense, given .crt is traditionally DER-encoded.
 cp -f \
-  "$cert_dir/gigayak.pem" \
-  "$cert_dir/gigayak_as_pem.crt"
+  "$cert_path/gigayak.pem" \
+  "$cert_path/gigayak_as_pem.crt"
 
 chroot "$root" "${update_command[@]}" >&2
-while read -r version
+new_root="$WORKSPACE/to_package"
+mkdir -p "$new_root"
+for dir in etc/ssl/certs "$cert_dir"
 do
-  pkgname="$(basename "$version" .version)"
-  echo "Clearing $pkgname" >&2
-  while read -r filename
-  do
-    if [[ \
-      "$filename" == "etc/ssl/" \
-      || "$filename" == "etc/" \
-      || "$filename" == "" \
-    ]] \
-      || echo "$filename" | grep -E '^etc/ssl/certs' >/dev/null 2>&1
-    then
-      continue
-    fi
-    echo "Removing $filename" >&2
-    rm -rf "$root/$filename"
-  done < "$root/.installed_pkgs/$pkgname"
-done < <(find "$root/.installed_pkgs" -type f -iname '*.version')
-rm -rf "$root/.installed_pkgs"
-tar -cz -C "$root" .
+  mkdir -p "$new_root/$dir"
+  cp -r --no-target-directory "$root/$dir/" "$new_root/$dir/"
+done
+tar -cz -C "$new_root" .
