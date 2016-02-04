@@ -1,5 +1,5 @@
 #!/bin/bash
-set -Eeuo pipefail
+set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 dep --arch="$TARGET_ARCH" --distro=tools env
 dep --arch="$TARGET_ARCH" --distro=tools bash # to interpret script

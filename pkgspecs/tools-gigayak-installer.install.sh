@@ -1,10 +1,10 @@
 #!/bin/bash
-set -Eeuo pipefail
+set -Eeo pipefail
 source /tools/env.sh
 
 cat > "$CLFS/tools/i686/bin/install-gigayak" <<'EOF_INSTALLED_SCRIPT'
 #!/bin/bash
-set -Eeuo pipefail
+set -Eeo pipefail
 
 # Select hard disk to format.
 hd=""
