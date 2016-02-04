@@ -71,7 +71,7 @@ env+=(WORKSPACE="$tmprepo")
 env "${env[@]}" "$bootstrap" > "$tmprepo/${dep}.tar.gz"
 echo 1.0 > "$tmprepo/${dep}.version"
 depscript="$(dirname "$bootstrap")"
-depscript="${depscript}$(basename "$bootstrap" .bootstrap.sh)"
+depscript="${depscript}/$(basename "$bootstrap" .bootstrap.sh)"
 depscript="${depscript}.deps.sh"
 if [[ -e "$depscript" ]]
 then
