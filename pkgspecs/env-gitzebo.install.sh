@@ -185,8 +185,8 @@ echo "$(basename "$0"): frontend started with PID $web_pid" >&2
 
 echo "$(basename "$0"): starting git-over-HTTPS server" >&2
 https-fileserver \
-  --key=/opt/db/git.key \
-  --certificate=/opt/db/git.crt \
+  --key=/opt/ssl/gitzebo.key \
+  --certificate=/opt/ssl/gitzebo.crt \
   --dir=/opt/git &
 ssl_pid="$!"
 echo "$(basename "$0"): git-over-HTTPS server started with PID $ssl_pid" >&2
@@ -216,8 +216,10 @@ chmod +x /usr/bin/container.init
 
 mkdir /opt/git
 mkdir /opt/db
+mkdir /opt/ssl
 cat > /etc/container.mounts <<EOF
 repo /opt/git
 db /opt/db
+ssl /opt/ssl
 EOF
 
