@@ -29,9 +29,9 @@ fi
 
 found=0
 bootstrap_files=()
-bootstrap_files+=("$(DIR)/pkgspecs/${F_pkg_name}.bootstrap.sh")
-bootstrap_files+=("$(DIR)/pkgspecs/${distro}-${F_pkg_name}.bootstrap.sh")
 bootstrap_files+=("$(DIR)/pkgspecs/${arch}-${distro}-${F_pkg_name}.bootstrap.sh")
+bootstrap_files+=("$(DIR)/pkgspecs/${distro}-${F_pkg_name}.bootstrap.sh")
+bootstrap_files+=("$(DIR)/pkgspecs/${F_pkg_name}.bootstrap.sh")
 for bootstrap in "${bootstrap_files[@]}"
 do
   if [[ -e "$bootstrap" ]]
@@ -75,7 +75,7 @@ depscript="${depscript}$(basename "$bootstrap" .bootstrap.sh)"
 depscript="${depscript}.deps.sh"
 if [[ -e "$depscript" ]]
 then
-  "$depscript" > "$tmprepo/${dep}.dependencies"
+  env "${env[@]}" "$depscript" > "$tmprepo/${dep}.dependencies"
 else
   touch "$tmprepo/${dep}.dependencies"
 fi
