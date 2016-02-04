@@ -1,5 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-source /tools/env.sh
-
-cp /root/initrd.igz "$CLFS/tools/i686/boot/initrd.igz"
+CLFS="$(source /tools/env.sh; echo "$CLFS")"
+cp /root/initrd.igz "$CLFS/tools/$TARGET_ARCH/boot/initrd.igz"
