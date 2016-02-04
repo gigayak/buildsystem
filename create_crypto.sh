@@ -176,7 +176,7 @@ ssl_client_cert()
 ssh_rsa_key godev
 ssh_rsa_key gitzebo
 ssh_dsa_key gitzebo
-ssl_server_cert gitzebo
+ssl_server_cert gitzebo "git.$domain"
 ssl_server_cert proxy "*.$domain"
 ssl_server_cert repo
 ssl_server_cert www
