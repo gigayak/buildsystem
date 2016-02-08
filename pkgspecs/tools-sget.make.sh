@@ -16,11 +16,42 @@ cd /usr/go/src
 bash make.bash --no-banner
 
 cd /root
-mkdir -pv workspace/{bin,pkg,src/git.jgilik.com}
-cd workspace/src/git.jgilik.com
-git clone https://git.jgilik.com/sget.git
+paths=()
+paths+=("git.jgilik.com/sget")
+paths+=("github.com/gigayak/sget")
+url=""
+import_path=""
+for path in "${paths[@]}"
+do
+  if curl \
+    --head \
+    --fail \
+    "https://$path" \
+    >/dev/null
+  then
+    echo "Building from URL https://$path" >&2
+    export url="https://$path"
+    export import_path="$path"
+    break
+  else
+    echo "Not considering URL https://$path" >&2
+  fi
+done
+if [[ -z "$url" ]]
+then
+  echo "Failed to find import path for sget" >&2
+  exit 1
+fi
 
-export GOPATH=/root/workspace
+#mkdir -pv workspace/{bin,pkg,src/git.jgilik.com}
+#cd workspace/src/git.jgilik.com
+#git clone https://git.jgilik.com/sget.git
+mkdir -pv workspace/{src,bin,pkg}
+cd workspace
+export GOPATH="$PWD"
+
+go get -v -d -t "$import_path/..."
+
 export CC="$CC_FOR_TARGET"
 export CXX="$CXX_FOR_TARGET"
 # The --ldflags parameter sets flags for Go's linker.

@@ -3,6 +3,7 @@ set -Eeo pipefail
 source "$BUILDTOOLS/all.sh"
 # To download source:
 dep git
+dep curl
 dep internal-ca-certificates
 
 # To build:
