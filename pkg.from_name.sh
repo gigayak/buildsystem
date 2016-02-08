@@ -31,11 +31,13 @@ constraint_flags=()
 constraints_enabled=0
 if [[ ! -z "$arch" && "$arch" != "$host_arch" ]]
 then
+  echo "$(basename "$0"): targetting architecture $arch" >&2
   constraint_flags+=(--target_architecture="$arch")
   constraints_enabled=1
 fi
 if [[ ! -z "$distro" && "$distro" != "$host_distro" ]]
 then
+  echo "$(basename "$0"): targetting distribution $distro" >&2
   constraint_flags+=(--target_distribution="$distro")
   constraints_enabled=1
 fi
@@ -45,7 +47,7 @@ fi
 lcname="$(echo "$name" | tr '[:upper:]' '[:lower:]')"
 if [[ "$lcname" != "$name" ]]
 then
-  echo "Lowercasing the package name"
+  echo "$(basename "$0"): lowercasing the package name to '$lcname'" >&2
   name="$lcname"
 fi
 
