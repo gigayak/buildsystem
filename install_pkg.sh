@@ -58,32 +58,12 @@ make_temp_dir scratch
 ordered_deps="$scratch/ordered_deps"
 
 # Build requested package if it's not yet been built...
-dep="$(qualify_dep "$target_arch" "$target_os" "$pkg")"
-pkgfile="$dep"
-constraint_flags=()
-constraint_flags+=(--target_distribution="$(dep2distro "" "" "$dep")")
-constraint_flags+=(--target_architecture="$(dep2arch "" "" "$dep")")
-if ! repo_get "$pkgfile.done" > "$scratch/$pkgfile.done"
-then
-  echo "$(basename "$0"): could not find package '$pkg', building..." >&2
-  hist_args=()
-  for hist_entry in "${F_dependency_history[@]}"
-  do
-    hist_args+=(--dependency_history="$hist_entry")
-  done
-  cmd=("$(DIR)/pkg.from_name.sh" \
-    --pkg_name="$pkg" \
-    "${constraint_flags[@]}" \
-    -- \
-      "${hist_args[@]}")
-  echo "$(basename "$0"): using build command: ${cmd[@]}" >&2
-  "${cmd[@]}"
-fi
-if ! repo_get "$pkgfile.done" > "$scratch/$pkgfile.done"
-then
-  echo "$(basename "$0"): could not find or build package '$pkg'" >&2
-  exit 1
-fi
+"$(DIR)/ensure_pkg_exists.sh" \
+  --target_architecture="$target_arch" \
+  --target_distribution="$target_os" \
+  --pkg_name="$pkg" \
+  --repo_path="$_REPO_LOCAL_PATH" \
+  --repo_url="$_REPO_URL"
 
 # Get all of the required dependencies...
 resolve_deps "$target_arch" "$target_os" "$pkg" "$pkglist" > "$ordered_deps"
