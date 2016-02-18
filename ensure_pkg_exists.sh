@@ -11,6 +11,8 @@ add_flag --default="" target_architecture \
   "Name of architecture to install packages for.  Defaults to detected value."
 add_flag --default="" target_distribution \
   "Name of distribution to install packages for.  Defaults to detected value."
+add_flag --array dependency_history \
+  "Names of packages that are currently being built - for cycle detection."
 parse_flags "$@"
 
 pkg="$F_pkg_name"
@@ -45,6 +47,11 @@ pkgfile="$dep"
 constraint_flags=()
 constraint_flags+=(--target_distribution="$(dep2distro "" "" "$dep")")
 constraint_flags+=(--target_architecture="$(dep2arch "" "" "$dep")")
+hist_args=()
+for hist_entry in "${F_dependency_history[@]}"
+do
+  hist_args+=(--dependency_history="$hist_entry")
+done
 if ! repo_get "$pkgfile.done" > "$scratch/$pkgfile.done"
 then
   echo "$(basename "$0"): could not find package '$pkg', building..." >&2

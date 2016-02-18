@@ -58,12 +58,18 @@ make_temp_dir scratch
 ordered_deps="$scratch/ordered_deps"
 
 # Build requested package if it's not yet been built...
+hist_args=()
+for hist_entry in "${F_dependency_history[@]}"
+do
+  hist_args+=(--dependency_history="$hist_entry")
+done
 "$(DIR)/ensure_pkg_exists.sh" \
   --target_architecture="$target_arch" \
   --target_distribution="$target_os" \
   --pkg_name="$pkg" \
   --repo_path="$_REPO_LOCAL_PATH" \
-  --repo_url="$_REPO_URL"
+  --repo_url="$_REPO_URL" \
+  "${hist_args[@]}"
 
 # Get all of the required dependencies...
 resolve_deps "$target_arch" "$target_os" "$pkg" "$pkglist" > "$ordered_deps"
