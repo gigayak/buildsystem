@@ -387,7 +387,7 @@ fi
 #
 # It also prevents packages with cycles from building on systems that aren't
 # Ubuntu, because cycles are annoying.
-if [[ -e "$dir/.installed_pkgs/$pkgname" ]]
+if [[ -e "$dir/.installed_pkgs/$outputname" ]]
 then
   if (( "$F_break_dependency_cycles" ))
   then
