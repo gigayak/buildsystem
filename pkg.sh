@@ -70,7 +70,7 @@ parse_flags "$@"
 
 pkgname="$F_pkg_name"
 export PKG_NAME="$pkgname"
-echo "Building package $pkgname"
+echo "$(basename "$0"): building package $pkgname" >&2
 version="$F_version_script"
 
 # Manually export a select set of environment variables.
@@ -104,14 +104,14 @@ env_string="$env_string TARGET_ARCH=$target_arch"
 env_string="$env_string BUILDTOOLS=/root/buildsystem/buildtools"
 env_string="$env_string BUILDSYSTEM=/root/buildsystem"
 env_string="$env_string WORKSPACE=/root"
-echo "Propagating following environment variables:"
-echo "$env_string"
+echo "$(basename "$0"): propagating following environment variables:" >&2
+echo "$(basename "$0"): $env_string" >&2
 
 # Lowercase the package's name if needed.
 lcname="$(echo "$pkgname" | tr '[:upper:]' '[:lower:]')"
 if [[ "$lcname" != "$pkgname" ]]
 then
-  echo "Lowercasing the package name"
+  echo "$(basename "$0"): lowercasing package name '$pkgname'" >&2
   pkgname="$lcname"
 fi
 
@@ -143,7 +143,7 @@ do
     cycle_found=1
     break
   else
-    echo "$(basename "$0"): $hist_entry is $qhist and is complete" >&2
+    echo "$(basename "$0"): $hist_entry is $qhist and has been built fully" >&2
   fi
 done
 if (( "$cycle_found" && ! "$F_break_dependency_cycles" ))
@@ -281,16 +281,16 @@ mkdir -pv "$dir/root/buildsystem"
 # build-only deps
 for builddeps in "${F_builddeps_script[@]}"
 do
-  echo "Running builddeps script"
+  echo "$(basename "$0"): running builddeps script for $outputname" >&2
   run_in_root "${builddeps}" > "$workdir/builddeps.txt"
-  echo "Found build dependencies:"
+  echo "$(basename "$0"): found build dependencies for $outputname:" >&2
   while read -r dep
   do
     if [[ -z "$dep" ]]
     then
       continue
     fi
-    echo " - $dep"
+    echo "$(basename "$0"):  - $dep" >&2
   done < "$workdir/builddeps.txt"
 
   # Watch out: dependencies are intentionally installed as soon as possible.
@@ -313,12 +313,12 @@ done
 deplist=""
 for deps in "${F_deps_script[@]}"
 do
-  echo "Running dependency listing script"
+  echo "$(basename "$0"): running dependency listing script for $outputname" >&2
   # Watch out: this is an overwrite of deplist, not an append.  We then
   # append deplist to deps.txt, so they wind up out of sync if multiple
   # dependency scripts execute.
   deplist="$(run_in_root "${deps}")"
-  echo "Found runtime dependencies:"
+  echo "$(basename "$0"): found runtime dependencies for $outputname:" >&2
   while read -r dep
   do
     echo "$dep" >> "$workdir/deps.txt"
@@ -326,7 +326,7 @@ do
     then
       continue
     fi
-    echo " - $dep"
+    echo "$(basename "$0"):  - $dep" >&2
   done < <(echo "$deplist")
 done
 # this makes sure that our repeated overwrites of deplist are undone.
@@ -339,6 +339,7 @@ fi
 if (( "$F_break_dependency_cycles" && "$cycle_found" ))
 then
   echo "$(basename "$0"): attempting to remove cyclic dependency" >&2
+  echo "$(basename "$0"): in package $outputname build" >&2
   found=0
   for possible_culprit in "${F_dependency_history[@]}"
   do
@@ -359,6 +360,11 @@ then
     fi
     mv -f "$workdir/deps.txt.new" "$workdir/deps.txt"
   done
+  echo "$(basename "$0"): new $outputname deplist after cycle removal:" >&2
+  while read -r newdep
+  do
+    echo "$(basename "$0"):  - $newdep" >&2
+  done < "$workdir/deps.txt"
   if (( ! "$found" ))
   then
     echo "$(basename "$0"): failed to remove dependency cycle" >&2
@@ -367,7 +373,7 @@ then
 fi
 
 
-echo "Installing all dependencies."
+echo "$(basename "$0"): installing all dependencies for $outputname" >&2
 if [[ -e "$workdir/deps.txt" ]]
 then
   install_deps "$workdir/deps.txt"
@@ -385,22 +391,23 @@ if [[ -e "$dir/.installed_pkgs/$pkgname" ]]
 then
   if (( "$F_break_dependency_cycles" ))
   then
-    echo "Found dependency cycle that was broken downstream.  Exiting."
+    echo "$(basename "$0"): found dependency cycle that was" \
+      "broken downstream; exiting." >&2
     exit 0
   fi
-  echo "Found disallowed dependency cycle.  Failing."
+  echo "$(basename "$0"): found disallowed dependency cycle; failing." >&2
   exit 1
 fi
 
 
 for make in "${F_make_script[@]}"
 do
-  echo "Running make script"
+  echo "$(basename "$0"): running make script $make for $outputname" >&2
   run_in_root "${make}"
 done
 
 
-echo "Snapshotting"
+echo "$(basename "$0"): snapshotting $outputname pre-install state" >&2
 make_temp_dir snapshot
 
 # Unmount procfs/devfs as they will cause lots of "evaporating file"
@@ -424,24 +431,24 @@ populate_dynamic_fs_pieces "$dir"
 
 for install in "${F_install_script[@]}"
 do
-  echo "Running install script"
+  echo "$(basename "$0"): running install script $install for $outputname" >&2
   run_in_root "${install}"
 done
 
 
 # Multiple version scripts are NOT allowed: only one version may be output.
-echo "Running version script"
+echo "$(basename "$0"): running version script for $outputname" >&2
 pkgversion="$(run_in_root "${version}")"
 if [[ -z "$pkgversion" ]]
 then
   echo "$(basename "$0"): version script '$version' yielded no output" >&2
   exit 1
 fi
-echo "Version is: $pkgversion"
+echo "$(basename "$0"): version for $outputname is: $pkgversion" >&2
 
 
 
-echo "Finding differences"
+echo "$(basename "$0"): finding differences from $outputname install" >&2
 
 # Set the path to create diffs at.
 # We want this to be transient, but have no temp directory so far...
@@ -492,7 +499,8 @@ rsync \
 
 # Create package output...
 make_temp_dir pkgdir
-echo "Packaging to '$pkgdir'"
+echo "$(basename "$0"): packaging different file for $outputname to" \
+  "'$pkgdir'" >&2
 retval=0
 "$(DIR)/copy_diff_files.sh" "$dir" "$pkgdir" < "$diff" \
   || retval=$?
@@ -501,7 +509,7 @@ then
   unregister_temp_file "$snapshot"
   unregister_temp_file "$dir"
   unregister_temp_file "$diffdir"
-  echo "$(basename "$0"): copy_diff_files failed; debug using:" >&2
+  echo "$(basename "$0"): copy_diff_files failed for $outputname; see:" >&2
   echo "$(basename "$0"): post-build snapshot: $snapshot" >&2
   echo "$(basename "$0"): post-install snapshot: $dir" >&2
   echo "$(basename "$0"): diff: $diff" >&2
@@ -524,7 +532,7 @@ then
     fi
     if [[ -L "$dir/$path" ]]
     then
-      echo "Copying explicitly declared symlink: $path"
+      echo "$(basename "$0"): copying explicitly declared symlink: $path" >&2
       if [[ ! -d "$(dirname "$pkgdir/$path")" ]]
       then
         mkdir -pv "$(dirname "$pkgdir/$path")"
@@ -532,7 +540,7 @@ then
       ln -sv "$(readlink "$dir/$path")" "$pkgdir/$path"
     elif [[ -d "$dir/$path" && ! -L "$dir/$path" ]]
     then
-      echo "Copying explicitly declared directory: $path"
+      echo "$(basename "$0"): copying explicitly declared directory: $path" >&2
       uid="$(stat -c '%U' "$dir/$path")"
       gid="$(stat -c '%G' "$dir/$path")"
       perms="$(stat -c '%a' "$dir/$path")"
@@ -541,7 +549,7 @@ then
       chmod "$perms" "$pkgdir/$path"
     elif [[ -f "$dir/$path" && ! -L "$dir/$path" ]]
     then
-      echo "Copying explicitly declared file: $path"
+      echo "$(basename "$0"): copying explicitly declared file: $path" >&2
       uid="$(stat -c '%U' "$dir/$path")"
       gid="$(stat -c '%G' "$dir/$path")"
       perms="$(stat -c '%a' "$dir/$path")"
@@ -553,10 +561,10 @@ then
       chown "$uid:$gid" "$pkgdir/$path"
       chmod "$perms" "$pkgdir/$path"
     else
-      echo "$pkgdir/$path was explicitly declared, but is not a directory" >&2
-      echo "or does not exist at all." >&2
-      echo "Explicit declarations are a hack with limited scope." >&2
-      echo "Update pkg.sh to fit your use case." >&2
+      echo "$(basename "$0"): $pkgdir/$path was explicitly declared, but" >&2
+      echo "$(basename "$0"): is not a directory or does not exist at all." >&2
+      echo "$(basename "$0"): Explicit declarations are a hack with" >&2 
+      echo "$(basename "$0"): limited scope.  Please reconsider." >&2
       exit 1
     fi
   done < "$diffdir/extra_installed_paths"
@@ -575,3 +583,4 @@ for n in tar.gz version dependencies done
 do
   cp -fv "$tmprepo/$outputname.$n" "/var/www/html/tgzrepo/$outputname.$n"
 done
+echo "$(basename "$0"): successfully built $outputname" >&2
