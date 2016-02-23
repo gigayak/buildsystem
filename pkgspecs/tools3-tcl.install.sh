@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root/*-*/
+cd /root/tcl*/
 cd unix
 make install
 
