@@ -80,12 +80,14 @@ for pkg in \
   internal-ca-certificates wget rsync buildsystem linux-mountpoints initrd \
   linux-firmware gigayak-installer stage2-certificate sget
 do
-  pkgs+=("i686-tools2-$pkg")
+  pkgs+=("$pkg")
 done
 for pkg in "${pkgs[@]}"
 do
   echo "Installing $pkg"
   /buildsystem/install_pkg.sh \
+    --target_architecture=i686 \
+    --target_distribution=tools2 \
     --install_root="$extract_path" \
     --pkg_name="$pkg" \
     --repo_path="/pkgs"

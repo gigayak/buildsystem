@@ -134,6 +134,8 @@ set -Eeo pipefail
 start_at="$1"
 echo 'Sourcing .bash_profile'
 source /root/.bash_profile
+echo 'PATH is:'
+echo "$PATH"
 echo 'Leaving installation marker'
 echo 'installer ran' > /root/installer_ran
 echo 'Running lfs.stage3.sh'

@@ -48,9 +48,11 @@ mkdir -pv "$target_pkgdir"
 pkgs=()
 while read -r pkgpath
 do
-  pkg="$(basename "$pkgpath" .tar.gz)"
+  pkgspec="$(basename "$pkgpath" .tar.gz)"
+  pkg="$(echo "$pkgspec" \
+    | sed -re 's@^i686-'"$F_distro_name"':@@g')"
   pkgs+=("$pkg")
-  cp -v "/var/www/html/tgzrepo/${pkg}."* "$target_pkgdir/"
+  cp -v "/var/www/html/tgzrepo/${pkgspec}."* "$target_pkgdir/"
 done < <(find /var/www/html/tgzrepo -iname "i686-${F_distro_name}:*.tar.gz")
 
 # Ensure that internal DNS is available.
@@ -155,6 +157,8 @@ do
   echo "Installing $pkg"
   /buildsystem/install_pkg.sh \
     --install_root="/mnt/guest${strip_prefix}" \
+    --target_architecture=i686 \
+    --target_distribution="$distro_name" \
     --pkg_name="$pkg" \
     --repo_path="/pkgs"
 done
