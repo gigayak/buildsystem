@@ -1,29 +1,30 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cat > /cross-tools/env.sh <<'EOF'
+cat > /cross-tools/env.sh <<EOF
 # /bin/bash
 # Clear environment as best we can.
-eval "$(env | sed -nre 's@^([^=]+)=.*$@unset \1@gp')"
+eval "\$(env | sed -nre 's@^([^=]+)=.*\$@unset \\1@gp')"
 
 # Set the few variables we care about.
 # Many programs rely on these.
 export HOME=/root
 export TERM=screen
-export PS1='\u:\w\$ '
+export PS1='\\u:\\w\\\$ '
 export LC_ALL=POSIX
-export PATH='/cross-tools/i686/bin:/bin:/usr/bin'
+export PATH='/cross-tools/${TARGET_ARCH}/bin:/bin:/usr/bin'
 unset CFLAGS
 unset CXXFLAGS
 
 # Our scripts rely on these.
-export CLFS_HOST="$(echo "$MACHTYPE" | sed -e 's/-[^-]*/-cross/')"
-#export CLFS_HOST="$(uname -m)-cross-$(echo "$MACHTYPE" \
-#  | sed -re 's@^[^-]*-[^-]*-(.*)$@\1@g')"
+export CLFS_HOST="\$(echo "\$MACHTYPE" | sed -e 's/-[^-]*/-cross/')"
+#export CLFS_HOST="\$(uname -m)-cross-\$(echo "\$MACHTYPE" \
+#  | sed -re 's@^[^-]*-[^-]*-(.*)\$@\\1@g')"
 # From table at:
 #   http://www.clfs.org/view/CLFS-3.0.0-SYSVINIT/x86/final-preps/variables.html
-export CLFS_TARGET="i686-pc-linux-gnu"
+export CLFS_TARGET="${TARGET_ARCH}-pc-linux-gnu"
 export CLFS="/clfs-root"
+export TARGET_ARCH='${TARGET_ARCH}'
 
 # Disable bash command hashing, which caches name -> binary resolutions. Since
 # we may rebuild a binary and then promptly use it, we don't want false positive
