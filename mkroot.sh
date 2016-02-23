@@ -55,16 +55,21 @@ create_bare_root()
     _pkgs=(base-ubuntu)
   # Assuming anything else is a stage2 Gigayak host.
   # TODO: Do a secondary check and chuck a wobbly if not on Gigayak here.
+  # TODO: Don't use bare dependency names... specify constraint flags
   else
     _pkgs=()
     # Bare minimum to look anything like Linux:
     _pkgs+=(filesystem-skeleton)
     # Required to run all build shell scripts:
-    _pkgs+=(i686-tools2-bash{,-aliases,-profile})
+    _pkgs+=(i686-tools2:bash{,-aliases,-profile})
     # Brought in by buildtools/tool_names.sh:
-    _pkgs+=(i686-tools2-coreutils{,-aliases})
-    _pkgs+=(i686-tools2-gawk)
-    _pkgs+=(i686-tools2-grep)
+    _pkgs+=(i686-tools2:coreutils{,-aliases})
+    _pkgs+=(i686-tools2:gawk)
+    _pkgs+=(i686-tools2:grep)
+    # Used for getopt by flag.sh:
+    _pkgs+=(i686-tools2:util-linux)
+    # Used by flag.sh:
+    _pkgs+=(i686-tools2:sed)
   fi
   local _pkg
   for _pkg in "${_pkgs[@]}"
