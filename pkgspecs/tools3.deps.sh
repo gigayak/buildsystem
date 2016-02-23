@@ -14,19 +14,19 @@ for p in \
   iproute2 dhcp dhcp-config dropbear dropbear-config nettle gnutls \
   internal-ca-certificates wget rsync buildsystem
 do
-  if [[ "$PKG_NAME" == "i686-tools2-$p" ]]
+  if [[ "$PKG_NAME" == "$p" && "$TARGET_OS" == "tools2" ]]
   then
     exit 0
   fi
-  dep "i686-tools2-$p"
+  dep --arch="$TARGET_ARCH" --distro=tools2 "$p"
 done
 
 for p in \
   tcl expect dejagnu perl
 do
-  if [[ "$PKG_NAME" == "i686-tools3-$p" ]]
+  if [[ "$PKG_NAME" == "$p" && "$TARGET_OS" == "tools3" ]]
   then
     exit 0
   fi
-  dep "i686-tools3-$p"
+  dep --arch="$TARGET_ARCH" --distro=tools3 "$p"
 done
