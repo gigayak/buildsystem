@@ -11,6 +11,6 @@ do
     -r \
     -e 's@/usr(/bin/perl)@/tools/i686\1@g' \
     -i "/$path"
-done < /.installed_pkgs/i686-tools2-texinfo
+done < /.installed_pkgs/i686-tools2:texinfo
 
-cp -v /.installed_pkgs/i686-tools2-texinfo /root/extra_installed_paths
+cp -v /.installed_pkgs/i686-tools2:texinfo /root/extra_installed_paths
