@@ -6,7 +6,9 @@ version=5.45
 echo "$version" > /root/version
 sfroot="http://sourceforge.net/projects/expect/files"
 url="$sfroot/Expect/$version/expect$version.tar.gz/download"
-wget "$url" -O expect.tar.gz
+wget "$url" \
+  -O expect.tar.gz \
+  --no-check-certificate
 tar -zxf expect.tar.gz
 
 cd expect*/
