@@ -1,15 +1,15 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
-dep --arch="$TARGET_ARCH" --distro=tools2 wget
-dep --arch="$TARGET_ARCH" --distro=tools2 tar
-dep --arch="$TARGET_ARCH" --distro=tools3 gcc
+source "$YAK_BUILDTOOLS/all.sh"
+dep --arch="$YAK_TARGET_ARCH" --distro=tools2 wget
+dep --arch="$YAK_TARGET_ARCH" --distro=tools2 tar
+dep --arch="$YAK_TARGET_ARCH" --distro=tools3 gcc
 
-dep --arch="$TARGET_ARCH" --distro=yak gmp
-dep --arch="$TARGET_ARCH" --distro=yak mpfr
-dep --arch="$TARGET_ARCH" --distro=yak mpc
-dep --arch="$TARGET_ARCH" --distro=yak isl
-dep --arch="$TARGET_ARCH" --distro=yak cloog
+dep --arch="$YAK_TARGET_ARCH" --distro=yak gmp
+dep --arch="$YAK_TARGET_ARCH" --distro=yak mpfr
+dep --arch="$YAK_TARGET_ARCH" --distro=yak mpc
+dep --arch="$YAK_TARGET_ARCH" --distro=yak isl
+dep --arch="$YAK_TARGET_ARCH" --distro=yak cloog
 
-dep --arch="$TARGET_ARCH" --distro=yak zlib
-dep --arch="$TARGET_ARCH" --distro=tools3 texinfo
+dep --arch="$YAK_TARGET_ARCH" --distro=yak zlib
+dep --arch="$YAK_TARGET_ARCH" --distro=tools3 texinfo

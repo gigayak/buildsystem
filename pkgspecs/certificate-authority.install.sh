@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root/certificate-authority
+cd "$YAK_WORKSPACE"/certificate-authority
 ./install.sh

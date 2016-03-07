@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /cross-tools/env.sh
-cd /root/glibc-build
+cd "$YAK_WORKSPACE"/glibc-build
 make install

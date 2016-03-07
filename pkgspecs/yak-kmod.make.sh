@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=20
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-$version.tar.xz"
 wget --no-check-certificate "$url"
 tar -xf *.tar.*

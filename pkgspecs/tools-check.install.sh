@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /tools/env.sh
-cd /root/check-*/
+cd "$YAK_WORKSPACE"/check-*/
 make install

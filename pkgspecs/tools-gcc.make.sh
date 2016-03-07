@@ -3,10 +3,10 @@ set -Eeo pipefail
 set -x
 source /tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version="4.9.2"
 #version=4.8.4
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://ftp.gnu.org/gnu/gcc/gcc-$version/gcc-$version.tar.gz"
 # --progress=dot:giga makes the status display one dot per megabyte instead of
 # one per kilobyte.  Should help in low-bandwidth situations.

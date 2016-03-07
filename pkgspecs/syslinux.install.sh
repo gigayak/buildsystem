@@ -1,4 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-cd /root/syslinux-*/
+cd "$YAK_WORKSPACE"/syslinux-*/
 make install

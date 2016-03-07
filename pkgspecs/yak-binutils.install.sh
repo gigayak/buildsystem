@@ -1,4 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-cd /root/binutils-build
+cd "$YAK_WORKSPACE"/binutils-build
 make tooldir=/usr install

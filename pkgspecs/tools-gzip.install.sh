@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /tools/env.sh
-cd /root/gzip-*/
+cd "$YAK_WORKSPACE"/gzip-*/
 make install

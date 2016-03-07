@@ -3,10 +3,10 @@ set -Eeo pipefail
 source /tools/env.sh
 
 version="3.3.11"
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="ftp://ftp.gnutls.org/gcrypt/gnutls/v3.3/gnutls-3.3.11.tar.xz"
 
-cd /root
+cd "$YAK_WORKSPACE"
 wget "$url"
 tar -Jxf "gnutls-$version.tar.xz"
 cd "gnutls-$version"

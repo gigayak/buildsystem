@@ -10,7 +10,7 @@ source /tools/env.sh
 #   is inherited implicitly in stage3 build scripts, which makes them a bit
 #   more difficult to read (as it's unclear that /tools/i686/bin is in the
 #   PATH).
-cat > ${CLFS}/root/.bash_profile << "EOF"
+cat > ${CLFS}/etc/profile << "EOF"
 set +h
 PS1='\u:\w\$ '
 LC_ALL=POSIX

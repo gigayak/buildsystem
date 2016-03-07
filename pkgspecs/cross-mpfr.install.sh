@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /cross-tools/env.sh
-cd /root/mpfr-*/
+cd "$YAK_WORKSPACE"/mpfr-*/
 make install

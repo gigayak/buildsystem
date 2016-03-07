@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version="5.22.0"
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 major_version="$(echo "$version" | sed -nre 's@^([0-9]+)\..*$@\1@gp').0"
 url="http://www.cpan.org/src/$major_version/perl-$version.tar.gz"
 wget "$url"

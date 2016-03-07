@@ -1,4 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-cd /root/sed-*/
+cd "$YAK_WORKSPACE"/sed-*/
 make install

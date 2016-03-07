@@ -293,6 +293,11 @@ resolve_deps()
       continue
     fi
 
+    # Store off this dependency's host/arch parameters, which will be inherited
+    # by unqualified subdependencies.
+    current_arch="$(dep2arch "$arch" "$distro" "$new_dep")"
+    current_distro="$(dep2distro "$arch" "$distro" "$new_dep")"
+
     # Here's where we actually commit it to the ordered list.
     echo "$new_dep" >> "$ordered_deps"
 
@@ -328,7 +333,8 @@ resolve_deps()
         mv -f "$tmp_deps" "$ordered_deps"
       # Otherwise, it's new to us - mark it as such, and we iterate deeper.
       else
-        echo "${FUNCNAME[0]}: found dependency '$dep' (from '$new_dep')" >&2
+        qdep="$(qualify_dep "$current_arch" "$current_distro" "$dep")"
+        echo "${FUNCNAME[0]}: found dependency '$qdep' (from '$new_dep')" >&2
         # This line is a little subtle - note that the outermost loop is reading
         # from the file we're appending to here.
         #
@@ -342,7 +348,7 @@ resolve_deps()
         #
         # The loop appends to its input before it reaches EOF, causing it to
         # find more input.  This is the closest bash comes to a Go channel.
-        qualify_dep "$arch" "$os" "$dep" >> "$new_deps"
+        echo "$qdep" >> "$new_deps"
       fi
     done < "$deps_path"
   done < "$new_deps"

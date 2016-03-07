@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root/zlib-*/
+cd "$YAK_WORKSPACE"/zlib-*/
 make install

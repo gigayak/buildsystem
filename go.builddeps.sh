@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
-source "$BUILDTOOLS/all.sh"
+source "$YAK_BUILDTOOLS/all.sh"
 
 # Compilers.
 dep go

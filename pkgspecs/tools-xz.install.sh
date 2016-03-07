@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /tools/env.sh
-cd /root/xz-*/
+cd "$YAK_WORKSPACE"/xz-*/
 make install

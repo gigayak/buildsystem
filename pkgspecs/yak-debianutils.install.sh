@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root/debianutils*/
+cd "$YAK_WORKSPACE"/debianutils*/
 make install

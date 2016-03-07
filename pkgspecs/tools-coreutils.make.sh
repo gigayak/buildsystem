@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source /tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=8.23
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://ftp.gnu.org/gnu/coreutils/coreutils-$version.tar.xz"
 wget "$url"
 

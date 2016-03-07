@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=2.3.20
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 urldir="http://download.savannah.gnu.org/releases/man-db"
 url="$urldir/man_db-${version}.tar.gz"
 wget "$url"

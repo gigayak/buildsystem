@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
-dep --arch="$TARGET_ARCH" --distro=yak glibc
-dep --arch="$TARGET_ARCH" --distro=yak xz
-dep --arch="$TARGET_ARCH" --distro=yak bzip2
-dep --arch="$TARGET_ARCH" --distro=yak zlib
+source "$YAK_BUILDTOOLS/all.sh"
+dep --arch="$YAK_TARGET_ARCH" --distro=yak glibc
+dep --arch="$YAK_TARGET_ARCH" --distro=yak xz
+dep --arch="$YAK_TARGET_ARCH" --distro=yak bzip2
+dep --arch="$YAK_TARGET_ARCH" --distro=yak zlib

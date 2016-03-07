@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-cd /root/*-*/
+cd "$YAK_WORKSPACE"/*-*/
 make install
 
 # TODO: CLFS book instructs you to symlink /usr/bin/perl to

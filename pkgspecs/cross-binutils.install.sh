@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /cross-tools/env.sh
-cd /root/binutils-build
+cd "$YAK_WORKSPACE"/binutils-build
 make install

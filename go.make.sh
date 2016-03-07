@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-pkg_name="$(echo "$PKG_NAME" | sed -re 's@^go-@@g')"
+pkg_name="$(echo "$YAK_PKG_NAME" | sed -re 's@^go-@@g')"
 echo "Package name is: $pkg_name" >&2
 
 # Make sure go environment is sourced
@@ -31,8 +31,8 @@ then
   exit 1
 fi
 
-mkdir /root/workspace
-cd /root/workspace
+mkdir "$YAK_WORKSPACE/workspace"
+cd "$YAK_WORKSPACE/workspace"
 export GOPATH="$PWD"
 mkdir -pv src bin pkg
 

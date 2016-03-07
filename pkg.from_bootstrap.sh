@@ -60,13 +60,13 @@ qualified_name="$(qualify_dep "$arch" "$distro" "$F_pkg_name")"
 make_temp_dir tmprepo
 
 env=()
-env+=(HOST_ARCH="$host_arch")
-env+=(HOST_OS="$host_distro")
-env+=(TARGET_ARCH="$arch")
-env+=(TARGET_OS="$distro")
-env+=(BUILDTOOLS="$(DIR)/buildtools")
-env+=(BUILDSYSTEM="$(DIR)")
-env+=(WORKSPACE="$tmprepo")
+env+=(YAK_HOST_ARCH="$host_arch")
+env+=(YAK_HOST_OS="$host_distro")
+env+=(YAK_TARGET_ARCH="$arch")
+env+=(YAK_TARGET_OS="$distro")
+env+=(YAK_BUILDTOOLS="$(DIR)/buildtools")
+env+=(YAK_BUILDSYSTEM="$(DIR)")
+env+=(YAK_WORKSPACE="$tmprepo")
 
 env "${env[@]}" "$bootstrap" > "$tmprepo/${qualified_name}.tar.gz"
 echo 1.0 > "$tmprepo/${qualified_name}.version"

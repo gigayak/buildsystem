@@ -8,7 +8,7 @@ set -Eeo pipefail
 # conflicts - but i686-tools2-gcc is a builddep, not a runtime dep,
 # so the two should never be installed simultaneously making the issue
 # moot.
-cp -v /.installed_pkgs/i686-tools2-gcc /root/extra_installed_paths
+cp -v "/.installed_pkgs/i686-tools2:gcc" "$YAK_WORKSPACE/extra_installed_paths"
 
 # Now, why would we want to output a modified form of i686-tools2-gcc?
 # The pre-modification form is used to build all of the other tools3

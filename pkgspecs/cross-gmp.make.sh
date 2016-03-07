@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source /cross-tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=6.0.0a
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://ftp.gnu.org/gnu/gmp/gmp-$version.tar.xz"
 wget "$url"
 tar -Jxf "gmp-$version.tar.xz"

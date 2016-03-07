@@ -1,8 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
 
-root="$WORKSPACE/root"
+root="$YAK_WORKSPACE/root"
 tgt="$root/usr/bin/buildsystem"
 mkdir -p "$tgt"
-"$BUILDSYSTEM/install_buildsystem.sh" --output_path="$tgt" >&2
+"$YAK_BUILDSYSTEM/install_buildsystem.sh" --output_path="$tgt" >&2
 tar -cz -C "$root" .

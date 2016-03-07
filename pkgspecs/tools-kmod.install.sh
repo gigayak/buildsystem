@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 source /tools/env.sh
-cd /root/kmod-*/
+cd "$YAK_WORKSPACE"/kmod-*/
 make install
 
 # Per CLFS book:

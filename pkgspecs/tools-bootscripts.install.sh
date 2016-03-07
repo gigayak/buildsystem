@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-cd /root/bootscripts-cross-lfs-*/
+cd "$YAK_WORKSPACE"/bootscripts-cross-lfs-*/
 make DESTDIR=/tools/i686 install-minimal
 
 cat > /tools/i686/etc/sysconfig/clock <<'EOF'

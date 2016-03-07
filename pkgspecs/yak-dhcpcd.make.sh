@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=6.9.4
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://roy.marples.name/downloads/dhcpcd/dhcpcd-${version}.tar.xz"
 wget "$url"
 tar -xf *.tar.*

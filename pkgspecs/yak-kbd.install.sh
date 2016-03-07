@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root/*-*/
+cd "$YAK_WORKSPACE"/*-*/
 make install
 
 # Per CLFS book:
@@ -11,6 +11,6 @@ mv -v /usr/bin/{dumpkeys,kbd_mode,loadkeys,setfont} /bin
 
 # Per CLFS book:
 #   Install the documentation:
-mkdir -v /usr/share/doc/kbd-$(</root/version)
-cp -R -v docs/doc/* /usr/share/doc/kbd-$(</root/version)
+mkdir -v /usr/share/doc/kbd-$(<"$YAK_WORKSPACE/version")
+cp -R -v docs/doc/* /usr/share/doc/kbd-$(<"$YAK_WORKSPACE/version")
 

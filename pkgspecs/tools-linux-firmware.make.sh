@@ -2,9 +2,9 @@
 set -Eeo pipefail
 
 version=2015-11-01
-echo "$version" >> /root/version
+echo "$version" >> "$YAK_WORKSPACE/version"
 
-cd /root
+cd "$YAK_WORKSPACE"
 git clone \
   "git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"
 cd linux-firmware

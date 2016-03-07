@@ -3,11 +3,11 @@ set -Eeo pipefail
 
 version="3.3.11"
 without_revision="$(echo "$version" | sed -re 's@\.[0-9]+$@@')"
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 basedir="ftp://ftp.gnutls.org/gcrypt/gnutls/v$without_revision"
 url="$basedir/gnutls-${version}.tar.xz"
 
-cd /root
+cd "$YAK_WORKSPACE"
 wget "$url"
 tar -Jxf "gnutls-$version.tar.xz"
 cd "gnutls-$version"

@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=s20140519
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="https://github.com/iputils/iputils/archive/${version}.tar.gz"
 wget --no-check-certificate "$url"
 tar -xf *.tar.*

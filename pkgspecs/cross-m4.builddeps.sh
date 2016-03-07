@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
+source "$YAK_BUILDTOOLS/all.sh"
 
 # The usual suspects: download and extract source.
 dep wget

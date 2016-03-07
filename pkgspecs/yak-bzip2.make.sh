@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=1.0.6
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://www.bzip.org/$version/bzip2-$version.tar.gz"
 wget "$url"
 tar -zxf *.tar.*

@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /tools/env.sh
-cd /root/mpc-*/
+cd "$YAK_WORKSPACE"/mpc-*/
 make install

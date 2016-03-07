@@ -10,7 +10,7 @@ source /etc/profile.d/go14.sh
 #require ca-certificates wget
 pkg_name="go"
 pkg_version="1.5" # TODO: version crawler
-echo "$pkg_version" > "/root/go.version"
+echo "$pkg_version" > "$YAK_WORKSPACE/version"
 pkg_ext="tar.gz"
 pkg_url="https://storage.googleapis.com/golang/${pkg_name}${pkg_version}.src.${pkg_ext}"
 pkg_path="$(DIR)/${pkg_name}-${pkg_version}-src.${pkg_ext}"

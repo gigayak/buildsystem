@@ -3,7 +3,7 @@ set -Eeo pipefail
 
 version=3.3.11
 url="https://gitlab.com/procps-ng/procps/repository/archive.tar.gz?ref=v$version"
-cd /root
+cd "$YAK_WORKSPACE"
 echo "$version" > version
 wget --no-check-certificate "$url" -O "procps-ng-$version.tar.gz"
 tar -zxf *.tar.gz

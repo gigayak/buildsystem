@@ -1,11 +1,11 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/kconfig.sh"
+source "$YAK_BUILDTOOLS/kconfig.sh"
 source /tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=3.18.3
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="https://www.kernel.org/pub/linux/kernel/v3.x/linux-$version.tar.xz"
 wget "$url"
 
@@ -18,7 +18,7 @@ kconfig_init \
   defconfig
 
 # Save off a copy of the configuration to install to /opt/kernel.config.default
-cp -v .config /root/kernel.config.default
+cp -v .config "$YAK_WORKSPACE/kernel.config.default"
 
 # /dev needs to be handled by the kernel or we won't see ANY devices due to the
 # lack of MAKEDEV scripts.

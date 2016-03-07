@@ -2,5 +2,5 @@
 set -Eeo pipefail
 source /tools/env.sh
 
-cd /root/zlib-*/
+cd "$YAK_WORKSPACE"/zlib-*/
 make install

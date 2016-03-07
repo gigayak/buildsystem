@@ -3,7 +3,7 @@ set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 echo "Starting stage 3 bootstrap"
-echo "This uses i686-tools-buildsystem to build all native packages."
+echo "This uses tools-buildsystem to build all native packages."
 
 if [[ ! -d "/var/www/html/tgzrepo" ]]
 then
@@ -23,8 +23,6 @@ then
   waiting=1
 fi
 
-target_arch=i686
-
 build()
 {
   if (( "$#" != 2 ))
@@ -34,22 +32,20 @@ build()
   fi
   distro="$1"
   pkg="$2"
-  arch="$target_arch"
   if (( "$waiting" )) \
     && [[ "$pkg" != "$start_from" \
-      && "${arch}-${distro}-${pkg}" != "$start_from" ]]
+      && "${distro}-${pkg}" != "$start_from" ]]
   then
     echo "Ignoring package '$pkg'"
     return 0
   fi
   export waiting=0
 
-  p="${arch}-${distro}-${pkg}"
+  p="${distro}-${pkg}"
   echo "Building package '$p'"
   retval=0
   "$(DIR)/pkg.from_name.sh" \
     --pkg_name="$pkg" \
-    --target_architecture="$arch" \
     --target_distribution="$distro" \
     2>&1 \
     | tee "$logdir/$p.log" \
@@ -73,6 +69,7 @@ build yak linux-headers
 build yak man-pages
 build yak glibc
 build tools3 gcc
+build tools3 gcc-aliases
 build yak m4
 build yak gmp
 build yak mpfr

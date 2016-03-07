@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
 
-version="$(</root/version)"
-cd /root/*-*/
+version="$(<"$YAK_WORKSPACE/version")"
+cd "$YAK_WORKSPACE"/*-*/
 make PREFIX=/usr install

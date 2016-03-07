@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source /tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=4.3.2
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://ftp.isc.org/isc/dhcp/$version/dhcp-$version.tar.gz"
 wget "$url"
 tar -zxf *.tar.gz

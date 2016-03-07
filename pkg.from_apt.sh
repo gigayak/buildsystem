@@ -11,7 +11,7 @@ parse_flags "$@"
 pkgname="$F_pkg_name"
 
 # Do dependency translation if available.
-translation="$(HOST_OS=ubuntu dep "$pkgname")"
+translation="$(YAK_HOST_OS=ubuntu dep "$pkgname")"
 if [[ "$pkgname" != "$translation" ]]
 then
   echo "$(basename "$0"): translated name '$pkgname' to '$translation'" >&2
@@ -62,7 +62,7 @@ then
   (
     echo '#!/bin/bash'
     echo 'set -Eeo pipefail'
-    echo 'source "$BUILDTOOLS/all.sh"'
+    echo 'source "$YAK_BUILDTOOLS/all.sh"'
     echo "$translation" \
       | sed -re 's@^@dep @g'
   ) > "$deps_script"

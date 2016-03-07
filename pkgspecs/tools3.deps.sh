@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
+source "$YAK_BUILDTOOLS/all.sh"
 
 # Include all /tools/ packages we've compiled so far as dependencies.
 for p in \
@@ -14,19 +14,19 @@ for p in \
   iproute2 dhcp dhcp-config dropbear dropbear-config nettle gnutls \
   internal-ca-certificates wget rsync buildsystem
 do
-  if [[ "$PKG_NAME" == "$p" && "$TARGET_OS" == "tools2" ]]
+  if [[ "$YAK_PKG_NAME" == "$p" && "$YAK_TARGET_OS" == "tools2" ]]
   then
     exit 0
   fi
-  dep --arch="$TARGET_ARCH" --distro=tools2 "$p"
+  dep --arch="$YAK_TARGET_ARCH" --distro=tools2 "$p"
 done
 
 for p in \
   tcl expect dejagnu perl
 do
-  if [[ "$PKG_NAME" == "$p" && "$TARGET_OS" == "tools3" ]]
+  if [[ "$YAK_PKG_NAME" == "$p" && "$YAK_TARGET_OS" == "tools3" ]]
   then
     exit 0
   fi
-  dep --arch="$TARGET_ARCH" --distro=tools3 "$p"
+  dep --arch="$YAK_TARGET_ARCH" --distro=tools3 "$p"
 done

@@ -1,11 +1,11 @@
 #!/bin/bash
 set -Eeo pipefail
 
-root="$WORKSPACE/root"
+root="$YAK_WORKSPACE/root"
 mkdir -p "$root"
 for p in ca-certificates enable-dynamic-ca-certificates
 do
-  "$BUILDSYSTEM/install_pkg.sh" \
+  "$YAK_BUILDSYSTEM/install_pkg.sh" \
     --install_root="$root" \
     --pkg_name="$p" \
     >&2
@@ -13,24 +13,24 @@ done
 
 cert_path=""
 update_command=()
-if [[ "$HOST_OS" == "centos" ]]
+if [[ "$YAK_HOST_OS" == "centos" ]]
 then
   echo "Found CentOS host" >&2
   cert_dir="etc/pki/ca-trust/source/anchors"
   update_command=(update-ca-trust extract)
-elif [[ "$HOST_OS" == "ubuntu" ]]
+elif [[ "$YAK_HOST_OS" == "ubuntu" ]]
 then
   echo "Found Ubuntu host" >&2
   cert_dir="usr/local/share/ca-certificates"
   update_command=(update-ca-certificates --verbose)
 else
-  echo "Unknown host OS '$HOST_OS'" >&2
+  echo "Unknown host OS '$YAK_HOST_OS'" >&2
   exit 1
 fi
 cert_path="$root/$cert_dir"
 mkdir -p "$cert_path"
 
-localstorage="$("$BUILDSYSTEM/find_localstorage.sh")"
+localstorage="$("$YAK_BUILDSYSTEM/find_localstorage.sh")"
 cp \
   "$localstorage/certificate-authority/ca/authority/ca.crt" \
   "$cert_path/gigayak.pem"
@@ -42,7 +42,7 @@ cp -f \
   "$cert_path/gigayak_as_pem.crt"
 
 chroot "$root" "${update_command[@]}" >&2
-new_root="$WORKSPACE/to_package"
+new_root="$YAK_WORKSPACE/to_package"
 mkdir -p "$new_root"
 for dir in etc/ssl/certs "$cert_dir"
 do

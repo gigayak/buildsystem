@@ -10,8 +10,8 @@ set -Eeo pipefail
 # `yak-perl` is built.
 
 version=1.15
-echo "$version" > /root/version
-cd /root
+echo "$version" > "$YAK_WORKSPACE/version"
+cd "$YAK_WORKSPACE"
 wget "http://ftp.gnu.org/gnu/automake/automake-$version.tar.gz"
 tar -zxf *.tar.gz
 cd *-*/

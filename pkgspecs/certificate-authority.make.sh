@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 paths=()
 paths+=("https://git.jgilik.com/certificate-authority.git")
 paths+=("https://github.com/gigayak/certificate-authority.git")

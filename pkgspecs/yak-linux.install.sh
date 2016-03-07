@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root/linux-*/
+cd "$YAK_WORKSPACE"/linux-*/
 
 # Install kernel modules (if any are needed by .config)
 make modules_install
@@ -24,4 +24,4 @@ cp -v System.map /boot/System.map
 
 # Save off configuration files
 cp -v .config /boot/kernel.config
-cp -v /root/kernel.config.default /boot/kernel.config.default
+cp -v "$YAK_WORKSPACE/kernel.config.default" /boot/kernel.config.default

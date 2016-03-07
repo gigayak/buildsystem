@@ -1,6 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-
-version="$(</root/version)"
-cd "/root/qemu-$version"
+cd "$YAK_WORKSPACE"/*-*/
 make install

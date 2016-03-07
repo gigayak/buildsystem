@@ -39,10 +39,10 @@ spec_names+=("${pkgname}")
 filepath="${SPECS}/${pkgname}.choose_spec.sh"
 if [[ -e "$filepath" ]]
 then
-  spec_names=("$(HOST_OS="$host_os" \
-    HOST_ARCH="$host_arch" \
-    TARGET_OS="$target_os" \
-    TARGET_ARCH="$target_arch" \
+  spec_names=("$(YAK_HOST_OS="$host_os" \
+    YAK_HOST_ARCH="$host_arch" \
+    YAK_TARGET_OS="$target_os" \
+    YAK_TARGET_ARCH="$target_arch" \
     "$filepath")")
 fi
 

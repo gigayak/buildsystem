@@ -1,4 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-cd /root/*-*/
+cd "$YAK_WORKSPACE"/*-*/
 scons install

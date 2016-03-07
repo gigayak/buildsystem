@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source /tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=2.1
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="https://dev.gentoo.org/~blueness/eudev/eudev-2.1.tar.gz"
 wget "$url"
 

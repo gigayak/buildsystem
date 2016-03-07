@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=0.4.1
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://www.libee.org/files/download/libee-${version}.tar.gz"
 wget "$url"
 tar -xf *.tar.*

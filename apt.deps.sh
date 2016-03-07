@@ -118,12 +118,12 @@ list_direct_real_deps()
   local dotfile="$1"
   local pkgname="$2"
 
-  local seen="/root/dep.${pkgname}.seen"
+  local seen="$YAK_WORKSPACE/dep.${pkgname}.seen"
   rm -f "$seen" >&2
   touch "$seen"
 
   echo "${FUNCNAME[0]}: expanding virtual packages for '$pkgname'" >&2
-  local queue="/root/dep.${pkgname}.queue"
+  local queue="$YAK_WORKSPACE/dep.${pkgname}.queue"
   list_direct_deps "$pkgname" > "$queue"
   while read -r dep
   do
@@ -180,17 +180,17 @@ list_direct_real_deps()
 # guarantee that base-ubuntu gets installed later rather than not at all.
 echo base-ubuntu
 
-maindot="/root/depgraph.${PKG_NAME}.dot"
-apt-cache dotty "$PKG_NAME" > "$maindot"
-list_direct_real_deps "$maindot" "$PKG_NAME" \
-  > "/root/${PKG_NAME}.deps"
-alldeps="/root/all_dependencies"
-cp "/root/${PKG_NAME}.deps" "$alldeps"
-depqueue="/root/dependency_queue"
-cp "/root/${PKG_NAME}.deps" "$depqueue"
-already_processed="/root/already_processed_deps"
+maindot="$YAK_WORKSPACE/depgraph.${YAK_PKG_NAME}.dot"
+apt-cache dotty "$YAK_PKG_NAME" > "$maindot"
+list_direct_real_deps "$maindot" "$YAK_PKG_NAME" \
+  > "$YAK_WORKSPACE/${YAK_PKG_NAME}.deps"
+alldeps="$YAK_WORKSPACE/all_dependencies"
+cp "$YAK_WORKSPACE/${YAK_PKG_NAME}.deps" "$alldeps"
+depqueue="$YAK_WORKSPACE/dependency_queue"
+cp "$YAK_WORKSPACE/${YAK_PKG_NAME}.deps" "$depqueue"
+already_processed="$YAK_WORKSPACE/already_processed_deps"
 touch "$already_processed"
-cycle_seeds="/root/cycle_seeds"
+cycle_seeds="$YAK_WORKSPACE/cycle_seeds"
 touch "$cycle_seeds"
 seeds_found=0
 

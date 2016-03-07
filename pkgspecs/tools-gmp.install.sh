@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /tools/env.sh
-cd /root/gmp-*/
+cd "$YAK_WORKSPACE"/gmp-*/
 make install

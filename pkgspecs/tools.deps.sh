@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
+source "$YAK_BUILDTOOLS/all.sh"
 
 # Include all /tools/ packages we've compiled so far as dependencies.
 for p in \
@@ -14,7 +14,7 @@ for p in \
   iproute2 dhcp dhcp-config dropbear dropbear-config nettle gnutls \
   internal-ca-certificates wget rsync buildsystem
 do
-  if [[ "$PKG_NAME" == "$p" ]]
+  if [[ "$YAK_PKG_NAME" == "$p" ]]
   then
     exit 0
   fi
@@ -25,17 +25,17 @@ do
   # just drop in a new kernel and have it magically work.
   #
   # TODO: We need to figure out a way to do kernel dependencies properly...
-  if [[ "$PKG_NAME" == "linux" ]]
+  if [[ "$YAK_PKG_NAME" == "linux" ]]
   then
     continue
   fi
 
-  dep --arch="$TARGET_ARCH" --distro="$TARGET_OS" "$p"
+  dep --arch="$YAK_TARGET_ARCH" --distro="$YAK_TARGET_OS" "$p"
 
   if [[
     ( \
-      "$PKG_NAME" == "linux-fstab-cd" \
-      || "$PKG_NAME" == "linux-fstab-hd" \
+      "$YAK_PKG_NAME" == "linux-fstab-cd" \
+      || "$YAK_PKG_NAME" == "linux-fstab-hd" \
     ) \
     && "$p" == "linux" \
   ]]

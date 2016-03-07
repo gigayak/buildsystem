@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /tools/env.sh
-cd /root/shadow-*/
+cd "$YAK_WORKSPACE"/shadow-*/
 make install

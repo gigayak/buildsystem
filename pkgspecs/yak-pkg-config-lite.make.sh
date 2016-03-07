@@ -1,11 +1,11 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=0.28-1
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://sourceforge.net/projects/pkgconfiglite/files/$version/pkg-config-lite-$version.tar.gz/download"
-wget "$url" -O "pkg-config-lite-$version.tar.gz"
+wget --no-check-certificate "$url" -O "pkg-config-lite-$version.tar.gz"
 
 tar -zxf "pkg-config-lite-$version.tar.gz"
 cd "pkg-config-lite-$version"

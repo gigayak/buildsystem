@@ -1,20 +1,20 @@
 #!/bin/bash
 set -Eeo pipefail
 
-mkdir -pv /root/initrd
+mkdir -pv "$YAK_WORKSPACE/initrd"
 for p in root busybox eudev
 do
   /usr/bin/buildsystem/install_pkg.sh \
-    --install_root=/root/initrd \
-    --target_architecture="$TARGET_ARCH" \
+    --install_root="$YAK_WORKSPACE/initrd" \
+    --target_architecture="$YAK_TARGET_ARCH" \
     --target_distribution=tools2 \
     --pkg_name="$p"
 done
 
 # This is the initscript provided by the LFS book.
-cat > /root/initrd/init <<EOF
-#!/tools/$TARGET_ARCH/bin/sh
-PATH=/bin:/usr/bin:/tools/$TARGET_ARCH/bin:/tools/$TARGET_ARCH/usr/bin:/sbin:/usr/sbin:/tools/$TARGET_ARCH/sbin:/tools/$TARGET_ARCH/usr/sbin
+cat > "$YAK_WORKSPACE/initrd/init" <<EOF
+#!/tools/$YAK_TARGET_ARCH/bin/sh
+PATH=/bin:/usr/bin:/tools/$YAK_TARGET_ARCH/bin:/tools/$YAK_TARGET_ARCH/usr/bin:/sbin:/usr/sbin:/tools/$YAK_TARGET_ARCH/sbin:/tools/$YAK_TARGET_ARCH/usr/sbin
 export PATH
 
 
@@ -101,7 +101,7 @@ done
 
 if [ "\$root" == "DEBUG=DEBUG" ]
 then
-  exec /tools/$TARGET_ARCH/bin/sh
+  exec /tools/$YAK_TARGET_ARCH/bin/sh
 fi
 
 # udevd location depends on version
@@ -142,22 +142,22 @@ exec switch_root /.root "\$init" "\$@"
 EOF
 # Without the +x, you can get cryptic kernel hangs stemming from not
 # a valid init.
-chmod +x /root/initrd/init
+chmod +x "$YAK_WORKSPACE/initrd/init"
 
 # Since our rootfs is read-only in the live CD case, we're going to
 # need ALL mount points pre populated - or to have a parent mounted
 # read-write.
-mkdir -pv /root/initrd/{proc,sys,run}
+mkdir -pv "$YAK_WORKSPACE/initrd"/{proc,sys,run}
 
 # Compress initrd / initramfs image.
 #
 # (Technically, this is an initramfs, but a lot of places may refer
 # to it as initrd.)
 (
-  cd /root/initrd
+  cd "$YAK_WORKSPACE"/initrd
   find . \
     | cpio -o -H newc --quiet \
     | gzip -9
 ) \
-> /root/initrd.igz
+> "$YAK_WORKSPACE/initrd.igz"
 

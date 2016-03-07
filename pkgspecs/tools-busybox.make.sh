@@ -1,11 +1,11 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/kconfig.sh"
+source "$YAK_BUILDTOOLS/kconfig.sh"
 source /tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=1.23.2
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://www.busybox.net/downloads/busybox-$version.tar.bz2"
 wget "$url"
 

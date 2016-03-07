@@ -1,11 +1,11 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
-version=4.5.1
-echo "$version" > /root/version
+cd "$YAK_WORKSPACE"
+version=4.4
+echo "$version" > "$YAK_WORKSPACE/version"
 urldir="http://http.debian.net/debian/pool/main/d/debianutils"
-url="$urldir/debianutils_${version}.tar.xz"
+url="$urldir/debianutils_${version}.tar.gz"
 wget "$url"
 tar -xf *.tar.*
 

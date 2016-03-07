@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source /cross-tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=5.9
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://ftp.gnu.org/pub/gnu/ncurses/ncurses-$version.tar.gz"
 wget "$url"
 

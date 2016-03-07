@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /cross-tools/env.sh
-cd /root/bc-*/
+cd "$YAK_WORKSPACE"/bc-*/
 make install

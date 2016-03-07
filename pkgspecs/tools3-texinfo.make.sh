@@ -13,4 +13,4 @@ do
     -i "/$path"
 done < /.installed_pkgs/i686-tools2:texinfo
 
-cp -v /.installed_pkgs/i686-tools2:texinfo /root/extra_installed_paths
+cp -v /.installed_pkgs/i686-tools2:texinfo "$YAK_WORKSPACE/extra_installed_paths"

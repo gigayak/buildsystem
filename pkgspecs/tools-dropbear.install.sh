@@ -2,5 +2,5 @@
 set -Eeo pipefail
 source /tools/env.sh
 
-cd /root/dropbear-*/
+cd "$YAK_WORKSPACE"/dropbear-*/
 make install

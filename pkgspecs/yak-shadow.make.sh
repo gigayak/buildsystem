@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=4.2.1
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://pkg-shadow.alioth.debian.org/releases/shadow-$version.tar.xz"
 wget "$url"
 

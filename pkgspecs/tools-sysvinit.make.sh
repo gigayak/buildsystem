@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source /tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=2.88dsf
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://download.savannah.gnu.org/releases/sysvinit/sysvinit-$version.tar.bz2"
 wget "$url"
 

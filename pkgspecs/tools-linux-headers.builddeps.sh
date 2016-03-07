@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
+source "$YAK_BUILDTOOLS/all.sh"
 
 # To download and extract source code:
 dep tar

@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
+source "$YAK_BUILDTOOLS/all.sh"
 
 # Need $CLFS in install.
-dep --arch="$TARGET_ARCH" --distro=tools env
+dep --arch="$YAK_TARGET_ARCH" --distro=tools env
 
 # Need to clone upstream repo.
 dep git

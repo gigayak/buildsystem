@@ -2,8 +2,8 @@
 set -Eeo pipefail
 
 version=6.0.0a
-echo "$version" > /root/version
-cd /root
+echo "$version" > "$YAK_WORKSPACE/version"
+cd "$YAK_WORKSPACE"
 wget "http://ftp.gnu.org/gnu/gmp/gmp-$version.tar.xz"
 tar -xf *.tar.*
 cd *-*/

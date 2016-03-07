@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
-arch="$TARGET_ARCH"
-root="$WORKSPACE/root"
+arch="$YAK_TARGET_ARCH"
+root="$YAK_WORKSPACE/root"
 mkdir -p "$root/clfs-root/tools/$arch/etc/ssl/certs"
-localstorage="$("$BUILDSYSTEM/find_localstorage.sh")"
+localstorage="$("$YAK_BUILDSYSTEM/find_localstorage.sh")"
 ca_dir="$localstorage/certificate-authority/ca"
 key_dir="$root/clfs-root/opt/ssl"
 mkdir -p "$key_dir"

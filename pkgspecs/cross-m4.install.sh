@@ -1,7 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /cross-tools/env.sh
-
-version="$(</root/version)"
-cd "/root/m4-$version"
+cd "$YAK_WORKSPACE"/*-*/
 make install

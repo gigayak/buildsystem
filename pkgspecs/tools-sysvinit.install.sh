@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 source /tools/env.sh
-cd /root/sysvinit-*/
+cd "$YAK_WORKSPACE"/sysvinit-*/
 make -C src ROOT=/tools/i686 install
 
 # sysvinit configuration

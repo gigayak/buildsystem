@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=4.0.0
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-$version.tar.gz"
 wget --no-check-certificate "$url"
 tar -zxf *.tar.*

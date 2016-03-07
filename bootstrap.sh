@@ -14,6 +14,11 @@ parse_flags "$@"
 # the same instances.  They will all have been shut down, destroyed, rebuilt,
 # and redeployed.
 
+
+# Release checklist:
+# TODO: Refactor out all instances of jgilik.com domain name.
+
+
 if ! ls /dev/kvm >/dev/null 2>&1
 then
   echo "$(basename "$0"): /dev/kvm is missing, stage3 would be really slow" >&2

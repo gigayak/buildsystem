@@ -1,4 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cat /root/version.txt
+cat "$YAK_WORKSPACE/version"

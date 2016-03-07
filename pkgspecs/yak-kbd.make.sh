@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=2.0.2
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://kbd-project.org/download/kbd-${version}.tar.gz"
 wget "$url"
 tar -zxf *.tar.*

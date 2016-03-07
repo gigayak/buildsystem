@@ -1,10 +1,10 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 #version=3.0.0-alpha-1
 version=2.6.1
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="https://github.com/google/protobuf/archive/v${version}.tar.gz"
 wget "$url"
 

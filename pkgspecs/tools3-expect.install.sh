@@ -1,4 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-cd /root/expect*/
+cd "$YAK_WORKSPACE"/expect*/
 make SCRIPTS="" install

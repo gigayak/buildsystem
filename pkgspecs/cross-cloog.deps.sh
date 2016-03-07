@@ -1,11 +1,11 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
+source "$YAK_BUILDTOOLS/all.sh"
 
 # Shared directory structure.
-dep --arch="$TARGET_ARCH" --distro=cross root
-dep --arch="$TARGET_ARCH" --distro=cross env
+dep --arch="$YAK_TARGET_ARCH" --distro=cross root
+dep --arch="$YAK_TARGET_ARCH" --distro=cross env
 
 # Libraries we link against.
-dep --arch="$TARGET_ARCH" --distro=cross gmp
-dep --arch="$TARGET_ARCH" --distro=cross isl
+dep --arch="$YAK_TARGET_ARCH" --distro=cross gmp
+dep --arch="$YAK_TARGET_ARCH" --distro=cross isl

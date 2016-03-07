@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source /cross-tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version="2.21"
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://ftp.gnu.org/gnu/glibc/glibc-$version.tar.gz"
 wget "$url" --progress=dot:giga
 tar -zxf "glibc-$version.tar.gz"
@@ -29,6 +29,8 @@ export BUILD_CC=gcc
 export CC="${CLFS_TARGET}-gcc"
 export AR="${CLFS_TARGET}-ar"
 export RANLIB="${CLFS_TARGET}-ranlib"
+pwd
+env
 ../glibc-*/configure \
   --prefix=/tools/i686 \
   --host="$CLFS_TARGET" \
@@ -40,4 +42,4 @@ export RANLIB="${CLFS_TARGET}-ranlib"
   --enable-obsolete-rpc \
   --cache-file=config.cache
 
-make
+make --debug=a

@@ -20,14 +20,14 @@ re_escape()
 
 # dep outputs a dependency name using the input dependency name.
 #
-# If --arch and/or --distro are passed and not equal to HOST_ARCH/HOST_OS,
-# then the dependency is fully qualified and output.
+# If --arch and/or --distro are passed and not equal to YAK_TARGET_ARCH/
+# YAK_TARGET_OS, then the dependency is fully qualified and output.
 #
 # If OS is unknown, or no translation is found, it silently outputs the input.
 # Use dep_rewrite if OS must be detected and/or rewriting must be done.
 #
 # OS detection is done in pkg.sh and the result is passed in as the
-# HOST_OS environment variable.
+# YAK_TARGET_OS environment variable.
 #
 # Dependency translations are fetched from deptranslate.<OS_NAME>.txt
 # from this directory.
@@ -47,14 +47,14 @@ dep()
   arch="$F_arch"
   if [[ -z "$arch" ]]
   then
-    arch="$HOST_ARCH"
+    arch="$YAK_TARGET_ARCH"
   fi
   os="$F_distro"
   if [[ -z "$os" ]]
   then
-    os="$HOST_OS"
+    os="$YAK_TARGET_OS"
   fi
-  if [[ "$arch" != "$HOST_ARCH" || "$os" != "$HOST_OS" ]]
+  if [[ "$arch" != "$YAK_TARGET_ARCH" || "$os" != "$YAK_TARGET_OS" ]]
   then
     qualify_dep "$arch" "$os" "$input"
     return 0
@@ -66,7 +66,7 @@ dep()
 # dep_rewrite is the same as dep(), except it fails on failed lookups.
 dep_rewrite()
 {
-  translations="$(DIR)/deptranslate.${HOST_OS}.txt"
+  translations="$(DIR)/deptranslate.${YAK_TARGET_OS}.txt"
   if [[ ! -e "$translations" ]]
   then
     echo "${FUNCNAME[0]}: could not find translations file '$translations'" >&2

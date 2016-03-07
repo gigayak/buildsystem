@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=6.03
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 urldir="https://www.kernel.org/pub/linux/utils/boot/syslinux"
 url="$urldir/syslinux-${version}.tar.gz"
 wget --no-check-certificate "$url"

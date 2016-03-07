@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source /cross-tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=1.4.17
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://ftp.gnu.org/gnu/m4/m4-$version.tar.gz"
 wget "$url"
 

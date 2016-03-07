@@ -2,8 +2,8 @@
 set -Eeo pipefail
 
 version=7.10
-echo "$version" > /root/version
-cd /root
+echo "$version" > "$YAK_WORKSPACE/version"
+cd "$YAK_WORKSPACE"
 wget "http://ftp.gnu.org/gnu/gdb/gdb-$version.tar.gz"
 tar -xf *.tar.*
 cd *-*/

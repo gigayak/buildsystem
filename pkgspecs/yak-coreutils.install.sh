@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-cd /root/coreutils-*/
+cd "$YAK_WORKSPACE"/coreutils-*/
 make install
 
 # HACK SCALE: MAJOR

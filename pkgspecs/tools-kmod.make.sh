@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source /tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=20
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-$version.tar.xz"
 wget "$url"
 

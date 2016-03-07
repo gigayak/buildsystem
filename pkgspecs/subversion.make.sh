@@ -2,8 +2,8 @@
 set -Eeo pipefail
 
 version=1.9.3
-echo "$version" > /root/version
-cd /root/
+echo "$version" > "$YAK_WORKSPACE/version"
+cd "$YAK_WORKSPACE"/
 # TODO: Should have mirror selection logic here...  distributing this
 # build script would not be very nice, as this is the primary source of
 # truth for Apache mirrors.

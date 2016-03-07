@@ -69,7 +69,6 @@ EOF
 parse_flags "$@"
 
 pkgname="$F_pkg_name"
-export PKG_NAME="$pkgname"
 echo "$(basename "$0"): building package $pkgname" >&2
 version="$F_version_script"
 
@@ -93,17 +92,24 @@ else
   target_os="$host_os"
 fi
 
+env_vars=()
+env_vars+=("YAK_PKG_NAME=$pkgname")
+env_vars+=("YAK_HOST_OS=$host_os")
+env_vars+=("YAK_HOST_ARCH=$host_arch")
+env_vars+=("YAK_TARGET_OS=$target_os")
+env_vars+=("YAK_TARGET_ARCH=$target_arch")
+# TODO: Fully remove YAK_BUILDTOOLS in favor of YAK_BUILDSYSTEM.
+workspace_root="/.build_workspace"
+# YAK_BUILDTOOLS is assumed to be a subdirectory of YAK_BUILDSYSTEM elsewhere - beware!
+env_vars+=("YAK_BUILDTOOLS=$workspace_root/buildsystem/buildtools")
+env_vars+=("YAK_BUILDSYSTEM=$workspace_root/buildsystem")
+env_vars+=("YAK_WORKSPACE=$workspace_root/workspace")
 env_string=""
-env_string="$env_string HOST_OS=$host_os"
-env_string="$env_string HOST_ARCH=$host_arch"
-env_string="$env_string TARGET_OS=$target_os"
-env_string="$env_string TARGET_ARCH=$target_arch"
-# TODO: Migrate to something other than /root...
-#     (First step is to make all instances of "/root" be "$WORKSPACE".)
-# TODO: Fully remove BUILDTOOLS in favor of BUILDSYSTEM.
-env_string="$env_string BUILDTOOLS=/root/buildsystem/buildtools"
-env_string="$env_string BUILDSYSTEM=/root/buildsystem"
-env_string="$env_string WORKSPACE=/root"
+for env_var in "${env_vars[@]}"
+do
+  env_string="$env_string $env_var"
+  export "$env_var"
+done
 echo "$(basename "$0"): propagating following environment variables:" >&2
 echo "$(basename "$0"): $env_string" >&2
 
@@ -190,16 +196,30 @@ run_in_root()
   #
   # Additionally, the chmod is dangerous, but a named pipe would not have
   # the executable bit set.
-  echo "${FUNCNAME[0]}: copying '$script' to '$dir/root/$script'" >&2
-  cat "$script_path" > "$dir/root/$script"
-  chmod +x "$dir/root/$script"
+  echo "${FUNCNAME[0]}: copying '$script' to '${dir}${YAK_WORKSPACE}/$script'" >&2
+  cat "$script_path" > "${dir}${YAK_WORKSPACE}/$script"
+  chmod +x "${dir}${YAK_WORKSPACE}/$script"
 
+  # TODO: chroot_loc is a hack to get around lack of `which` binary in the
+  #       stage2 image. Perhaps its implementation should be centralized, at
+  #       least?
+  chroot_loc="$(type chroot | sed -nre 's@^\s*chroot is (.*)$@\1@gp')"
   # TODO: the following is a terrible hack to get around the fact that
   #       chroot "$dir" /bin/bash -c 'exit 1' seems to fail miserably
-  chroot "$dir" /bin/bash -c "cd /root && ${env_string} ./$script || echo \"\$?\" > /root/FAILED"
-  if [[ -e "$dir/root/FAILED" ]]
+  cmd="cd $(sq "$YAK_WORKSPACE")"
+  # The bash configuration in Ubuntu doesn't export the PATH by default.
+  # That means the following line mitigates issues such as:
+  #   cc: error trying to exec 'cc1': execvp: No such file or directory
+  cmd="$cmd && export PATH"
+  cmd="$cmd && ./$script"
+  cmd="$cmd"' || echo "$?"'
+  cmd="$cmd > $(sq "$YAK_WORKSPACE/FAILED")"
+  env --ignore-environment "${env_vars[@]}" \
+    "$chroot_loc" "$dir" \
+    /bin/bash -l -c "$cmd"
+  if [[ -e "${dir}${YAK_WORKSPACE}/FAILED" ]]
   then
-    retval="$(cat "$dir/root/FAILED")"
+    retval="$(cat "${dir}${YAK_WORKSPACE}/FAILED")"
     echo "${FUNCNAME[0]}: script '$script' failed with code $retval" >&2
     dont_depopulate_dynamic_fs_pieces "$dir"
     unregister_temp_file "$dir"
@@ -215,10 +235,11 @@ cleanup_root()
   local _root="$1"
 
   # We'll clean up a whole bunch of directories:
-  # - /root/ is used as our home directory, and may contain transient data.
+  # - $YAK_WORKSPACE is used as our build directory, and may contain transient data.
+  # - $YAK_BUILDSYSTEM has static binaries that we installed out of band.
   # - /tmp/ should never have persistent data, by definition.
   local _dir
-  for _dir in "$_root/root" "$_root/tmp"
+  for _dir in "${_root}${YAK_WORKSPACE}" "${_root}${YAK_BUILDSYSTEM}" "$_root/tmp"
   do
     # Rather than delete and recreate, why don't we just empty each directory?
     # This should prevent permissions issues.
@@ -258,9 +279,14 @@ install_deps()
       _hist_flags+=(--dependency_history="$_hist_entry")
     done
 
-    # TODO: Dependencies should be parsed before being passed to install_pkg.
+    local _dep_arch="$(dep2arch "$target_arch" "$target_os" "$_dep")"
+    local _dep_os="$(dep2distro "$target_arch" "$target_os" "$_dep")"
+    local _dep_name="$(dep2name "$target_arch" "$target_os" "$_dep")"
+
     "$(DIR)/install_pkg.sh" \
-      --pkg_name="$_dep" \
+      --target_arch="$_dep_arch" \
+      --target_distribution="$_dep_os" \
+      --pkg_name="$_dep_name" \
       --install_root="$dir" \
       "${_hist_flags[@]}"
   done < "$_depfile"
@@ -273,10 +299,8 @@ make_temp_dir workdir
 # TODO: Find a better way to install tools - perhaps allowing builddeps
 #     script to rely on dependencies it declares by installing each builddep
 #     the moment it is declared?
-# TODO: Stop relying on /root/ as a general place to pollute with build temp
-#     material.
-mkdir -pv "$dir/root/buildsystem"
-"$(DIR)/install_buildsystem.sh" --output_path="$dir/root/buildsystem"
+mkdir -pv "$dir"{"$YAK_WORKSPACE","$YAK_BUILDSYSTEM","$YAK_BUILDTOOLS"}
+"$(DIR)/install_buildsystem.sh" --output_path="${dir}${YAK_BUILDSYSTEM}"
 
 # build-only deps
 for builddeps in "${F_builddeps_script[@]}"
@@ -462,11 +486,11 @@ depopulate_dynamic_fs_pieces "$dir"
 # to work.  For example, /proc exists in all of our chroots.  Since we won't
 # be able to see that these were "added" during installation (as they already
 # existed), we'll allow them to be explicitly packaged through an annoyingly
-# hacky path: being listed in /root/extra_installed_paths.  We have to save
+# hacky path: being listed in $YAK_WORKSPACE/extra_installed_paths.  We have to save
 # off this file before it evaporates when we cleanup_root, though!
-if [[ -e "$dir/root/extra_installed_paths" ]]
+if [[ -e "${dir}${YAK_WORKSPACE}/extra_installed_paths" ]]
 then
-  cp "$dir/root/extra_installed_paths" "$diffdir/extra_installed_paths"
+  cp {"${dir}${YAK_WORKSPACE}","$diffdir"}/extra_installed_paths
 fi
 cleanup_root "$dir"
 # We'll use a dry run of rsync --archive without --times to

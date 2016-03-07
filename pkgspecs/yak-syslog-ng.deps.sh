@@ -1,8 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
-dep --arch="$TARGET_ARCH" --distro=yak glibc
-dep --arch="$TARGET_ARCH" --distro=yak eventlog
-dep --arch="$TARGET_ARCH" --distro=yak glib
-dep --arch="$TARGET_ARCH" --distro=yak pcre
-dep --arch="$TARGET_ARCH" --distro=yak openssl
+source "$YAK_BUILDTOOLS/all.sh"
+dep --arch="$YAK_TARGET_ARCH" --distro=yak glibc
+dep --arch="$YAK_TARGET_ARCH" --distro=yak eventlog
+dep --arch="$YAK_TARGET_ARCH" --distro=yak glib
+dep --arch="$YAK_TARGET_ARCH" --distro=yak pcre
+dep --arch="$YAK_TARGET_ARCH" --distro=yak openssl

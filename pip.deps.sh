@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
+source "$YAK_BUILDTOOLS/all.sh"
 
 dep python
 
@@ -8,4 +8,4 @@ dep python
 while read -r dependency
 do
   dep "$dependency"
-done < /root/deplist.txt
+done < "$YAK_WORKSPACE/deplist.txt"

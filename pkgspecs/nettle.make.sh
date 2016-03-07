@@ -3,10 +3,10 @@ set -Eeo pipefail
 
 #version=3.1.1
 version=2.7.1 # gnutls does not support 3.0 and up
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="https://ftp.gnu.org/gnu/nettle/nettle-$version.tar.gz"
 
-cd /root
+cd "$YAK_WORKSPACE"
 wget "$url"
 tar -zxf *.tar.gz
 cd *-*/

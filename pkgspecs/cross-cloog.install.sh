@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /cross-tools/env.sh
-cd /root/cloog-*/
+cd "$YAK_WORKSPACE"/cloog-*/
 make install

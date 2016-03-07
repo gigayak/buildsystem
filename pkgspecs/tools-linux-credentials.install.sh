@@ -3,7 +3,7 @@ set -Eeo pipefail
 source /tools/env.sh
 
 cat > ${CLFS}/etc/passwd << "EOF"
-root::0:0:root:/root:/bin/bash
+root::0:0:root:/tools/i686/root:/bin/bash
 bin:x:1:1:/bin:/bin/false
 daemon:x:2:6:/sbin:/bin/false
 nobody:x:65534:65533:Unprivileged User:/dev/null:/bin/false

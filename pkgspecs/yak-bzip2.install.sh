@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root/*-*/
+cd "$YAK_WORKSPACE"/*-*/
 make PREFIX=/usr install
 cp -v bzip2-shared /bin/bzip2
 cp -av libbz2.so* /lib

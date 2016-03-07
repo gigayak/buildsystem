@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source /tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=0.9.14
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://downloads.sourceforge.net/project/check/check/$version/check-$version.tar.gz"
 wget "$url"
 

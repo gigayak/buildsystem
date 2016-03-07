@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root/*-*/
-make DOCDIR="/usr/share/doc/iproute2-$(</root/version)" install
+cd "$YAK_WORKSPACE"/*-*/
+make DOCDIR="/usr/share/doc/iproute2-$(<"$YAK_WORKSPACE/version")" install

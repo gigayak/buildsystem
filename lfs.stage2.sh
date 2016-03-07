@@ -114,7 +114,7 @@ while ! ssh \
   -o StrictHostKeyChecking=no \
   -l root \
   "$ip_address" \
-  /bin/bash < <(echo 'echo "Logged in." ; exit 0') \
+  /bin/bash -l < <(echo 'echo "Logged in." ; exit 0') \
   2>/dev/null
 do
   echo -n '.'
@@ -132,11 +132,10 @@ retval=0
 cat > /root/installer.sh <<'EOF_INSTALLER'
 set -Eeo pipefail
 start_at="$1"
-echo 'Sourcing .bash_profile'
-source /root/.bash_profile
 echo 'PATH is:'
 echo "$PATH"
 echo 'Leaving installation marker'
+mkdir -p /root # TODO: use different temp directory
 echo 'installer ran' > /root/installer_ran
 echo 'Running lfs.stage3.sh'
 /tools/i686/bin/buildsystem/lfs.stage3.sh \
@@ -162,7 +161,7 @@ cat /root/installer.sh \
   -o ServerAliveInterval=15 \
   -l root \
   "$ip_address" \
-  /bin/bash -s -- "$start_at" \
+  /bin/bash -l -s -- "$start_at" \
 || retval=$?
 if (( "$retval" ))
 then
@@ -187,6 +186,10 @@ then
     echo "Enter 'yes' to exit."
     echo -n '> '
   done
+fi
+if (( "$retval" ))
+then
+  exit 1
 fi
 
 echo "Shutting down VM gracefully to prevent I/O contention."

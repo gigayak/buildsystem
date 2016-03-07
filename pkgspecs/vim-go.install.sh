@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-version="$(cat /root/version)"
+version="$(cat "$YAK_WORKSPACE/version")"
 
-cd /root
+cd "$YAK_WORKSPACE"
 cp -r vim-go-$version/ /usr/share/vim/vimfiles/bundle/vim-go

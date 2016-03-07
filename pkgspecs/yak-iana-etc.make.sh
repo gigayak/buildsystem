@@ -2,8 +2,8 @@
 set -Eeo pipefail
 
 version=2.30
-echo "$version" > /root/version
-cd /root
+echo "$version" > "$YAK_WORKSPACE/version"
+cd "$YAK_WORKSPACE"
 wget "http://sethwklein.net/iana-etc-$version.tar.bz2"
 tar -jxf *.tar.*
 cd *-*/

@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=2.26
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 # ftp is used here because kernel.org insists on HTTPS, and we don't have CA certs
 # installed during stage2.
 #

@@ -1,0 +1,41 @@
+#!/bin/bash
+set -Eeo pipefail
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
+
+source "$(DIR)/dependency_translation.sh"
+
+failures=0
+
+test_case()
+{
+  name="$1"
+  got="$2"
+  want="$3"
+  if [[ "$got" == "$want" ]]
+  then
+    echo "PASS: $name"
+  else
+    failures="$(expr "$failures" + 1)"
+    echo "FAIL: $name"
+    echo "  got: $got" >&2
+    echo "  want: $want" >&2
+  fi
+}
+
+export YAK_TARGET_OS=''
+export YAK_TARGET_ARCH=''
+test_case "base case" \
+  "$(dep --arch=arch --distro=distro testpkg)" \
+  "arch-distro:testpkg"
+
+export YAK_TARGET_OS=distro
+export YAK_TARGET_ARCH=arch
+test_case "explicitly local case" \
+  "$(dep --arch=arch --distro=distro testpkg)" \
+  "testpkg"
+
+test_case "implicitly local case" \
+  "$(dep testpkg)" \
+  "testpkg"
+
+exit "$failures"

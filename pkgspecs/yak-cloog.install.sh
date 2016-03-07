@@ -1,4 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-cd /root/cloog-*/
+cd "$YAK_WORKSPACE"/cloog-*/
 make install

@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=8.38
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 urldir="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre"
 url="$urldir/pcre-${version}.tar.gz"
 wget "$url"

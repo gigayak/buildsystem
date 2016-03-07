@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-version="$(cat /root/version)"
+version="$(cat "$YAK_WORKSPACE/version")"
 
 plugin_dir=""
 if [[ -e "/usr/share/vim/vimfiles/plugin" ]]
@@ -15,6 +15,6 @@ then
   exit 1
 fi
 
-cd "/root/vim-pathogen-$version"
+cd "$YAK_WORKSPACE"/*-*/
 cd autoload
 cp -v *.vim "$plugin_dir/"

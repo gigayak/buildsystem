@@ -1,5 +1,5 @@
 #!/bin/bash
-cat >> /root/deplist.txt <<EOF
+cat >> "$YAK_WORKSPACE/deplist.txt" <<EOF
 openssl-devel
 openssl
 swig

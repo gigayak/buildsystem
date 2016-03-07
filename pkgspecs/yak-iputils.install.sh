@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root/*-*/
+cd "$YAK_WORKSPACE"/*-*/
 install -v -m755 ping /bin
 install -v -m755 clockdiff /usr/bin
 install -v -m755 rdisc /usr/bin

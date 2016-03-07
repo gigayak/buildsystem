@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root/vim*/
+cd "$YAK_WORKSPACE"/vim*/
 make install

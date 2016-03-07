@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
 source /cross-tools/env.sh
-version="$(</root/version)"
-cd /root/gmp-*/
+version="$(<"$YAK_WORKSPACE/version")"
+cd "$YAK_WORKSPACE"/gmp-*/
 make install

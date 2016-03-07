@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-cd /root/gcc-build
+cd "$YAK_WORKSPACE"/gcc-build
 make install
 
 # Per CLFS: "Install the libiberty header file that is needed by some packages"

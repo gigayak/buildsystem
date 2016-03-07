@@ -1,4 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
-cd /root/isl-*/
+cd "$YAK_WORKSPACE"/isl-*/
 make install

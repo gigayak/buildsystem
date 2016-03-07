@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root/tcl*/
+cd "$YAK_WORKSPACE"/tcl*/
 cd unix
 make install
 

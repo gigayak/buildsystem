@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root/*-*/
+cd "$YAK_WORKSPACE"/*-*/
 make SHLIB_LIBS=-lncurses htmldir=/usr/share/doc/readline-6.3 install
 
 # Per CLFS book:

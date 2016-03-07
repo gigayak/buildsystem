@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version="4.02"
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 base_url="https://www.kernel.org/pub/linux/docs/man-pages"
 current_url="$base_url/man-pages-$version.tar.gz"
 archive_url="$base_url/Archive/man-pages-$version.tar.gz"

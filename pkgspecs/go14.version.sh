@@ -1,3 +1,3 @@
 #!/bin/bash
 set -Eeo pipefail
-cat /root/go.version
+cat "$YAK_WORKSPACE/version"

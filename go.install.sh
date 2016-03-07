@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd "/root/workspace/bin"
+cd "$YAK_WORKSPACE/workspace/bin"
 cp -rv * /usr/bin/

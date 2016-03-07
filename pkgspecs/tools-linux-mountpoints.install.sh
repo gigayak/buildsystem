@@ -9,7 +9,7 @@ mkdir -pv "$CLFS"/{proc,sys,run{,/lock},tmp}
 
 # We likely have /proc and /sys mounted - so let's explicitly tell the
 # packager to pick them up.
-cat >> /root/extra_installed_paths <<EOF
+cat >> "$YAK_WORKSPACE/extra_installed_paths" <<EOF
 $CLFS/proc
 $CLFS/sys
 $CLFS/tmp

@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
+source "$YAK_BUILDTOOLS/all.sh"
 
 # From build instructions (needed to install depot_tools)
 dep git
@@ -25,7 +25,7 @@ dep tar
 
 # From build instructions (needed to build dart)
 dep make
-if [[ "$HOST_OS" == "centos" ]]
+if [[ "$YAK_HOST_OS" == "centos" ]]
 then
   # CentOS build of GCC is too old to build dart.
   dep gcc-local

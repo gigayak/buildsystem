@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-cd /root/dart-sdk/sdk
+cd "$YAK_WORKSPACE"/dart-sdk/sdk
 while read -r path
 do
   cp -rv "$path" /usr/

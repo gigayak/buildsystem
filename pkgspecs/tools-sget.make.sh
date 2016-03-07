@@ -15,7 +15,7 @@ export GOARCH=386
 cd /usr/go/src
 bash make.bash --no-banner
 
-cd /root
+cd "$YAK_WORKSPACE"
 paths=()
 paths+=("git.jgilik.com/sget")
 paths+=("github.com/gigayak/sget")

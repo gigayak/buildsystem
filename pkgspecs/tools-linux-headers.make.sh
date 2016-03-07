@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source /cross-tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=3.18.3
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="https://www.kernel.org/pub/linux/kernel/v3.x/linux-$version.tar.xz"
 wget "$url"
 

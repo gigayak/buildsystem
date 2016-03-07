@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source /cross-tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=0.28-1
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://sourceforge.net/projects/pkgconfiglite/files/0.28-1/pkg-config-lite-$version.tar.gz/download"
 wget "$url" -O "pkg-config-lite-$version.tar.gz"
 

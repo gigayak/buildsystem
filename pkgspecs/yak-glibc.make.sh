@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version="2.21"
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://ftp.gnu.org/gnu/glibc/glibc-$version.tar.gz"
 wget "$url" --progress=dot:giga
 tar -zxf "glibc-$version.tar.gz"
@@ -55,9 +55,10 @@ exit 0
 echo "STARTING TESTS NOW"
 echo "The test suite should pass at this point."
 make -k check 2>&1 \
-  tee /root/glibc-check-log
+  tee "$YAK_WORKSPACE/glibc-check-log"
 
-if grep Error /root/glibc-check-log | grep -v 'Error 1 (ignored)' >/dev/null 2>&1
+if grep Error "$YAK_WORKSPACE/glibc-check-log" \
+  | grep -v 'Error 1 (ignored)' >/dev/null 2>&1
 then
   echo "Found failures.  grep for 'Error'." >&2
   exit 1

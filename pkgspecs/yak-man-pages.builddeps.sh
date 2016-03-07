@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
+source "$YAK_BUILDTOOLS/all.sh"
 
-dep --arch="$TARGET_ARCH" --distro=tools2 wget
-dep --arch="$TARGET_ARCH" --distro=tools2 tar
-dep --arch="$TARGET_ARCH" --distro=tools2 make
+dep --arch="$YAK_TARGET_ARCH" --distro=tools2 wget
+dep --arch="$YAK_TARGET_ARCH" --distro=tools2 tar
+dep --arch="$YAK_TARGET_ARCH" --distro=tools2 make

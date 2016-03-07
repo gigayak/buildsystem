@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
+source "$YAK_BUILDTOOLS/all.sh"
 # To download source:
 dep git
 dep curl
@@ -10,4 +10,4 @@ dep internal-ca-certificates
 dep go
 dep go14
 dep gcc
-dep --arch="$TARGET_ARCH" --distro=cross gcc
+dep --arch="$YAK_TARGET_ARCH" --distro=cross gcc

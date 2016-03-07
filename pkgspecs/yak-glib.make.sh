@@ -1,10 +1,10 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=2.47.4
 major="$(echo "$version" | sed -re 's@\.[0-9]+$@@')"
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 urldir="http://ftp.gnome.org/pub/gnome/sources/glib/$major"
 url="$urldir/glib-${version}.tar.xz"
 wget "$url"

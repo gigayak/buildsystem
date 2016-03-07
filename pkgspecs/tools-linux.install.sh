@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
 source /tools/env.sh
-cd /root/linux-*/
+cd "$YAK_WORKSPACE"/linux-*/
 
 # Install kernel modules (if any are needed by .config)
 make ARCH=i386 CROSS_COMPILE=${CLFS_TARGET}- \
@@ -30,4 +30,4 @@ cp -v System.map /tools/i686/boot/System.map
 
 # Save off configuration files
 cp -v .config /tools/i686/boot/kernel.config
-cp -v /root/kernel.config.default /tools/i686/boot/kernel.config.default
+cp -v "$YAK_WORKSPACE/kernel.config.default" /tools/i686/boot/kernel.config.default

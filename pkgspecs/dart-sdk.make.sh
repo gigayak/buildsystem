@@ -2,22 +2,22 @@
 set -Eeo pipefail
 
 version=1.12.2
-echo "$version" > /root/version
-cd /root
+echo "$version" > "$YAK_WORKSPACE/version"
+cd "$YAK_WORKSPACE"
 
 # TODO: Break out depot_tools into its own package
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-export PATH="$PATH:/root/depot_tools"
+export PATH="$PATH:$YAK_WORKSPACE/depot_tools"
 # Point depot_tools at python2.7 :[
 # (This is an AWFUL way to do it!)
 ln -sfv python2.7 /usr/bin/python
 # The following would be better if I ever got it working:
-#grep -lRE '^#!.*python' /root/depot_tools \
+#grep -lRE '^#!.*python' "$YAK_WORKSPACE/depot_tools" \
 #  | xargs -I{} -- \
 #    sed -r \
 #      -e 's@^(#!.*python)(.*)$@\12.7\2@g' \
 #      -i {}
-#grep -LRE '^#!.*python' /root/depot_tools \
+#grep -LRE '^#!.*python' "$YAK_WORKSPACE/depot_tools" \
 #  | xargs -I{} -- \
 #    sed -r \
 #      -e 's@python([^2])@python2.7\1@g' \

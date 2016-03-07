@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source /tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=1.42.12
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="https://www.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v$version/e2fsprogs-$version.tar.gz"
 wget "$url"
 

@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /tools/env.sh
-cd /root/ncurses-*/
+cd "$YAK_WORKSPACE"/ncurses-*/
 make install

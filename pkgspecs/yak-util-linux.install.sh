@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-cd /root/*-*/
+cd "$YAK_WORKSPACE"/*-*/
 make install
 
 # Per CLFS book:

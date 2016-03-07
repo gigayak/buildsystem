@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source /tools/env.sh
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=5.2.1
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://tukaani.org/xz/xz-$version.tar.gz"
 wget "$url"
 

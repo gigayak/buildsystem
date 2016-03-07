@@ -1,6 +1,6 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
+source "$YAK_BUILDTOOLS/all.sh"
 
-dep --arch="$TARGET_ARCH" --distro=yak nettle
-dep --arch="$TARGET_ARCH" --distro=yak gmp
+dep --arch="$YAK_TARGET_ARCH" --distro=yak nettle
+dep --arch="$YAK_TARGET_ARCH" --distro=yak gmp

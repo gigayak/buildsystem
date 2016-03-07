@@ -2,10 +2,10 @@
 set -Eeo pipefail
 
 version=2.72
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 url="http://www.thekelleys.org.uk/dnsmasq/dnsmasq-$version.tar.gz"
 
-cd /root
+cd "$YAK_WORKSPACE"
 wget "$url"
 tar -zxf *.tar.gz
 cd *-*/

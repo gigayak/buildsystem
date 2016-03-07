@@ -1,5 +1,5 @@
 #!/bin/bash
 set -Eeo pipefail
 source /cross-tools/env.sh
-cd /root/gcc-build
+cd "$YAK_WORKSPACE"/gcc-build
 make install

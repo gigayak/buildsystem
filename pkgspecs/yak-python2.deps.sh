@@ -1,8 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
-source "$BUILDTOOLS/all.sh"
-dep --arch="$TARGET_ARCH" --distro=yak glibc
-dep --arch="$TARGET_ARCH" --distro=yak coreutils # depends on mkdir and install
+source "$YAK_BUILDTOOLS/all.sh"
+dep --arch="$YAK_TARGET_ARCH" --distro=yak glibc
+dep --arch="$YAK_TARGET_ARCH" --distro=yak coreutils # depends on mkdir and install
 
 # TODO: An error message during build indicates that dependencies are wrong:
 #   Python build finished, but the necessary bits to build these modules were

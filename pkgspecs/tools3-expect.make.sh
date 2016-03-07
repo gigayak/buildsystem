@@ -1,9 +1,9 @@
 #!/bin/bash
 set -Eeo pipefail
 
-cd /root
+cd "$YAK_WORKSPACE"
 version=5.45
-echo "$version" > /root/version
+echo "$version" > "$YAK_WORKSPACE/version"
 sfroot="http://sourceforge.net/projects/expect/files"
 url="$sfroot/Expect/$version/expect$version.tar.gz/download"
 wget "$url" \
