@@ -42,20 +42,25 @@ dep()
   add_flag --default="" arch "Target architecture."
   add_flag --default="" distro "Target distribution."
   parse_flags "$@"
-  input="${ARGS[@]}"
+  input="$(echo "${ARGS[@]}" | tr '[:upper:]' '[:lower:]')"
 
   arch="$F_arch"
   if [[ -z "$arch" ]]
   then
     arch="$YAK_TARGET_ARCH"
   fi
+  arch="$(echo "$arch" | tr '[:upper:]' '[:lower:]')"
+
   os="$F_distro"
   if [[ -z "$os" ]]
   then
     os="$YAK_TARGET_OS"
   fi
+  os="$(echo "$os" | tr '[:upper:]' '[:lower:]')"
+
   if [[ "$arch" != "$YAK_TARGET_ARCH" || "$os" != "$YAK_TARGET_OS" ]]
   then
+    # TODO: This means 'foreign' dependencies will not be translated.  Bug?
     qualify_dep "$arch" "$os" "$input"
     return 0
   fi

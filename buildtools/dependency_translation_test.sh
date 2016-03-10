@@ -38,4 +38,12 @@ test_case "implicitly local case" \
   "$(dep testpkg)" \
   "testpkg"
 
+test_case "case insensitive local case" \
+  "$(dep --arch=ARCH --distro=DISTRO TESTPKG)" \
+  "testpkg"
+
+test_case "case insensitive foreign case" \
+  "$(dep --arch=OTHER_ARCH --distro=OTHER_DISTRO TESTPKG)" \
+  "other_arch-other_distro:testpkg"
+
 exit "$failures"
