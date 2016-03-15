@@ -140,12 +140,14 @@ done
 # Scan for circular dependencies.
 echo "$(basename "$0"): looking for $outputname in dependency history" >&2
 cycle_found=0
+cycle_culprit=""
 for hist_entry in "${F_dependency_history[@]}"
 do
   qhist="$(qualify_dep "$target_arch" "$target_os" "$hist_entry")"
   if [[ "$qhist" == "$outputname" ]]
   then
     echo "$(basename "$0"): $hist_entry is $qhist and is part of this build" >&2
+    cycle_culprit="$qhist"
     cycle_found=1
     break
   else
