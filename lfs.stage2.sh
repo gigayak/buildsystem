@@ -125,7 +125,10 @@ echo "qemu ready on PID $qemu_pid"
 
 
 echo "Installing this copy of the buildsystem to VM."
-"/root/buildsystem/lfs.stage3.install_buildsystem.sh" "$ip_address"
+"/root/buildsystem/lfs.stage3.install_buildsystem.sh" \
+  --ip="$ip_address" \
+  --coreutils_prefix="/tools/i686" \
+  --target_directory="/tools/i686/bin/buildsystem"
 
 # Do all of our installs!
 retval=0
