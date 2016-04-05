@@ -53,23 +53,29 @@ create_bare_root()
   elif which apt-get >/dev/null 2>&1
   then
     _pkgs=(base-ubuntu)
-  # Assuming anything else is a stage2 Gigayak host.
+  # Assuming anything else is a Gigayak host.
   # TODO: Do a secondary check and chuck a wobbly if not on Gigayak here.
-  # TODO: Don't use bare dependency names... specify constraint flags
   else
+    os="$("$(DIR)/os_info.sh" --distribution)"
+    arch="$("$(DIR)/os_info.sh" --architecture)"
+    _qdep() { qualify_dep "$arch" "$os" "$@"; }
     _pkgs=()
     # Bare minimum to look anything like Linux:
     _pkgs+=(filesystem-skeleton)
     # Required to run all build shell scripts:
-    _pkgs+=(i686-tools2:bash{,-aliases,-profile})
+    _pkgs+=("$(_qdep bash)")
+    _pkgs+=("$(_qdep bash-aliases)")
+    _pkgs+=("$(_qdep bash-profile)")
     # Brought in by buildtools/tool_names.sh:
-    _pkgs+=(i686-tools2:coreutils{,-aliases})
-    _pkgs+=(i686-tools2:gawk)
-    _pkgs+=(i686-tools2:grep)
+    _pkgs+=("$(_qdep coreutils)")
+    _pkgs+=("$(_qdep coreutils-aliases)")
+    _pkgs+=("$(_qdep gawk)")
+    _pkgs+=("$(_qdep grep)")
     # Used for getopt by flag.sh:
-    _pkgs+=(i686-tools2:util-linux)
+    _pkgs+=("$(_qdep util-linux)")
     # Used by flag.sh:
-    _pkgs+=(i686-tools2:sed)
+    _pkgs+=("$(_qdep sed)")
+    unset -f _qdep
   fi
   local _pkg
   for _pkg in "${_pkgs[@]}"
