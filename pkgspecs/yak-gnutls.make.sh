@@ -12,7 +12,9 @@ wget "$url"
 tar -Jxf "gnutls-$version.tar.xz"
 cd *-*/
 
-./configure --prefix=/usr
+./configure \
+  --prefix=/usr \
+  --with-default-trust-store-dir=/etc/ssl/certs
 make
 
 # Do not allow info files to be installed.

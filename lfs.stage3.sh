@@ -146,6 +146,7 @@ build yak linux
 build yak linux-credentials
 build yak nettle
 build yak gnutls
+build yak ca-certificates
 build yak wget
 build yak dropbear
 build yak dropbear-config

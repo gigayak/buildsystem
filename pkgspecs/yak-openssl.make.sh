@@ -11,5 +11,6 @@ tar -xf *.tar.*
 cd *-*/
 ./config shared \
   -fPIC \
-  --prefix=/usr
+  --prefix=/usr \
+  --openssldir=/etc/ssl
 make
