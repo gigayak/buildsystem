@@ -78,7 +78,7 @@ for pkg in \
   linux-credentials linux-fstab-cd linux-log-directories bash-profile \
   iproute2 dhcp dhcp-config dropbear dropbear-config nettle gnutls \
   internal-ca-certificates wget rsync buildsystem linux-mountpoints initrd \
-  linux-firmware gigayak-installer stage2-certificate sget
+  linux-firmware gigayak-installer stage2-certificate go-sget
 do
   pkgs+=("$pkg")
 done

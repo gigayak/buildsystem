@@ -92,24 +92,6 @@ then
   "$(DIR)/pkg.from_pip.sh" "--pkg_name=$stripped" -- "${ARGS[@]}"
   exit $?
 
-# go -> go repo
-elif [[ "$name" == "go-"* ]]
-then
-  if (( "$constraints_enabled" ))
-  then
-    echo "$(basename "$0"): go-* cannot be built with --target_* flags" >&2
-    exit 1
-  fi
-  stripped="$(echo "$name" \
-    | sed -nre 's@^go-(.*)$@\1@gp')"
-  if [[ -z "$stripped" ]]
-  then
-    echo "$(basename "$0"): failed to strip go package name '$name'" >&2
-    exit 1
-  fi
-  "$(DIR)/pkg.from_go.sh" "--pkg_name=$stripped" -- "${ARGS[@]}"
-  exit $?
-
 # tools -> tools2
 elif [[ "$distro" == "tools2" ]]
 then
@@ -143,6 +125,25 @@ then
     "--pkg_name=$name" \
     "${constraint_flags[@]}" \
     -- "${ARGS[@]}"
+  exit $?
+
+# go -> go repo
+# (below specced packages in case a Go package has a spec)
+elif [[ "$name" == "go-"* ]]
+then
+  if (( "$constraints_enabled" ))
+  then
+    echo "$(basename "$0"): go-* cannot be built with --target_* flags" >&2
+    exit 1
+  fi
+  stripped="$(echo "$name" \
+    | sed -nre 's@^go-(.*)$@\1@gp')"
+  if [[ -z "$stripped" ]]
+  then
+    echo "$(basename "$0"): failed to strip go package name '$name'" >&2
+    exit 1
+  fi
+  "$(DIR)/pkg.from_go.sh" "--pkg_name=$stripped" -- "${ARGS[@]}"
   exit $?
 
 # try yum conversion on CentOS hosts
