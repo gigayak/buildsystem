@@ -2,9 +2,9 @@
 set -Eeo pipefail
 source "$YAK_BUILDTOOLS/all.sh"
 # To download source:
-dep git
-dep curl
-dep internal-ca-certificates
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" git
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" curl
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" internal-ca-certificates
 
 # To build:
 dep go
