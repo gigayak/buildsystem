@@ -2,6 +2,7 @@
 set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
+source "$(DIR)/tool_names.sh" # used for $(AWK)
 source "$(DIR)/../flag.sh"
 source "$(DIR)/../repo.sh"
 
@@ -42,16 +43,16 @@ dep()
   add_flag --default="" arch "Target architecture."
   add_flag --default="" distro "Target distribution."
   parse_flags "$@"
-  input="$(echo "${ARGS[@]}" | tr '[:upper:]' '[:lower:]')"
+  local input="$(echo "${ARGS[@]}" | tr '[:upper:]' '[:lower:]')"
 
-  arch="$F_arch"
+  local arch="$F_arch"
   if [[ -z "$arch" ]]
   then
     arch="$YAK_TARGET_ARCH"
   fi
   arch="$(echo "$arch" | tr '[:upper:]' '[:lower:]')"
 
-  os="$F_distro"
+  local os="$F_distro"
   if [[ -z "$os" ]]
   then
     os="$YAK_TARGET_OS"
@@ -60,8 +61,15 @@ dep()
 
   if [[ "$arch" != "$YAK_TARGET_ARCH" || "$os" != "$YAK_TARGET_OS" ]]
   then
-    # TODO: This means 'foreign' dependencies will not be translated.  Bug?
-    qualify_dep "$arch" "$os" "$input"
+    local dep
+    while read -r dep
+    do
+      if [[ -z "$dep" ]]
+      then
+        continue
+      fi
+      qualify_dep "$arch" "$os" "$dep"
+    done < <(dep_rewrite --distro="$os" "$input" || echo "$input")
     return 0
   fi
 
@@ -71,18 +79,28 @@ dep()
 # dep_rewrite is the same as dep(), except it fails on failed lookups.
 dep_rewrite()
 {
-  translations="$(DIR)/deptranslate.${YAK_TARGET_OS}.txt"
+  add_flag --default="" distro "Distribution to translate to."
+  parse_flags "$@"
+  local input="${ARGS[@]}"
+
+  local os="$F_distro"
+  if [[ -z "$os" ]]
+  then
+    os="$YAK_TARGET_OS"
+  fi
+
+  local translations="$(DIR)/deptranslate.${os}.txt"
   if [[ ! -e "$translations" ]]
   then
     echo "${FUNCNAME[0]}: could not find translations file '$translations'" >&2
     return 1
   fi
-  retval=0
-  translated_dep="$(grep \
+  local retval=0
+  local translated_dep="$(grep \
     -E \
-    "^$(re_escape "$@")\\s" \
+    "^$(re_escape "$input")\\s" \
     "$translations" \
-      | $AWK '{print $2}')" \
+      | "$(AWK)" '{print $2}')" \
     || retval="$?"
   if (( "$retval" > 0 ))
   then
@@ -90,11 +108,17 @@ dep_rewrite()
     return "$retval"
   fi
 
-  if [[ "$translated_dep" != "." ]]
+  if [[ "$translated_dep" == "." ]]
   then
-    echo "$translated_dep"
+    echo "${FUNCNAME[0]}: dependency translation suppressed for '$input'" >&2
+    return 0
+  fi
+
+  if [[ -z "$translated_dep" ]]
+  then
+    echo "$input"
   else
-    echo "${FUNCNAME[0]}: dependency translation suppressed for '$@'" >&2
+    echo "$translated_dep"
   fi
   return 0
 }

@@ -1,0 +1,4 @@
+test_single_out_pkg test_single_out_translation
+test_deletion_pkg .
+test_expansion_pkg first_out
+test_expansion_pkg second_out

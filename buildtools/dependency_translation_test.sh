@@ -46,4 +46,16 @@ test_case "case insensitive foreign case" \
   "$(dep --arch=OTHER_ARCH --distro=OTHER_DISTRO TESTPKG)" \
   "other_arch-other_distro:testpkg"
 
+test_case "case insensitive foreign translation case" \
+  "$(dep --arch=ARCH --distro=TEST TEST_SINGLE_OUT_PKG)" \
+  "arch-test:test_single_out_translation"
+
+test_case "case insensitive foreign deletion case" \
+  "$(dep --arch=ARCH --distro=TEST TEST_DELETION_PKG)" \
+  ""
+
+test_case "case insensitive foreign expansion case" \
+  "$(dep --arch=ARCH --distro=TEST TEST_EXPANSION_PKG)" \
+  "$(echo arch-test:first_out; echo arch-test:second_out)"
+
 exit "$failures"
