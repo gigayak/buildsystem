@@ -91,5 +91,9 @@ done
 # Needed by all tools3 packages - can't be built by tools3, though.
 # TODO: Can it?  It's .bootstrap.sh style, so it doesn't depend on itself.
 build tools3 filesystem-skeleton
+# Needed for sget to work, but must be built on system on which
+# create_crypto.sh was run (for now).
+build yak internal-ca-certificates
+build yak stage3-certificate
 
 echo "Everything finished!  Woo-hoo!"
