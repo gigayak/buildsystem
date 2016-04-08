@@ -35,18 +35,14 @@ echo "Will install: ${pkgs[@]}"
 
 mkroot dir
 
-if (( ${#pkgs[@]} ))
-then
-  pkg_args=""
-  for pkg in "${pkgs[@]}"
-  do
-    if [[ -z "$pkg" ]]
-    then
-      continue
-    fi
-    "$(DIR)/install_pkg.sh" --install_root="$dir" --pkg_name="$pkg"
-  done
-fi
+for pkg in "${pkgs[@]}"
+do
+  if [[ -z "$pkg" ]]
+  then
+    continue
+  fi
+  "$(DIR)/install_pkg.sh" --install_root="$dir" --pkg_name="$pkg"
+done
 
 image_name="$(basename "$F_image_path")"
 cp -v "$F_image_path" "$dir/root/$image_name"
