@@ -3,11 +3,11 @@ set -Eeo pipefail
 source "$YAK_BUILDTOOLS/all.sh"
 
 # Download and extract source.
-dep wget
-dep tar
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" wget
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" tar
 
 # Build source.
-dep gcc
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" gcc
 # This package courtesy of:
 #   https://sourceware.org/ml/crossgcc/2008-05/msg00069.html
-dep texinfo
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" texinfo

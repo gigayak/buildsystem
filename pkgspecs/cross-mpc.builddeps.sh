@@ -3,9 +3,9 @@ set -Eeo pipefail
 source "$YAK_BUILDTOOLS/all.sh"
 
 # Download / extract source.
-dep wget
-dep tar
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" wget
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" tar
 
 # To compile.
-dep gcc
-dep gcc-c++
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" gcc
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" gcc-c++

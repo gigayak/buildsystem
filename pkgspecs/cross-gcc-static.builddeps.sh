@@ -3,13 +3,13 @@ set -Eeo pipefail
 source "$YAK_BUILDTOOLS/all.sh"
 
 # Download and extract source.
-dep wget
-dep tar
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" wget
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" tar
 
 # Needed for Link Time Optimization (--enable-lto)
-dep zlib-devel
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" zlib-devel
 
 # Build source with host GCC.
 # This should be the last appearance of the CentOS GCC package.
-dep gcc
-dep gcc-c++
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" gcc
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" gcc-c++

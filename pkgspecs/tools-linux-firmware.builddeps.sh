@@ -6,7 +6,7 @@ source "$YAK_BUILDTOOLS/all.sh"
 dep --arch="$YAK_TARGET_ARCH" --distro=tools env
 
 # Need to clone upstream repo.
-dep git
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" git
 
 # Make required to install.
-dep automake
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" automake
