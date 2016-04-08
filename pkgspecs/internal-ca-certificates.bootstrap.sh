@@ -13,18 +13,23 @@ done
 
 cert_path=""
 update_command=()
-if [[ "$YAK_HOST_OS" == "centos" ]]
+if [[ "$YAK_TARGET_OS" == "centos" ]]
 then
   echo "Found CentOS host" >&2
   cert_dir="etc/pki/ca-trust/source/anchors"
   update_command=(update-ca-trust extract)
-elif [[ "$YAK_HOST_OS" == "ubuntu" ]]
+elif [[ "$YAK_TARGET_OS" == "ubuntu" ]]
 then
   echo "Found Ubuntu host" >&2
   cert_dir="usr/local/share/ca-certificates"
   update_command=(update-ca-certificates --verbose)
+elif [[ "$YAK_TARGET_OS" == "tools2" || "$YAK_TARGET_OS" == "yak" ]]
+then
+  echo "Found Gigayak target" >&2
+  cert_dir="etc/ssl/certs"
+  update_command=(echo "no update command")
 else
-  echo "Unknown host OS '$YAK_HOST_OS'" >&2
+  echo "Unknown host OS '$YAK_TARGET_OS'" >&2
   exit 1
 fi
 cert_path="$root/$cert_dir"
@@ -35,11 +40,14 @@ cp \
   "$localstorage/certificate-authority/ca/authority/ca.crt" \
   "$cert_path/gigayak.pem"
 
-# Ubuntu appears to demand that it see a PEM file with suffix .crt.
-# Which... makes no sense, given .crt is traditionally DER-encoded.
-cp -f \
-  "$cert_path/gigayak.pem" \
-  "$cert_path/gigayak_as_pem.crt"
+if [[ "$YAK_TARGET_OS" == "ubuntu" ]]
+then
+  # Ubuntu appears to demand that it see a PEM file with suffix .crt.
+  # Which... makes no sense, given .crt is traditionally DER-encoded.
+  cp -f \
+    "$cert_path/gigayak.pem" \
+    "$cert_path/gigayak_as_pem.crt"
+fi
 
 chroot "$root" "${update_command[@]}" >&2
 new_root="$YAK_WORKSPACE/to_package"
