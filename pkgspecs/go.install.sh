@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 set -E
-DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
+cd "$YAK_WORKSPACE"
 
 # make sure base directories exist
 mkdir -p "/usr"
