@@ -11,8 +11,12 @@ parse_flags "$@"
 pkgname="$F_pkg_name"
 
 # Do dependency translation if available.
+#
+# Note: this will break if --target_architecture or --target_distribution
+# are added incorrectly in the future.
 arch="$("$(DIR)/os_info.sh" --architecture)"
-translation="$(dep --arch="$arch" --distro=ubuntu "$pkgname")"
+os=ubuntu
+translation="$(dep --arch="$arch" --distro="$os" "$pkgname")"
 if [[ "$pkgname" != "$translation" ]]
 then
   echo "$(basename "$0"): translated name '$pkgname' to '$translation'" >&2
@@ -52,6 +56,8 @@ fi
 
 # Fire the packaging script.
 args=()
+args+=(--target_architecture="$arch")
+args+=(--target_distribution="$os")
 args+=(--pkg_name="$pkgname")
 args+=(--builddeps_script="$(DIR)/apt.builddeps.sh")
 args+=(--install_script="$(DIR)/apt.install.sh")
