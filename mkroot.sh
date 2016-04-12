@@ -56,8 +56,18 @@ create_bare_root()
   # Assuming anything else is a Gigayak host.
   # TODO: Do a secondary check and chuck a wobbly if not on Gigayak here.
   else
-    os="$("$(DIR)/os_info.sh" --distribution)"
     arch="$("$(DIR)/os_info.sh" --architecture)"
+    os="$("$(DIR)/os_info.sh" --distribution)"
+    # Special case time: when creating an mkroot on a stage2 image, we likely
+    # want to build either a tools3 package or a yak package.  When building
+    # the first yak package, no other yak packages exist - so fetching yak-bash
+    # will be an exercise in futility.  If os_info.sh returned tools2 as the OS
+    # in stage2, then yak packages that don't require tools2 explicitly may
+    # pull in tools2 packages as dependencies.
+    if [[ -e /tools ]]
+    then
+      os=tools2
+    fi
     _qdep() { qualify_dep "$arch" "$os" "$@"; }
     _pkgs=()
     # Bare minimum to look anything like Linux:
