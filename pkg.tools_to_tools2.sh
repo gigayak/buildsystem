@@ -90,18 +90,28 @@ echo "$(basename "$0"): converting $(sq "$src_pkg") to $(sq "$tgt_pkg")" >&2
 # - Remove i686-clfs-root, as we no longer need /clfs-root/ (we'll use /)
 # - Remove i686-tools-root and i686-tools-env as they're superseded by
 #   filesystem-skeleton and i686-tools2-bash-profile
-# - Remove non i686-tools- dependencies (should these exist?)
 # - Convert i686-tools- dependencies to corresponding i686-tools2- names
 # There's some redundancy here...
 sed \
   -r \
   -e '/^'"$arch"'-clfs:root$/d' \
-  -e '/^'"$arch"'-tools:root$/d' \
-  -e '/^'"$arch"'-tools:env$/d' \
-  -e '/^'"$arch"'-tools:.*$/!d' \
+  -e '/^'"$arch"'-tools:root$/d' -e '/^root$/d' \
+  -e '/^'"$arch"'-tools:env$/d' -e '/^env$/d' \
+  -e '/^'"$arch"'-cross:env$/d' \
   -e 's@^'"$arch"'-tools:(.*)$@'"$arch"'-'"$distro"':\1@g' \
   "$src_deps" \
   > "$tmp_deps"
+if { grep -v -E '^'"${arch}-${distro}:.*\$" "$tmp_deps" && true ; } \
+  | grep -E '^[^:]+:' \
+  >/dev/null 2>&1
+then
+  echo "$(basename "$0"): found non-${distro} dependency unexpectedly" >&2
+  grep -v -E '^'"${arch}-${distro}:.*\$" "$tmp_deps" \
+    | sed -re 's@^@'"$(basename "$0"): "'@g' \
+    >&2
+  echo "$(basename "$0"): (investigate whether this is a normal use case?)" >&2
+  exit 1
+fi
 
 # Fix filesystem:
 # - Extract package

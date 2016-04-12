@@ -11,7 +11,8 @@ parse_flags "$@"
 pkgname="$F_pkg_name"
 
 # Do dependency translation if available.
-translation="$(YAK_HOST_OS=ubuntu dep "$pkgname")"
+arch="$("$(DIR)/os_info.sh" --architecture)"
+translation="$(dep --arch="$arch" --distro=ubuntu "$pkgname")"
 if [[ "$pkgname" != "$translation" ]]
 then
   echo "$(basename "$0"): translated name '$pkgname' to '$translation'" >&2
