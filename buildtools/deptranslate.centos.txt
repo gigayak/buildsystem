@@ -1,0 +1,11 @@
+openssl openssl
+openssl openssl-devel
+curl curl
+curl libcurl
+curl libcurl-devel
+expat exapt
+expat expat-devel
+perl perl
+perl perl-devel
+tcl tcl
+tcl tcl-devel
