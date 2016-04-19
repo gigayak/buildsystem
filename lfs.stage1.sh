@@ -93,6 +93,7 @@ done
 build tools3 filesystem-skeleton
 # Needed for sget to work, but must be built on system on which
 # create_crypto.sh was run (for now).
+build yak ca-certificates
 build yak internal-ca-certificates
 build yak stage3-certificate
 
