@@ -12,9 +12,8 @@ dep binutils
 dep bison
 dep flex
 dep gcc
-dep gcc-c++
 dep gettext
 dep libtool
 dep make
 dep patch
-dep pkgconfig
+dep pkg-config-lite

@@ -6,6 +6,7 @@ bash bash
 bash dash
 awk gawk
 gcc gcc
+gcc g++
 gcc build-essential
 openssl-devel libssl-dev
 libcurl-devel libcurl4-gnutls-dev
@@ -19,6 +20,7 @@ curl curl
 curl ca-certificates
 gcc-c++ g++
 gcc-c++ build-essential
+pkg-config-lite pkg-config
 pkgconfig pkg-config
 redhat-rpm-config .
 rootfiles .
@@ -52,3 +54,5 @@ kernel-devel linux-headers-generic
 libuuid uuid
 libuuid-devel uuid-dev
 openssh-clients openssh-client
+coreutils coreutils
+coreutils hostname
