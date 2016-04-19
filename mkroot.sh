@@ -43,16 +43,19 @@ create_bare_root()
 
   # Populate bare minimum packages to run.
   # TODO: Need a way of determining whether we need i686-tools or just bare OS
-  local _pkgs=()
   # CentOS host
   # TODO: Check how hard bootstrap on Fedora / Scientific / Redhat would be.
   if which yum >/dev/null 2>&1
   then
-    _pkgs=(rpm-build centos-release yum)
+    local _pkg
+    for _pkg in rpm-build centos-release yum
+    do
+      "$(DIR)/install_pkg.sh" --install_root="$_root" --pkg_name="$_pkg"
+    done
   # Ubuntu host
   elif which apt-get >/dev/null 2>&1
   then
-    _pkgs=(base-ubuntu)
+    "$(DIR)/install_pkg.sh" --install_root="$_root" --pkg_name="base-ubuntu"
   # Assuming anything else is a Gigayak host.
   # TODO: Do a secondary check and chuck a wobbly if not on Gigayak here.
   else
@@ -68,31 +71,39 @@ create_bare_root()
     then
       os=tools2
     fi
-    _qdep() { qualify_dep "$arch" "$os" "$@"; }
-    _pkgs=()
+
     # Bare minimum to look anything like Linux:
-    _pkgs+=(filesystem-skeleton)
+    "$(DIR)/install_pkg.sh" \
+      --install_root="$_root" \
+      --pkg_name="filesystem-skeleton"
+    local _pkgs=()
     # Required to run all build shell scripts:
-    _pkgs+=("$(_qdep bash)")
-    _pkgs+=("$(_qdep bash-aliases)")
-    _pkgs+=("$(_qdep bash-profile)")
+    _pkgs+=("bash")
+    _pkgs+=("bash-aliases")
+    _pkgs+=("bash-profile")
     # Brought in by buildtools/tool_names.sh:
-    _pkgs+=("$(_qdep coreutils)")
-    _pkgs+=("$(_qdep coreutils-aliases)")
-    _pkgs+=("$(_qdep gawk)")
-    _pkgs+=("$(_qdep grep)")
+    _pkgs+=("coreutils")
+    _pkgs+=("coreutils-aliases")
+    _pkgs+=("gawk")
+    _pkgs+=("grep")
     # Used for getopt by flag.sh:
-    _pkgs+=("$(_qdep util-linux)")
+    _pkgs+=("util-linux")
     # Used by flag.sh:
-    _pkgs+=("$(_qdep sed)")
-    unset -f _qdep
+    _pkgs+=("sed")
+    # Used when installing dependencies directly in dep scripts.
+    _pkgs+=("stage2-certificate")
+    _pkgs+=("internal-ca-certificates")
+    _pkgs+=("go-sget")
+    local _pkg
+    for _pkg in "${_pkgs[@]}"
+    do
+      "$(DIR)/install_pkg.sh" \
+        --install_root="$_root" \
+        --target_architecture="$arch" \
+        --target_distribution="$os" \
+        --pkg_name="$_pkg"
+    done
   fi
-  local _pkg
-  for _pkg in "${_pkgs[@]}"
-  do
-    echo "${FUNCNAME[0]}: installing $_pkg" >&2
-    "$(DIR)/install_pkg.sh" --install_root="$_root" --pkg_name="$_pkg"
-  done
 
   cd "$_original_dir"
 }
