@@ -52,9 +52,18 @@ fi
 chroot "$root" "${update_command[@]}" >&2
 new_root="$YAK_WORKSPACE/to_package"
 mkdir -p "$new_root"
-for dir in etc/ssl/certs "$cert_dir"
+while read -r filepath
 do
-  mkdir -p "$new_root/$dir"
-  cp -r --no-target-directory "$root/$dir/" "$new_root/$dir/"
-done
+  if echo "$filepath" | grep gigayak >/dev/null 2>&1 \
+    || readlink "$filepath" | grep gigayak >/dev/null 2>&1
+  then
+    mkdir -p "$new_root/$(dirname "$filepath")"
+    # -d prevents symlinks from being clobbered.
+    cp -d "$filepath" "$new_root/$filepath"
+  fi
+done < <(find etc/ssl/certs "$cert_dir" -type f -or -type l)
+if [[ "$YAK_TARGET_OS" != "tools2" && "$YAK_TARGET_OS" != "yak" ]]
+then
+  cp etc/ssl/certs/ca-certificates.crt "$new_root/etc/ssl/certs/"
+fi
 tar -cz -C "$new_root" .
