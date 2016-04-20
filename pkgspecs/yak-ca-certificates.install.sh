@@ -2,12 +2,9 @@
 set -Eeo pipefail
 
 mkdir -pv /etc/ssl/certs
-rm -f /etc/ssl/ca-bundle.crt
-touch /etc/ssl/ca-bundle.crt
 while read -r filename
 do
   cp "$filename" /etc/ssl/certs/
-  cat "$filename" >> /etc/ssl/ca-bundle.crt
 
   # Another ca-certificates package may have been present when building
   # this package - so explicitly packaging all files prevents conflicts of
