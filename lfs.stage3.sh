@@ -146,7 +146,15 @@ build yak linux
 build yak linux-credentials
 build yak nettle
 build yak gnutls
-build yak ca-certificates
 build yak wget
+build yak go14
+build yak go
+build yak asciidoc
+build yak curl
+build yak expat
+build yak tcl
+build yak git
+build yak go-sget
 build yak dropbear
 build yak dropbear-config
+build yak lxc
