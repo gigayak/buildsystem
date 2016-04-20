@@ -10,5 +10,8 @@ tar -xf *.tar.*
 cd */
 
 ./configure \
-  --prefix=/usr
+  --prefix=/usr \
+  --with-gnutls \
+  --without-ca-bundle \
+  --with-ca-path=/etc/ssl/certs
 make
