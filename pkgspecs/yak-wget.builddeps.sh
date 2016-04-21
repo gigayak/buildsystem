@@ -3,6 +3,7 @@ set -Eeo pipefail
 source "$YAK_BUILDTOOLS/all.sh"
 
 # TODO: Refactor this silliness out as a function in $YAK_BUILDTOOLS.
+(
 "$YAK_BUILDSYSTEM/install_pkg.sh" \
   --target_architecture="$YAK_TARGET_ARCH" \
   --target_distribution="yak" \
@@ -15,7 +16,9 @@ source "$YAK_BUILDTOOLS/all.sh"
   --install_root="/" \
   --pkg_name="wget" \
   --no_build \
+) >&2 \
 || exit 1
+
 
 dep --arch="$YAK_TARGET_ARCH" --distro=yak pkg-config-lite
 dep --arch="$YAK_TARGET_ARCH" --distro=yak gcc
