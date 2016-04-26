@@ -1,15 +1,16 @@
 #!/bin/bash
 set -Eeo pipefail
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 root="$YAK_WORKSPACE/root"
 mkdir -p "$root"
-for p in ca-certificates enable-dynamic-ca-certificates
+while read -r p
 do
   "$YAK_BUILDSYSTEM/install_pkg.sh" \
     --install_root="$root" \
     --pkg_name="$p" \
     >&2
-done
+done < <("$(DIR)/$(basename "$0" .bootstrap.sh).deps.sh")
 
 cert_path=""
 update_command=()
@@ -52,6 +53,7 @@ fi
 chroot "$root" "${update_command[@]}" >&2
 new_root="$YAK_WORKSPACE/to_package"
 mkdir -p "$new_root"
+cd "$root"
 while read -r filepath
 do
   if echo "$filepath" | grep gigayak >/dev/null 2>&1 \
