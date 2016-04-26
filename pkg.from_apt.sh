@@ -16,10 +16,11 @@ pkgname="$F_pkg_name"
 # are added incorrectly in the future.
 arch="$("$(DIR)/os_info.sh" --architecture)"
 os=ubuntu
+qual_name="$(qualify_dep "$arch" "$os" "$pkgname")"
 translation="$(dep --arch="$arch" --distro="$os" "$pkgname")"
-if [[ "$pkgname" != "$translation" ]]
+if [[ "$qual_name" != "$translation" ]]
 then
-  echo "$(basename "$0"): translated name '$pkgname' to '$translation'" >&2
+  echo "$(basename "$0"): translated name '$qual_name' to '$translation'" >&2
 fi
 
 built_original_name=0
@@ -34,9 +35,10 @@ do
   then
     continue
   fi
+  qual_dep="$(qualify_dep "$arch" "$os" "$dep")"
 
   # Don't attempt to recursively build self, as that will infinitely loop.
-  if [[ "$dep" == "$pkgname" ]]
+  if [[ "$dep" == "$qual_name" || "$qual_dep" == "$qual_name" ]]
   then
     built_original_name=1
     continue
@@ -48,7 +50,7 @@ done < <(echo "$translation")
 
 # Do no more work if the originally requested package no longer exists after
 # translation.
-if [[ "$pkgname" != "$translation" ]] && (( ! "$built_original_name" ))
+if [[ "$qual_name" != "$translation" ]] && (( ! "$built_original_name" ))
 then
   "$(DIR)/pkg.alias.sh" --target="$translation" --alias="$pkgname"
   exit 0
