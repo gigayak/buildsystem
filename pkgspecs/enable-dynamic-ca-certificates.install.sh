@@ -14,6 +14,7 @@ then
   echo "Found Ubuntu host" >&2
   echo "Dynamic CA certificates are on by default in Ubuntu" >&2
   echo "That makes this package unnecessary and/or a no-op!" >&2
+  exit 0
 else
   echo "Unknown host OS '$YAK_HOST_OS'" >&2
   exit 1
