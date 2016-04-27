@@ -50,7 +50,8 @@ done < <(echo "$translation")
 
 # Do no more work if the originally requested package no longer exists after
 # translation.
-if [[ "$qual_name" != "$translation" ]] && (( ! "$built_original_name" ))
+if [[ "$qual_name" != "$translation" && "$pkgname" != "$translation" ]] \
+  && (( ! "$built_original_name" ))
 then
   "$(DIR)/pkg.alias.sh" --target="$translation" --alias="$pkgname"
   exit 0
@@ -65,7 +66,7 @@ args+=(--builddeps_script="$(DIR)/apt.builddeps.sh")
 args+=(--install_script="$(DIR)/apt.install.sh")
 args+=(--version_script="$(DIR)/apt.version.sh")
 args+=(--deps_script="$(DIR)/apt.deps.sh")
-if [[ "$pkgname" != "$translation" ]]
+if [[ "$qual_name" != "$translation" && "$pkgname" != "$translation" ]]
 then
   make_temp_file deps_script
   (

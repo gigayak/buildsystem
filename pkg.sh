@@ -52,7 +52,8 @@ The leftmost value of the flag is expected to be the first dependency in the
 chain - normally, the package that caused the build to kick off.  For example,
 if building dnsmasq caused gcc to be requested, and gcc requested libgcc, and
 we're now building libgcc, we'd expect the following flags in this order:
-  --dependency_history dnsmasq --dependency_history gcc
+  --dependency_history x86_64-ubuntu:dnsmasq \
+  --dependency_history x86_64-ubuntu:gcc
 Note that there is no entry for libgcc here: that's provided by --pkg_name.
 EOF
 add_flag --boolean break_dependency_cycles \
@@ -138,20 +139,27 @@ done
 
 
 # Scan for circular dependencies.
+echo "$(basename "$0"): dependency history for $outputname:" >&2
+echo -n "$(basename "$0"): - $outputname (current build)" >&2
+for hist_entry in "${F_dependency_history[@]}"
+do
+  echo >&2
+  echo -n "$(basename "$0"): - $hist_entry" >&2
+done
+echo " (first build)" >&2
 echo "$(basename "$0"): looking for $outputname in dependency history" >&2
 cycle_found=0
 cycle_culprit=""
 for hist_entry in "${F_dependency_history[@]}"
 do
-  qhist="$(qualify_dep "$target_arch" "$target_os" "$hist_entry")"
-  if [[ "$qhist" == "$outputname" ]]
+  if [[ "$hist_entry" == "$outputname" ]]
   then
-    echo "$(basename "$0"): $hist_entry is $qhist and is part of this build" >&2
-    cycle_culprit="$qhist"
+    echo "$(basename "$0"): $hist_entry is part of this build" >&2
+    cycle_culprit="$hist_entry"
     cycle_found=1
     break
   else
-    echo "$(basename "$0"): $hist_entry is $qhist and has been built fully" >&2
+    echo "$(basename "$0"): $hist_entry has been built fully" >&2
   fi
 done
 if (( "$cycle_found" && ! "$F_break_dependency_cycles" ))
@@ -274,7 +282,7 @@ install_deps()
 
     # Convert dependency history array to a fresh set of flags.
     local _hist_flags
-    _hist_flags=(--dependency_history="$pkgname")
+    _hist_flags=(--dependency_history="$outputname")
     local _hist_entry
     for _hist_entry in "${F_dependency_history[@]}"
     do
@@ -308,6 +316,7 @@ mkdir -pv "$dir"{"$YAK_WORKSPACE","$YAK_BUILDSYSTEM","$YAK_BUILDTOOLS"}
 for builddeps in "${F_builddeps_script[@]}"
 do
   echo "$(basename "$0"): running builddeps script for $outputname" >&2
+  echo "$(basename "$0"): builddeps script is named $(sq "$builddeps")" >&2
   run_in_root "${builddeps}" > "$workdir/builddeps.txt"
   echo "$(basename "$0"): found build dependencies for $outputname:" >&2
   while read -r dep
@@ -340,6 +349,7 @@ deplist=""
 for deps in "${F_deps_script[@]}"
 do
   echo "$(basename "$0"): running dependency listing script for $outputname" >&2
+  echo "$(basename "$0"): dependency listing script is named $(sq "$deps")" >&2
   # Watch out: this is an overwrite of deplist, not an append.  We then
   # append deplist to deps.txt, so they wind up out of sync if multiple
   # dependency scripts execute.
@@ -373,8 +383,15 @@ then
       | grep -vE "^${possible_culprit}\$" \
       || true)"
     {
-      grep -vE "^${possible_culprit}\$" "$workdir/deps.txt" \
-      || true
+      while read -r possible_dep
+      do
+        q_pos_dep="$(qualify_dep "$target_arch" "$target_os" "$possible_dep")"
+        if [[ "$q_pos_dep" == "$possible_culprit" ]]
+        then
+          continue
+        fi
+        echo "$possible_dep"
+      done < "$workdir/deps.txt"
     } > "$workdir/deps.txt.new"
     # diff returns nonzero for different files; zero for same file
     if ! diff "$workdir/deps.txt.new" "$workdir/deps.txt" >/dev/null 2>&1
