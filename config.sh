@@ -96,6 +96,14 @@ do
   config_paths+=("${prefix}/yak.config.d/")
 done
 config_paths+=("$HOME/.yakrc.sh")
+# YAK_TEST_CONFIG allows test scripts to override the configuration without
+# having to drop files into locations obeyed outside of tests.  This prevents
+# test code from accidentally polluting the global configuration if it fails
+# to clean up properly.
+if [[ ! -z "$YAK_TEST_CONFIG" ]]
+then
+  config_paths+=("$YAK_TEST_CONFIG")
+fi
 for config_path in "${config_paths[@]}"
 do
   if (( ! "$sourced" ))

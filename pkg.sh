@@ -634,7 +634,7 @@ echo "$deplist" | sort | uniq > "$tmprepo/$outputname.dependencies"
 touch "$tmprepo/$outputname.done"
 for n in tar.gz version dependencies done
 do
-  cp -fv "$tmprepo/$outputname.$n" "/var/www/html/tgzrepo/$outputname.$n"
+  cp -fv "$tmprepo/$outputname.$n" "$_REPO_LOCAL_PATH/$outputname.$n"
 done
 export outputname_debug_exit_handler_needed=0
 echo "$(basename "$0"): successfully built $outputname" >&2

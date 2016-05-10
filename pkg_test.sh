@@ -2,19 +2,32 @@
 set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
+source "$(DIR)/cleanup.sh"
+source "$(DIR)/escape.sh"
+make_temp_dir tmp
+repo="$tmp/repo"
+mkdir -pv "$repo"
+cat > "$tmp/test_config.sh" <<EOF
+set_config DOMAIN test.example.com
+set_config REPO_LOCAL_PATH $(sq "$repo")
+set_config REPO_URL ''
+EOF
+export YAK_TEST_CONFIG="$tmp/test_config.sh"
+
 failures=0
 
 build_pkg()
 {
-  if (( "$#" != 1 ))
+  if (( "$#" != 2 ))
   then
-    echo "Usage: ${FUNCNAME[0]} <pkg_name>" >&2
+    echo "Usage: ${FUNCNAME[0]} <distro> <pkg_name>" >&2
     return 1
   fi
-  pkg_name="$1"
+  distro="$1"
+  pkg_name="$2"
 
   "$(DIR)/pkg.from_name.sh" \
-    --target_distribution=test \
+    --target_distribution="$distro" \
     --pkg_name="$pkg_name" \
     >&2 \
     || return $?
@@ -23,15 +36,16 @@ build_pkg()
 
 test_pkg_success()
 {
-  if (( "$#" != 1 ))
+  if (( "$#" != 2 ))
   then
-    echo "Usage: ${FUNCNAME[0]} <pkg_name>" >&2
+    echo "Usage: ${FUNCNAME[0]} <distro> <pkg_name>" >&2
     return 1
   fi
-  pkg_name="$1"
+  distro="$1"
+  pkg_name="$2"
 
   retval=0
-  build_pkg "$pkg_name" \
+  build_pkg "$distro" "$pkg_name" \
     || retval=$?
   if (( ! "$retval" ))
   then
@@ -44,15 +58,16 @@ test_pkg_success()
 
 test_pkg_failure()
 {
-  if (( "$#" != 1 ))
+  if (( "$#" != 2 ))
   then
-    echo "Usage: ${FUNCNAME[0]} <pkg_name>" >&2
+    echo "Usage: ${FUNCNAME[0]} <distro> <pkg_name>" >&2
     return 1
   fi
-  pkg_name="$1"
+  distro="$1"
+  pkg_name="$2"
 
   retval=0
-  build_pkg "$pkg_name" \
+  build_pkg "$distro" "$pkg_name" \
     || retval=$?
   if (( "$retval" ))
   then
@@ -63,7 +78,27 @@ test_pkg_failure()
   fi
 }
 
-test_pkg_success just-version
+ensure_exists()
+{
+  if (( "$#" != 1 ))
+  then
+    echo "Usage: ${FUNCNAME[0]} <fully qualified pkg name>" >&2
+    return 1
+  fi
+  pkg="$1"
+
+  if [[ -e "${repo}/${pkg}.done" ]]
+  then
+    echo "PASS: package $(sq "$pkg") exists as expected"
+  else
+    echo "FAIL: package $(sq "$pkg") does not exist (expected existence)"
+  fi
+}
+
+
+arch="$("$(DIR)/os_info.sh" --architecture)"
+test_pkg_success test just-version
+ensure_exists "${arch}-test:just-version"
 
 if (( "$failures" ))
 then
