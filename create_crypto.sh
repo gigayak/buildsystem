@@ -2,6 +2,7 @@
 set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
+source "$(DIR)/config.sh"
 source "$(DIR)/cleanup.sh"
 source "$(DIR)/escape.sh"
 
@@ -17,8 +18,7 @@ ssl_key_strength="$key_strength"
 # Otherwise, ssh-keygen yields "DSA keys must be 1024 bits."
 # TODO: Remove DSA keys entirely and see what breaks?
 dsa_key_strength="1024"
-# TODO: Do not hard-code domain.
-domain="jgilik.com"
+domain="$YAK_DOMAIN"
 
 ssh_key()
 {
@@ -181,10 +181,10 @@ ssl_server_cert proxy "*.$domain"
 ssl_server_cert repo
 ssl_server_cert www
 # TODO: Break out client certificate names into a configuration file.
-ssl_client_cert jgilik oven.home.jgilik.com "John Gilik / Desktop"
-ssl_client_cert jgilik hp11.home.jgilik.com "John Gilik / HP11 Chromebook"
-ssl_client_cert system dl380.home.jgilik.com "System / DL380"
-ssl_client_cert system stage2.automation.jgilik.com "System / stage2 build"
-ssl_client_cert system stage3.automation.jgilik.com "System / stage3 build"
+ssl_client_cert jgilik "oven.home.$domain" "John Gilik / Desktop"
+ssl_client_cert jgilik "hp11.home.$domain" "John Gilik / HP11 Chromebook"
+ssl_client_cert system "dl380.home.$domain" "System / DL380"
+ssl_client_cert system "stage2.automation.$domain" "System / stage2 build"
+ssl_client_cert system "stage3.automation.$domain" "System / stage3 build"
 
 echo "$(basename "$0"): successfully created all keys and certs" >&2

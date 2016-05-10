@@ -124,6 +124,11 @@ fi
 
 # Choose name to output package to.
 outputname="$(qualify_dep "$target_arch" "$target_os" "$pkgname")"
+outputname_debug_exit_handler()
+{
+  echo "$(basename "$0"): failed to build $outputname" >&2
+}
+register_exit_handler_back outputname_debug_exit_handler
 
 
 # Check that the package actually exists!
@@ -311,6 +316,7 @@ make_temp_dir workdir
 #     the moment it is declared?
 mkdir -pv "$dir"{"$YAK_WORKSPACE","$YAK_BUILDSYSTEM","$YAK_BUILDTOOLS"}
 "$(DIR)/install_buildsystem.sh" --output_path="${dir}${YAK_BUILDSYSTEM}"
+"$(DIR)/dump_config.sh" > "${dir}${YAK_BUILDSYSTEM}/inherited_config.sh"
 
 # build-only deps
 for builddeps in "${F_builddeps_script[@]}"
