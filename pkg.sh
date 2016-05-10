@@ -124,9 +124,13 @@ fi
 
 # Choose name to output package to.
 outputname="$(qualify_dep "$target_arch" "$target_os" "$pkgname")"
+export outputname_debug_exit_handler_needed=1
 outputname_debug_exit_handler()
 {
-  echo "$(basename "$0"): failed to build $outputname" >&2
+  if (( "$outputname_debug_exit_handler_needed" ))
+  then
+    echo "$(basename "$0"): failed to build $outputname" >&2
+  fi
 }
 register_exit_handler_back outputname_debug_exit_handler
 
@@ -632,4 +636,5 @@ for n in tar.gz version dependencies done
 do
   cp -fv "$tmprepo/$outputname.$n" "/var/www/html/tgzrepo/$outputname.$n"
 done
+export outputname_debug_exit_handler_needed=0
 echo "$(basename "$0"): successfully built $outputname" >&2
