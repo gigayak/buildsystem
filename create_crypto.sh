@@ -18,7 +18,7 @@ ssl_key_strength="$key_strength"
 # Otherwise, ssh-keygen yields "DSA keys must be 1024 bits."
 # TODO: Remove DSA keys entirely and see what breaks?
 dsa_key_strength="1024"
-domain="$YAK_DOMAIN"
+domain="$(get_config DOMAIN)"
 
 ssh_key()
 {

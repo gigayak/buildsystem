@@ -51,6 +51,28 @@ set_config()
   _CONFIG_VALUES["$name"]="$value"
 }
 
+get_config()
+{
+  if (( "$#" != 1 ))
+  then
+    echo "Usage: ${FUNCNAME[0]} <variable name>" >&2
+    return 1
+  fi
+  name="$1"
+
+  if [[ ! "${_CONFIG_DESCRIPTIONS[$name]+_}" ]]
+  then
+    echo "${FUNCNAME[0]}: unknown config variable '$name'" >&2
+    echo "${FUNCNAME[0]}: known variables include:" >&2
+    for var in "${!_CONFIG_DESCRIPTIONS[@]}"
+    do
+      echo "${FUNCNAME[0]}: - $var" >&2
+    done
+    return 1
+  fi
+  echo "${_CONFIG_VALUES[$name]}"
+}
+
 create_config --name=DOMAIN \
   --description="Where this instance of Gigayak is hosted."
 create_config --name=REPO_LOCAL_PATH \
@@ -90,7 +112,6 @@ do
   fi
 done
 
-
 for var in "${!_CONFIG_DESCRIPTIONS[@]}"
 do
   if [[ ! "${_CONFIG_VALUES[$var]+_}" ]]
@@ -100,8 +121,6 @@ do
   fi
   if (( ! "$sourced" ))
   then
-    echo "$(basename "$0"): YAK_${var}=${_CONFIG_VALUES[$var]}" >&2 
-  else
-    export "YAK_${var}"="${_CONFIG_VALUES[$var]}"
+    echo "$(basename "$0"): ${var}=${_CONFIG_VALUES[$var]}" >&2 
   fi
 done
