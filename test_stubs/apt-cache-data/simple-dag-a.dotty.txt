@@ -1,0 +1,11 @@
+digraph packages {
+concentrate=true;
+size="30,40";
+"simple-dag-a" -> "simple-dag-b";
+"simple-dag-a" -> "simple-dag-c";
+"simple-dag-a" -> "simple-dag-d";
+"simple-dag-a" [shape=box];
+"simple-dag-b" [shape=box];
+"simple-dag-c" [shape=box];
+"simple-dag-d" [shape=box];
+}

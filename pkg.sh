@@ -230,6 +230,10 @@ run_in_root()
   # That means the following line mitigates issues such as:
   #   cc: error trying to exec 'cc1': execvp: No such file or directory
   cmd="$cmd && export PATH"
+  # This ensures that path overrides due to YAK_TEST_CONFIG files are
+  # carried through to commands executed in the chroot, allowing arbitrary
+  # binaries to be overridden with stubs or other test doubles for testing.
+  cmd="$cmd && source ${YAK_BUILDSYSTEM}/config.sh"
   cmd="$cmd && ./$script"
   cmd="$cmd"' || echo "$?"'
   cmd="$cmd > $(sq "$YAK_WORKSPACE/FAILED")"

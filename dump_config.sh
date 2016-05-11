@@ -9,3 +9,7 @@ for var in "${!_CONFIG_DESCRIPTIONS[@]}"
 do
   echo set_config "$(sq "$var")" "$(sq "${_CONFIG_VALUES[$var]}")"
 done
+for path_command in "${_CONFIG_PATH_COMMANDS[@]}"
+do
+  echo "$path_command"
+done

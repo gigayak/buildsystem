@@ -1,0 +1,5 @@
+digraph packages {
+concentrate=true;
+size="30,40";
+"simple-dag-b" [shape=box];
+}

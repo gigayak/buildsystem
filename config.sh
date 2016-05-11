@@ -12,6 +12,7 @@ source "$(DIR)/flag.sh"
 
 declare -A _CONFIG_DESCRIPTIONS
 declare -A _CONFIG_VALUES
+_CONFIG_PATH_COMMANDS=()
 
 create_config()
 {
@@ -71,6 +72,19 @@ get_config()
     return 1
   fi
   echo "${_CONFIG_VALUES[$name]}"
+}
+
+# These allow tests to override the PATH, which allows them to do really dirty
+# aliasing for stubs.  This is not how to do dependency injection correctly...
+path_append()
+{
+  _CONFIG_PATH_COMMANDS+=("path_append $(sq "$*")")
+  export PATH="${PATH}:$*"
+}
+path_prepend()
+{
+  _CONFIG_PATH_COMMANDS+=("path_prepend $(sq "$*")")
+  export PATH="$*:${PATH}"
 }
 
 create_config --name=DOMAIN \

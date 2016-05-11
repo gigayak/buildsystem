@@ -1,0 +1,4 @@
+simple-dag-a
+  Depends: simple-dag-b
+  Depends: simple-dag-c
+ |Depends: simple-dag-d
