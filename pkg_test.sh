@@ -123,7 +123,7 @@ create_dummy_package()
   touch "${basename}.done"
 }
 
-ensure_depends()
+check_depends()
 {
   if (( "$#" != 2 ))
   then
@@ -134,8 +134,22 @@ ensure_depends()
   dep="$2"
   basename="${repo}/${pkg}"
   grep -E "^$dep\$" "${basename}.dependencies" >/dev/null 2>&1 \
+    && return 0 \
+    || return 1
+}
+
+ensure_depends()
+{
+  check_depends "$@" \
     && echo "PASS: package $(sq "$pkg") depends on $(sq "$dep")" \
     || echo "FAIL: package $(sq "$pkg") missing dep $(sq "$dep")"
+}
+
+ensure_not_depends()
+{
+  check_depends "$@" \
+    && echo "FAIL: package $(sq "$pkg") has unwanted dep $(sq "$dep")" \
+    || echo "PASS: package $(sq "$pkg") missing unwanted dep $(sq "$dep")"
 }
 
 arch="$("$(DIR)/os_info.sh" --architecture)"
@@ -164,6 +178,20 @@ ensure_depends "${arch}-ubuntu:simple-dag-a" "simple-dag-d"
 ensure_exists "${arch}-ubuntu:simple-dag-b"
 ensure_exists "${arch}-ubuntu:simple-dag-c"
 ensure_exists "${arch}-ubuntu:simple-dag-d"
+
+# Simple two-node cycle.
+#
+# Should wind up with a depending on b, and b having no dependencies, so that
+# anything requesting a gets b.
+#
+# apt-get breaks cycles at install time, not at package build time, so this
+# could cause problems if a package depends on b but not a (and expects a to
+# be installed due to dependency resolution).
+test_pkg_success ubuntu simple-cycle-a
+ensure_exists "${arch}-ubuntu:simple-cycle-a"
+ensure_depends "${arch}-ubuntu:simple-cycle-a" "simple-cycle-b"
+ensure_exists "${arch}-ubuntu:simple-cycle-b"
+ensure_not_depends "${arch}-ubuntu:simple-cycle-b" "simple-cycle-a"
 
 if (( "$F_preserve_chroot" ))
 then

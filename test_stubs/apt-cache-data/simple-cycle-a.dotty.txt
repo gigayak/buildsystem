@@ -1,0 +1,8 @@
+digraph packages {
+concentrate=true;
+size="30,40";
+"simple-cycle-a" -> "simple-cycle-b";
+"simple-cycle-b" -> "simple-cycle-a";
+"simple-cycle-a" [shape=box];
+"simple-cycle-b" [shape=box];
+}
