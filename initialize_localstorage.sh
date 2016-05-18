@@ -7,11 +7,13 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 # (This is a "quick hack" that will "hopefully only be around for a few
 # months" - meaning, I'll be eating these words in February 2020.)
 
+source "$(DIR)/log.sh"
+
 # TODO: Use a .gitignore-ed subdirectory if a global directory is not ready.
 tgt="$("$(DIR)/find_localstorage.sh")"
 if [[ -e "$tgt" ]]
 then
-  echo "$(basename "$0"): local storage directory '$tgt' already exists." >&2
+  log_rote "local storage directory '$tgt' already exists."
   exit 1
 fi
 

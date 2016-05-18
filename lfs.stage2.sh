@@ -5,6 +5,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 source "$(DIR)/arch.sh"
 source "$(DIR)/flag.sh"
 source "$(DIR)/cleanup.sh"
+source "$(DIR)/log.sh"
 source "$(DIR)/mkroot.sh"
 source "$(DIR)/escape.sh"
 
@@ -22,7 +23,7 @@ parse_flags "$@"
 
 if [[ -z "$F_image_path" || ! -e "$F_image_path" ]]
 then
-  echo "$(basename "$0"): could not find image at $(sq "$F_image_path")" >&2
+  log_rote "could not find image at $(sq "$F_image_path")"
   exit 1
 fi
 

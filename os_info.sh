@@ -3,13 +3,14 @@ set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 add_flag --boolean distribution "Get name of distribution."
 add_flag --boolean architecture "Get name of architecture."
 parse_flags "$@"
 if (( "$F_distribution" && "$F_architecture" )) \
   || (( ! "$F_distribution" && ! "$F_architecture" ))
 then
-  echo "$(basename "$0"): use only one of --distribution or --architecture" >&2
+  log_rote "use only one of --distribution or --architecture"
   exit 1
 fi
 

@@ -10,6 +10,7 @@ _REPO_SH_INCLUDED=1
 
 source "$(DIR)/cleanup.sh"
 source "$(DIR)/escape.sh"
+source "$(DIR)/log.sh"
 
 
 # This file contains repository management related functions.
@@ -108,7 +109,7 @@ repo_get()
       "$_url" \
     > "$_REPO_SCRATCH/$_path" \
     || {
-      echo "${FUNCNAME[0]}: error code '$?' fetching '$_url'" >&2
+      log_rote "error code '$?' fetching '$_url'"
       return 1
     }
     mv -f "$_REPO_SCRATCH/$_path" "$_REPO_LOCAL_PATH/$_path"
@@ -124,7 +125,7 @@ repo_get()
       --retry-connrefused \
       "$_url" \
     || {
-      echo "${FUNCNAME[0]}: error code '$?' fetching '$_url'" >&2
+      log_rote "error code '$?' fetching '$_url'"
       return 1
     }
   fi
@@ -157,7 +158,7 @@ dependency_to_property()
     group='\3'
     p='pkg'
   else
-    echo "${FUNCNAME[0]}: unknown property '$prop'" >&2
+    log_rote "unknown property '$prop'"
     return 1
   fi
 
@@ -183,7 +184,7 @@ dependency_to_property()
     return 0
   fi
 
-  echo "${FUNCNAME[0]}: unknown property '$prop'" >&2
+  log_rote "unknown property '$prop'"
   return 1
 }
 dep2name()
@@ -252,8 +253,8 @@ resolve_deps()
   orig_deps_path="$scratch/$orig_deps_name"
   if ! repo_get "$orig_deps_name" > "$orig_deps_path"
   then
-    echo "${FUNCNAME[0]}: no dependencies for '$pkg_name' found" >&2
-    echo "${FUNCNAME[0]}: expected at '$orig_deps_name'" >&2
+    log_rote "no dependencies for '$pkg_name' found"
+    log_rote "expected at '$orig_deps_name'"
     exit 1
   fi
 
@@ -266,7 +267,7 @@ resolve_deps()
   touch "$old_deps"
   # Start with package requested.
   echo "${dep}" > "$new_deps"
-  echo "${FUNCNAME[0]}: resolving dependencies for '$pkg_name'" >&2
+  log_rote "resolving dependencies for '$pkg_name'"
   touch "$ordered_deps"
 
   while read -r new_dep
@@ -306,7 +307,7 @@ resolve_deps()
     subdeps="$new_dep.dependencies"
     if ! repo_get "$subdeps" > "$deps_path"
     then
-      echo "${FUNCNAME[0]}: could not find subdependencies at '$subdeps'" >&2
+      log_rote "could not find subdependencies at '$subdeps'"
       return 1
     fi
     while read -r dep
@@ -334,7 +335,7 @@ resolve_deps()
       # Otherwise, it's new to us - mark it as such, and we iterate deeper.
       else
         qdep="$(qualify_dep "$current_arch" "$current_distro" "$dep")"
-        echo "${FUNCNAME[0]}: found dependency '$qdep' (from '$new_dep')" >&2
+        log_rote "found dependency '$qdep' (from '$new_dep')"
         # This line is a little subtle - note that the outermost loop is reading
         # from the file we're appending to here.
         #

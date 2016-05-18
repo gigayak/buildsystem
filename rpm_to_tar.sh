@@ -4,6 +4,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/flag.sh"
 source "$(DIR)/cleanup.sh"
+source "$(DIR)/log.sh"
 
 add_flag --required rpm "Path of RPM to convert to tar."
 add_flag --required out "Path to store the resulting tarball at."
@@ -11,13 +12,13 @@ parse_flags "$@"
 
 if [[ ! -e "${F_rpm}" ]]
 then
-  echo "$(basename "$0"): Could not find RPM '${F_rpm}'" >&2
+  log_rote "Could not find RPM '${F_rpm}'"
   exit 1
 fi
 
 if [[ -e "${F_out}" ]]
 then
-  echo "$(basename "$0"): Output path '${F_out}' already exists" >&2
+  log_rote "Output path '${F_out}' already exists"
   exit 1
 fi
 
@@ -26,8 +27,8 @@ cd "$contents_dir"
 
 if [[ ! -e "${F_rpm}" ]]
 then
-  echo "$(basename "$0"): RPM path '${F_rpm}' is relative, not absolute." >&2
-  echo "$(basename "$0"): Relative paths break this script :(" >&2
+  log_rote "RPM path '${F_rpm}' is relative, not absolute."
+  log_rote "Relative paths break this script :("
   exit 1
   # TODO: Make relative paths work by un-relativing them.
 fi

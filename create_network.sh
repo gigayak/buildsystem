@@ -5,6 +5,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 source "$(DIR)/mkroot.sh"
 source "$(DIR)/escape.sh"
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 
 add_usage_note <<EOF
 This utility should create all network interfaces in a reasonably sane way.
@@ -37,10 +38,10 @@ create_centos_bridge()
 
   if ip link show "$_bridge_name" >/dev/null 2>&1
   then
-    echo "${FUNCNAME[0]}: bridge $(sq "$_bridge_name") already exists" >&2
+    log_rote "bridge $(sq "$_bridge_name") already exists"
     return 0
   else
-    echo "${FUNCNAME[0]}: creating bridge $(sq "$_bridge_name")" >&2
+    log_rote "creating bridge $(sq "$_bridge_name")"
     # TODO: can this be done in a non-persistent way?
     cat >> "/etc/sysconfig/network-scripts/ifcfg-$_bridge_name" <<EOF
 DEVICE="$_bridge_name"
@@ -53,10 +54,10 @@ EOF
   # Ensure bridge up.
   if (( ! "$(<"/sys/class/net/$_bridge_name/carrier")" ))
   then
-    echo "${FUNCNAME[0]}: bringing bridge $(sq "$_bridge_name") up" >&2
+    log_rote "bringing bridge $(sq "$_bridge_name") up"
     ifup "$_bridge_name"
   else
-    echo "${FUNCNAME[0]}: bridge $(sq "$_bridge_name") already up" >&2
+    log_rote "bridge $(sq "$_bridge_name") already up"
   fi
 }
 
@@ -78,9 +79,9 @@ create_ubuntu_bridge()
   #   https://help.ubuntu.com/community/NetworkConnectionBridge
   if ip link show "$_bridge_name" >/dev/null 2>&1
   then
-    echo "${FUNCNAME[0]}: bridge $(sq "$_bridge_name") already exists" >&2
+    log_rote "bridge $(sq "$_bridge_name") already exists"
   else
-    echo "${FUNCNAME[0]}: creating bridge $(sq "$_bridge_name")" >&2
+    log_rote "creating bridge $(sq "$_bridge_name")"
     brctl addbr "$_bridge_name"
     local _prefix_len="$(netmask_to_prefix_length "$_netmask")"
     ip address add "$_ip"/"$_prefix_len" dev "$_bridge_name"
@@ -180,9 +181,9 @@ cat >> "$rules" <<EOF
 COMMIT
 EOF
 
-echo "$(basename "$0"): Generated these rules:" >&2
+log_rote "Generated these rules:"
 cat "$rules" >&2
 echo >&2
-echo "$(basename "$0"): Applying generated rules." >&2
+log_rote "Applying generated rules."
 iptables-restore < "$rules"
-echo "$(basename "$0"): You should be all set." >&2
+log_rote "You should be all set."

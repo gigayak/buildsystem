@@ -9,6 +9,7 @@ fi
 _FLAG_SH_INCLUDED=1
 
 source "$(DIR)/escape.sh" # needed for some eval'ed array manipulation :[
+source "$(DIR)/log.sh"
 
 # Allows you to add and parse flags in a program.
 # Flags are always long flags, because short flags hurt readability.
@@ -76,7 +77,7 @@ add_flag()
   retval="$?"
   if (( "$retval" ))
   then
-    echo "${FUNCNAME[0]}: getopt puked status code $retval" >&2
+    log_rote "getopt puked status code $retval"
     return 1
   fi
 
@@ -112,12 +113,12 @@ add_flag()
     --default)
       if (( "$_boolean" ))
       then
-        echo "${FUNCNAME[0]}: booleans default to false for now" >&2
+        log_rote "booleans default to false for now"
         return 1
       fi
       if (( "$_has_default" ))
       then
-        echo "${FUNCNAME[0]}: cannot set two defaults for flag" >&2
+        log_rote "cannot set two defaults for flag"
         return 1
       fi
       _default="$2"
@@ -145,7 +146,7 @@ add_flag()
       ;;
     *)
       echo "opts: ${_opts[@]}"
-      echo "${FUNCNAME[0]}: unrecognized option '$_optname'" >&2
+      log_rote "unrecognized option '$_optname'"
       return 1
       ;;
     esac
@@ -159,12 +160,12 @@ add_flag()
   # Sanity checks!  YAY!
   if [[ -z "$_name" ]]
   then
-    echo "${FUNCNAME[0]}: no flag name given" >&2
+    log_rote "no flag name given"
     return 1
   fi
   if [[ "$_name" == "help" ]]
   then
-    echo "${FUNCNAME[0]}: cannot use reserved word 'help' as a flag name" >&2
+    log_rote "cannot use reserved word 'help' as a flag name"
     return 1
   fi
   if (( "${_flag_exists[$_id]}" ))
@@ -177,22 +178,22 @@ add_flag()
     then
       return 0
     fi
-    echo "${FUNCNAME[0]}: duplicate definition of flag --$_name" >&2
+    log_rote "duplicate definition of flag --$_name"
     return 1
   fi
   if [[ -z "$_description" ]]
   then
-    echo "${FUNCNAME[0]}: --$_name: no flag description given" >&2
+    log_rote "--$_name: no flag description given"
     return 1
   fi
   if (( "$_optional" && ! "$_array" && ! "$_has_default" && ! "$_boolean" ))
   then
-    echo "${FUNCNAME[0]}: --$_name: must have default, required, or boolean" >&2
+    log_rote "--$_name: must have default, required, or boolean"
     return 1
   fi
   if (( "$_array" && "$_has_default" ))
   then
-    echo "${FUNCNAME[0]}: --$_name: cannot set a default for an array" >&2
+    log_rote "--$_name: cannot set a default for an array"
     # It's just really painful to serialize or deserialize arrays in bash.
     # It's also likely a shellshock style vulnerability in the making.
     return 1
@@ -356,7 +357,7 @@ parse_flags()
   retval="$?"
   if (( "$retval" ))
   then
-    echo "${FUNCNAME[0]}: getopt puked status code $retval" >&2
+    log_rote "getopt puked status code $retval"
     return 1
   fi
   eval set -- "$vars"
@@ -376,7 +377,7 @@ parse_flags()
     then
       name="${name:2}"
     else
-      echo "${FUNCNAME[0]}: got flag name '$name', want prefix '--'" >&2
+      log_rote "got flag name '$name', want prefix '--'"
       return 1
     fi
 
@@ -388,7 +389,7 @@ parse_flags()
 
     if (( ! "${_flag_exists[${_scope}${name}]}" ))
     then
-      echo "${FUNCNAME[0]}: got unknown flag --$name" >&2
+      log_rote "got unknown flag --$name"
       return 1
     fi
 
@@ -438,7 +439,7 @@ parse_flags()
     fi
     if (( ! "${_flag_optional[$_id]}" )) && [ ! -n "${!dest+1}" ]
     then
-      echo "${FUNCNAME[0]}: required flag --$name missing" >&2
+      log_rote "required flag --$name missing"
       return 1
     fi
   done

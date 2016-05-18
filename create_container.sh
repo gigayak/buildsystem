@@ -6,6 +6,7 @@ source "$(DIR)/arch.sh"
 source "$(DIR)/mkroot.sh"
 source "$(DIR)/escape.sh"
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 
 add_flag --array pkg "Package name to install."
 add_flag --default="" name "Name of container to create -- default is random."
@@ -24,7 +25,7 @@ root="$(grep "Environment available:" "$tmp/create_chroot.log" \
   | awk '{print $3}')"
 if [[ -z "$root" ]]
 then
-  echo "$(basename "$0"): unable to find create_chroot.sh's results" >&2
+  log_rote "unable to find create_chroot.sh's results"
   exit 1
 fi
 

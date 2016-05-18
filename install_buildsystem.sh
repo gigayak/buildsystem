@@ -3,15 +3,16 @@ set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 
 add_flag --required output_path "Where to store the build system"
 parse_flags "$@"
 
 if [[ ! -e "$F_output_path" ]]
 then
-  echo "$(basename "$0"): cannot find output path $(sq "$F_output_path")" >&2
-  echo "$(basename "$0"): this script doesn't want to flood an unknown path" >&2
-  echo "$(basename "$0"): run: mkdir $(sq "$F_output_path")" >&2
+  log_rote "cannot find output path $(sq "$F_output_path")"
+  log_rote "this script doesn't want to flood an unknown path"
+  log_rote "run: mkdir $(sq "$F_output_path")"
   exit 1
 fi
 
@@ -25,7 +26,7 @@ rsync \
 || retval=$?
 if (( "$retval" ))
 then
-  echo "$(basename "$0"): rsync failed with return code $retval" >&2
+  log_rote "rsync failed with return code $retval"
   exit 1
 fi
 

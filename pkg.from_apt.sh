@@ -5,6 +5,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 source "$(DIR)/cleanup.sh"
 source "$(DIR)/flag.sh"
 source "$(DIR)/buildtools/all.sh"
+source "$(DIR)/log.sh"
 add_flag --required pkg_name "Name of the package to build."
 parse_flags "$@"
 
@@ -20,7 +21,7 @@ qual_name="$(qualify_dep "$arch" "$os" "$pkgname")"
 translation="$(dep --arch="$arch" --distro="$os" "$pkgname")"
 if [[ "$qual_name" != "$translation" ]]
 then
-  echo "$(basename "$0"): translated name '$qual_name' to '$translation'" >&2
+  log_rote "translated name '$qual_name' to '$translation'"
 fi
 
 built_original_name=0

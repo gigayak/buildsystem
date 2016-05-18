@@ -4,6 +4,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/escape.sh"
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 source "$(DIR)/repo.sh"
 add_usage_note <<EOF
 This script is used internally to take some package specs and turn them into
@@ -70,7 +71,7 @@ EOF
 parse_flags "$@"
 
 pkgname="$F_pkg_name"
-echo "$(basename "$0"): building package $pkgname" >&2
+log_rote "building package $pkgname"
 version="$F_version_script"
 
 # Manually export a select set of environment variables.
@@ -111,14 +112,14 @@ do
   env_string="$env_string $env_var"
   export "$env_var"
 done
-echo "$(basename "$0"): propagating following environment variables:" >&2
-echo "$(basename "$0"): $env_string" >&2
+log_rote "propagating following environment variables:"
+log_rote "$env_string"
 
 # Lowercase the package's name if needed.
 lcname="$(echo "$pkgname" | tr '[:upper:]' '[:lower:]')"
 if [[ "$lcname" != "$pkgname" ]]
 then
-  echo "$(basename "$0"): lowercasing package name '$pkgname'" >&2
+  log_rote "lowercasing package name '$pkgname'"
   pkgname="$lcname"
 fi
 
@@ -129,7 +130,7 @@ outputname_debug_exit_handler()
 {
   if (( "$outputname_debug_exit_handler_needed" ))
   then
-    echo "$(basename "$0"): failed to build $outputname" >&2
+    log_rote "failed to build $outputname"
   fi
 }
 register_exit_handler_back outputname_debug_exit_handler
@@ -141,44 +142,43 @@ for path in "$version"
 do
   if [[ ! -e "$path" ]]
   then
-    echo "$(basename "$0"): required: '$path', please create" >&2
+    log_rote "required: '$path', please create"
     exit 1
   fi
 done
 
 
 # Scan for circular dependencies.
-echo "$(basename "$0"): dependency history for $outputname:" >&2
-echo -n "$(basename "$0"): - $outputname (current build)" >&2
+log_rote "dependency history for $outputname:"
+log_rote "- $outputname (current build)"
 for hist_entry in "${F_dependency_history[@]}"
 do
-  echo >&2
-  echo -n "$(basename "$0"): - $hist_entry" >&2
+  log_rote "- $hist_entry"
 done
-echo " (first build)" >&2
-echo "$(basename "$0"): looking for $outputname in dependency history" >&2
+log_rote "  (first build)"
+log_rote "looking for $outputname in dependency history"
 cycle_found=0
 cycle_culprit=""
 for hist_entry in "${F_dependency_history[@]}"
 do
   if [[ "$hist_entry" == "$outputname" ]]
   then
-    echo "$(basename "$0"): $hist_entry is part of this build" >&2
+    log_rote "$hist_entry is part of this build"
     cycle_culprit="$hist_entry"
     cycle_found=1
     break
   else
-    echo "$(basename "$0"): $hist_entry has been built fully" >&2
+    log_rote "$hist_entry has been built fully"
   fi
 done
 if (( "$cycle_found" && ! "$F_break_dependency_cycles" ))
 then
-  echo "$(basename "$0"): found a dependency cycle due to '$cycle_culprit'" >&2
+  log_rote "found a dependency cycle due to '$cycle_culprit'"
   exit 1
 elif (( "$cycle_found" ))
 then
-  echo "$(basename "$0"): WARNING: removing cyclic dependencies" >&2
-  echo "$(basename "$0"): WARNING: this may lead to undefined behavior" >&2
+  log_rote "WARNING: removing cyclic dependencies"
+  log_rote "WARNING: this may lead to undefined behavior"
 fi
 
 
@@ -187,7 +187,7 @@ source "$(DIR)/arch.sh"
 source "$(DIR)/mkroot.sh"
 
 mkroot dir
-echo "Operating on $dir"
+log_rote "operating on $dir"
 
 run_in_root()
 {
@@ -200,7 +200,7 @@ run_in_root()
 
   if [[ ! -e "$script_path" ]]
   then
-    echo "${FUNCNAME[0]}: script '$script_path' does not exist" >&2
+    log_rote "script '$script_path' does not exist"
     return 2
   fi
 
@@ -215,7 +215,7 @@ run_in_root()
   #
   # Additionally, the chmod is dangerous, but a named pipe would not have
   # the executable bit set.
-  echo "${FUNCNAME[0]}: copying '$script' to '${dir}${YAK_WORKSPACE}/$script'" >&2
+  log_rote "copying '$script' to '${dir}${YAK_WORKSPACE}/$script'"
   cat "$script_path" > "${dir}${YAK_WORKSPACE}/$script"
   chmod +x "${dir}${YAK_WORKSPACE}/$script"
 
@@ -243,10 +243,10 @@ run_in_root()
   if [[ -e "${dir}${YAK_WORKSPACE}/FAILED" ]]
   then
     retval="$(cat "${dir}${YAK_WORKSPACE}/FAILED")"
-    echo "${FUNCNAME[0]}: script '$script' failed with code $retval" >&2
+    log_rote "script '$script' failed with code $retval"
     dont_depopulate_dynamic_fs_pieces "$dir"
     unregister_temp_file "$dir"
-    echo "${FUNCNAME[0]}: directory $(sq "$dir") saved for inspection" >&2
+    log_rote "directory $(sq "$dir") saved for inspection"
     return 1
   fi
   return 0
@@ -269,7 +269,7 @@ cleanup_root()
     local _path
     while read -r _path
     do
-      echo "${FUNCNAME[0]}: removing $_path" >&2
+      log_rote "removing $_path"
       rm -rf "$_path"
     done < <(find "$_dir" -mindepth 1 -maxdepth 1)
   done
@@ -329,17 +329,17 @@ mkdir -pv "$dir"{"$YAK_WORKSPACE","$YAK_BUILDSYSTEM","$YAK_BUILDTOOLS"}
 # build-only deps
 for builddeps in "${F_builddeps_script[@]}"
 do
-  echo "$(basename "$0"): running builddeps script for $outputname" >&2
-  echo "$(basename "$0"): builddeps script is named $(sq "$builddeps")" >&2
+  log_rote "running builddeps script for $outputname"
+  log_rote "builddeps script is named $(sq "$builddeps")"
   run_in_root "${builddeps}" > "$workdir/builddeps.txt"
-  echo "$(basename "$0"): found build dependencies for $outputname:" >&2
+  log_rote "found build dependencies for $outputname:"
   while read -r dep
   do
     if [[ -z "$dep" ]]
     then
       continue
     fi
-    echo "$(basename "$0"):  - $dep" >&2
+    log_rote " - $dep"
   done < "$workdir/builddeps.txt"
 
   # Watch out: dependencies are intentionally installed as soon as possible.
@@ -362,13 +362,13 @@ done
 deplist=""
 for deps in "${F_deps_script[@]}"
 do
-  echo "$(basename "$0"): running dependency listing script for $outputname" >&2
-  echo "$(basename "$0"): dependency listing script is named $(sq "$deps")" >&2
+  log_rote "running dependency listing script for $outputname"
+  log_rote "dependency listing script is named $(sq "$deps")"
   # Watch out: this is an overwrite of deplist, not an append.  We then
   # append deplist to deps.txt, so they wind up out of sync if multiple
   # dependency scripts execute.
   deplist="$(run_in_root "${deps}")"
-  echo "$(basename "$0"): found runtime dependencies for $outputname:" >&2
+  log_rote "found runtime dependencies for $outputname:"
   while read -r dep
   do
     echo "$dep" >> "$workdir/deps.txt"
@@ -376,7 +376,7 @@ do
     then
       continue
     fi
-    echo "$(basename "$0"):  - $dep" >&2
+    log_rote " - $dep"
   done < <(echo "$deplist")
 done
 # this makes sure that our repeated overwrites of deplist are undone.
@@ -388,8 +388,8 @@ fi
 # remove cycles if requested (and found)
 if (( "$F_break_dependency_cycles" && "$cycle_found" ))
 then
-  echo "$(basename "$0"): attempting to remove cyclic dependency" >&2
-  echo "$(basename "$0"): in package $outputname build" >&2
+  log_rote "attempting to remove cyclic dependency"
+  log_rote "in package $outputname build"
   found=0
   for possible_culprit in "${F_dependency_history[@]}"
   do
@@ -410,27 +410,27 @@ then
     # diff returns nonzero for different files; zero for same file
     if ! diff "$workdir/deps.txt.new" "$workdir/deps.txt" >/dev/null 2>&1
     then
-      echo "$(basename "$0"): removed cyclic dependency $possible_culprit" >&2
+      log_rote "removed cyclic dependency $possible_culprit"
       found=1
     else
-      echo "$(basename "$0"): did not remove dependency $possible_culprit" >&2
+      log_rote "did not remove dependency $possible_culprit"
     fi
     mv -f "$workdir/deps.txt.new" "$workdir/deps.txt"
   done
-  echo "$(basename "$0"): new $outputname deplist after cycle removal:" >&2
+  log_rote "new $outputname deplist after cycle removal:"
   while read -r newdep
   do
-    echo "$(basename "$0"):  - $newdep" >&2
+    log_rote " - $newdep"
   done < "$workdir/deps.txt"
   if (( ! "$found" ))
   then
-    echo "$(basename "$0"): failed to remove dependency cycle" >&2
+    log_rote "failed to remove dependency cycle"
     exit 1
   fi
 fi
 
 
-echo "$(basename "$0"): installing all dependencies for $outputname" >&2
+log_rote "installing all dependencies for $outputname"
 if [[ -e "$workdir/deps.txt" ]]
 then
   install_deps "$workdir/deps.txt"
@@ -448,23 +448,21 @@ if [[ -e "$dir/.installed_pkgs/$outputname" ]]
 then
   if (( "$F_break_dependency_cycles" ))
   then
-    echo "$(basename "$0"): found dependency cycle that was" \
-      "broken downstream; exiting." >&2
+    log_rote "found dependency cycle that was broken downstream; exiting."
     exit 0
   fi
-  echo "$(basename "$0"): found disallowed dependency cycle; failing." >&2
-  exit 1
+  log_fatal "found disallowed dependency cycle; failing."
 fi
 
 
 for make in "${F_make_script[@]}"
 do
-  echo "$(basename "$0"): running make script $make for $outputname" >&2
+  log_rote "running make script $make for $outputname"
   run_in_root "${make}"
 done
 
 
-echo "$(basename "$0"): snapshotting $outputname pre-install state" >&2
+log_rote "snapshotting $outputname pre-install state"
 make_temp_dir snapshot
 
 # Unmount procfs/devfs as they will cause lots of "evaporating file"
@@ -488,24 +486,24 @@ populate_dynamic_fs_pieces "$dir"
 
 for install in "${F_install_script[@]}"
 do
-  echo "$(basename "$0"): running install script $install for $outputname" >&2
+  log_rote "running install script $install for $outputname"
   run_in_root "${install}"
 done
 
 
 # Multiple version scripts are NOT allowed: only one version may be output.
-echo "$(basename "$0"): running version script for $outputname" >&2
+log_rote "running version script for $outputname"
 pkgversion="$(run_in_root "${version}")"
 if [[ -z "$pkgversion" ]]
 then
-  echo "$(basename "$0"): version script '$version' yielded no output" >&2
+  log_rote "version script '$version' yielded no output"
   exit 1
 fi
-echo "$(basename "$0"): version for $outputname is: $pkgversion" >&2
+log_rote "version for $outputname is: $pkgversion"
 
 
 
-echo "$(basename "$0"): finding differences from $outputname install" >&2
+log_rote "finding differences from $outputname install"
 
 # Set the path to create diffs at.
 # We want this to be transient, but have no temp directory so far...
@@ -556,8 +554,7 @@ rsync \
 
 # Create package output...
 make_temp_dir pkgdir
-echo "$(basename "$0"): packaging different file for $outputname to" \
-  "'$pkgdir'" >&2
+log_rote "packaging different file for $outputname to '$pkgdir'"
 retval=0
 "$(DIR)/copy_diff_files.sh" "$dir" "$pkgdir" < "$diff" \
   || retval=$?
@@ -566,10 +563,10 @@ then
   unregister_temp_file "$snapshot"
   unregister_temp_file "$dir"
   unregister_temp_file "$diffdir"
-  echo "$(basename "$0"): copy_diff_files failed for $outputname; see:" >&2
-  echo "$(basename "$0"): post-build snapshot: $snapshot" >&2
-  echo "$(basename "$0"): post-install snapshot: $dir" >&2
-  echo "$(basename "$0"): diff: $diff" >&2
+  log_rote "copy_diff_files failed for $outputname; see:"
+  log_rote "post-build snapshot: $snapshot"
+  log_rote "post-install snapshot: $dir"
+  log_rote "diff: $diff"
   exit 1
 fi
 
@@ -589,7 +586,7 @@ then
     fi
     if [[ -L "$dir/$path" ]]
     then
-      echo "$(basename "$0"): copying explicitly declared symlink: $path" >&2
+      log_rote "copying explicitly declared symlink: $path"
       if [[ ! -d "$(dirname "$pkgdir/$path")" ]]
       then
         mkdir -pv "$(dirname "$pkgdir/$path")"
@@ -597,7 +594,7 @@ then
       ln -sv "$(readlink "$dir/$path")" "$pkgdir/$path"
     elif [[ -d "$dir/$path" && ! -L "$dir/$path" ]]
     then
-      echo "$(basename "$0"): copying explicitly declared directory: $path" >&2
+      log_rote "copying explicitly declared directory: $path"
       uid="$(stat -c '%U' "$dir/$path")"
       gid="$(stat -c '%G' "$dir/$path")"
       perms="$(stat -c '%a' "$dir/$path")"
@@ -606,7 +603,7 @@ then
       chmod "$perms" "$pkgdir/$path"
     elif [[ -f "$dir/$path" && ! -L "$dir/$path" ]]
     then
-      echo "$(basename "$0"): copying explicitly declared file: $path" >&2
+      log_rote "copying explicitly declared file: $path"
       uid="$(stat -c '%U' "$dir/$path")"
       gid="$(stat -c '%G' "$dir/$path")"
       perms="$(stat -c '%a' "$dir/$path")"
@@ -618,10 +615,10 @@ then
       chown "$uid:$gid" "$pkgdir/$path"
       chmod "$perms" "$pkgdir/$path"
     else
-      echo "$(basename "$0"): $pkgdir/$path was explicitly declared, but" >&2
-      echo "$(basename "$0"): is not a directory or does not exist at all." >&2
-      echo "$(basename "$0"): Explicit declarations are a hack with" >&2 
-      echo "$(basename "$0"): limited scope.  Please reconsider." >&2
+      log_rote "$pkgdir/$path was explicitly declared, but"
+      log_rote "is not a directory or does not exist at all."
+      log_rote "Explicit declarations are a hack with" 
+      log_rote "limited scope.  Please reconsider."
       exit 1
     fi
   done < "$diffdir/extra_installed_paths"
@@ -641,4 +638,4 @@ do
   cp -fv "$tmprepo/$outputname.$n" "$_REPO_LOCAL_PATH/$outputname.$n"
 done
 export outputname_debug_exit_handler_needed=0
-echo "$(basename "$0"): successfully built $outputname" >&2
+log_rote "successfully built $outputname"

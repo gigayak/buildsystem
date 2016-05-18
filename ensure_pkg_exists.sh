@@ -4,6 +4,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/repo.sh"
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 add_flag --required pkg_name "Name of the package to install."
 add_flag --default="/var/www/html/tgzrepo" repo_path "Path to find packages."
 add_flag --default="https://repo.jgilik.com" repo_url "URL to find packages."
@@ -18,10 +19,10 @@ parse_flags "$@"
 pkg="$F_pkg_name"
 if [[ -z "$pkg" ]]
 then
-  echo "$(basename "$0"): package name cannot be blank" >&2
+  log_rote "package name cannot be blank"
   exit 1
 fi
-echo "$(basename "$0"): ensuring package '$pkg' exists" >&2
+log_rote "ensuring package '$pkg' exists"
 
 set_repo_local_path "$F_repo_path"
 set_repo_remote_url "$F_repo_url"
@@ -54,18 +55,18 @@ do
 done
 if ! repo_get "$pkgfile.done" > "$scratch/$pkgfile.done"
 then
-  echo "$(basename "$0"): could not find package '$pkg', building..." >&2
+  log_rote "could not find package '$pkg', building..."
   cmd=("$(DIR)/pkg.from_name.sh" \
     --pkg_name="$pkg" \
     "${constraint_flags[@]}" \
     -- \
       "${hist_args[@]}")
-  echo "$(basename "$0"): using build command: ${cmd[@]}" >&2
+  log_rote "using build command: ${cmd[@]}"
   "${cmd[@]}"
 fi
 if ! repo_get "$pkgfile.done" > "$scratch/$pkgfile.done"
 then
-  echo "$(basename "$0"): could not find or build package '$pkg'" >&2
+  log_rote "could not find or build package '$pkg'"
   exit 1
 fi
 

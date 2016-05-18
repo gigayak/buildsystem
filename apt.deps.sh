@@ -1,6 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
 
+source "$YAK_BUILDSYSTEM/log.sh"
+
 # Escapes a string for use within a regex.
 # (Because "g++" is a particularly nasty package name.)
 # (Remember, "+" is a special character in regexes."
@@ -61,7 +63,7 @@ package_type()
   "diamond") echo "virtual";;
   "hexagon") echo "need-candidate";;
   *)
-    echo "${FUNCNAME[0]}: unknown package shape '$shape'" >&2
+    log_rote "unknown package shape '$shape'"
     return 1
     ;;
   esac
@@ -122,7 +124,7 @@ list_direct_real_deps()
   rm -f "$seen" >&2
   touch "$seen"
 
-  echo "${FUNCNAME[0]}: expanding virtual packages for '$pkgname'" >&2
+  log_rote "expanding virtual packages for '$pkgname'"
   local queue="$YAK_WORKSPACE/dep.${pkgname}.queue"
   list_direct_deps "$pkgname" > "$queue"
   while read -r dep
@@ -136,7 +138,7 @@ list_direct_real_deps()
       # and fail to break on the fact that "a" is unmatchable.
       if grep -E "^$(re_escape "$subdep")\$" "$seen" >/dev/null 2>&1
       then
-        echo "${FUNCNAME[0]}: skipping already-seen dependency '$subdep'" >&2
+        log_rote "skipping already-seen dependency '$subdep'"
         found_match=1
         break
       fi
@@ -144,20 +146,20 @@ list_direct_real_deps()
       local dep_type="$(package_type "$dotfile" "$subdep")"
       if [[ "$dep_type" == "virtual" ]]
       then
-        echo "${FUNCNAME[0]}: expanding virtual package '$subdep'" >&2
+        log_rote "expanding virtual package '$subdep'"
         retval=0
         list_direct_deps "$subdep" >> "$queue" || continue
         found_match=1
         break
       elif [[ "$dep_type" == "need-candidate" ]]
       then
-        echo "${FUNCNAME[0]}: attempting to choose candidate for '$subdep'" >&2
+        log_rote "attempting to choose candidate for '$subdep'"
         choose_candidate "$dep" >> "$queue" || continue
         found_match=1
         break
       elif apt-cache show "$subdep" >/dev/null 2>&1
       then
-        echo "${FUNCNAME[0]}: found concrete dependency '$subdep'" >&2
+        log_rote "found concrete dependency '$subdep'"
         echo "$subdep"
         found_match=1
         break
@@ -165,7 +167,7 @@ list_direct_real_deps()
     done < <(echo "$dep" | tr '|' '\n')
     if (( ! "$found_match" ))
     then
-      echo "${FUNCNAME[0]}: could not resolve dependency list '$dep'" >&2
+      log_rote "could not resolve dependency list '$dep'"
       return 1
     fi
   done < "$queue"
@@ -215,7 +217,7 @@ done < "$depqueue"
 
 if (( "$seeds_found" > 0 ))
 then
-  echo "$(basename "$0"): found $seeds_found cycles" >&2
+  log_rote "found $seeds_found cycles"
   exit 1
 fi
 

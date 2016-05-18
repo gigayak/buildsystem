@@ -3,6 +3,7 @@ set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 add_flag --required pkg_name "Name of the package to build."
 add_flag --boolean \
   check_only "Only checks if we *can* build when passed."
@@ -58,17 +59,17 @@ do
 done
 if (( ! "$found" ))
 then
-  echo "$(basename "$0"): unable to find a viable spec for $pkgname" >&2
+  log_rote "unable to find a viable spec for $pkgname"
   for spec_name in "${spec_names[@]}"
   do
-    echo "$(basename "$0"): consider creating ${spec_name}.version.sh" >&2
+    log_rote "consider creating ${spec_name}.version.sh"
   done
   exit 1
 fi
 if (( "${F_check_only}" ))
 then
-  echo "$(basename "$0"): we can build $pkgname" >&2
-  echo "$(basename "$0"): --check_only passed; exiting" >&2
+  log_rote "we can build $pkgname"
+  log_rote "--check_only passed; exiting"
   exit 0
 fi
 

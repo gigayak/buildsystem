@@ -3,6 +3,7 @@ set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/cleanup.sh"
+source "$(DIR)/log.sh"
 
 failures=0
 
@@ -69,5 +70,5 @@ if (( "$failures" <= 0 ))
 then
   exit 0
 fi
-echo "$(basename "$0"): found problems with $failures stage3 (yak) packages" >&2
+log_rote "found problems with $failures stage3 (yak) packages"
 exit 1

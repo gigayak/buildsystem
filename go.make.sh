@@ -1,5 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
+
+source "$YAK_BUILDSYSTEM/log.sh"
+
 pkg_name="$(echo "$YAK_PKG_NAME" | sed -re 's@^go-@@g')"
 echo "Package name is: $pkg_name" >&2
 
@@ -27,7 +30,7 @@ do
 done
 if [[ -z "$IMPORT_PATH" ]]
 then
-  echo "$(basename "$0"): Failed to find valid import path for '$pkg_name'" >&2
+  log_rote "Failed to find valid import path for '$pkg_name'"
   exit 1
 fi
 

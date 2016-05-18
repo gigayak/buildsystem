@@ -2,6 +2,8 @@
 set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
+source "$(DIR)/log.sh"
+
 if (( "$#" != 2 ))
 then
   echo "Usage: rsync ... | $(basename "$0") <source> <target>" >&2
@@ -85,7 +87,7 @@ parse_line()
 {
   if (( "$#" < 2 ))
   then
-    echo "${FUNCNAME[0]}: invalid diff line '$@'" >&2
+    log_rote "invalid diff line '$@'"
     return 1
   fi
   change_spec="$1"
@@ -118,7 +120,7 @@ parse_line()
     "cD+++++++++") copy_device "$n" ;;
     ">f.sTp.....") error "File was modified: $n" ;;
     *)
-      echo "${FUNCNAME[0]}: invalid diff changespec '$change_spec'" >&2
+      log_rote "invalid diff changespec '$change_spec'"
       return 1
       ;;
   esac

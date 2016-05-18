@@ -6,6 +6,7 @@ source "$(DIR)/repo.sh"
 source "$(DIR)/flag.sh"
 source "$(DIR)/escape.sh"
 source "$(DIR)/cleanup.sh"
+source "$(DIR)/log.sh"
 add_flag --required pkg_name "Name of the package to install."
 # TODO: Deprecate local cache until invalidation works.
 add_flag --default="/var/www/html/tgzrepo" repo_path "Path to find packages."
@@ -24,10 +25,10 @@ parse_flags "$@"
 pkg="$F_pkg_name"
 if [[ -z "$pkg" ]]
 then
-  echo "$(basename "$0"): package name cannot be blank" >&2
+  log_rote "package name cannot be blank"
   exit 1
 fi
-echo "$(basename "$0"): installing package '$pkg' and deps" >&2
+log_rote "installing package '$pkg' and deps"
 
 set_repo_local_path "$F_repo_path"
 set_repo_remote_url "$F_repo_url"
@@ -91,21 +92,21 @@ do
   #    installed packages.
   if [[ -e "$pkglist/$dep" ]]
   then
-    echo "$(basename "$0"): found package '$dep'; skipping" >&2
+    log_rote "found package '$dep'; skipping"
     continue
   fi
 
-  echo "$(basename "$0"): installing package '$dep'" >&2
+  log_rote "installing package '$dep'"
   pkgpath="$scratch/$dep.tar.gz"
   versionpath="$scratch/$dep.version"
   if ! repo_get "$dep.tar.gz" > "$pkgpath"
   then
-    echo "$(basename "$0"): could not find archive for package '$dep'" >&2
+    log_rote "could not find archive for package '$dep'"
     exit 1
   fi
   if ! repo_get "$dep.version" > "$versionpath"
   then
-    echo "$(basename "$0"): could not find package version '$dep.version'" >&2
+    log_rote "could not find package version '$dep.version'"
     exit 1
   fi
   tar -zxf "$pkgpath" --directory "$F_install_root"

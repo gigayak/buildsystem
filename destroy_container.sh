@@ -4,6 +4,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/flag.sh"
 source "$(DIR)/cleanup.sh"
+source "$(DIR)/log.sh"
 
 add_flag --required name "Name of container to destroy."
 parse_flags "$@"
@@ -13,7 +14,7 @@ name="${F_name}"
 
 if ! lxc-info -n "$name" >/dev/null 2>&1
 then
-  echo "$(basename "$0"): container '$name' does not exist" >&2
+  log_rote "container '$name' does not exist"
   exit 1
 fi
 
@@ -30,16 +31,16 @@ rootfs="$(lxc-info -n "$name" -c lxc.rootfs \
   | sed -re 's@^\s+@@g' -e 's@\s+$@@g')"
 if [[ -z "$rootfs" ]]
 then
-  echo "$(basename "$0"): could not find rootfs" >&2
+  log_rote "could not find rootfs"
   exit 1
 fi
 
-echo "$(basename "$0"): unmounting all mounts in $rootfs" >&2
+log_rote "unmounting all mounts in $rootfs"
 recursive_umount "$rootfs"
 
-echo "$(basename "$0"): destroying container with name '$name'" >&2
+log_rote "destroying container with name '$name'"
 lxc-destroy -n "$name"
 
 # TODO: clean up leases - this will be a pain if we run out of IP space
 
-echo "$(basename "$0"): container '$name' should be dead" >&2
+log_rote "container '$name' should be dead"

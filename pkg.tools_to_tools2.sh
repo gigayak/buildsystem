@@ -5,6 +5,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 source "$(DIR)/mkroot.sh"
 source "$(DIR)/escape.sh"
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 source "$(DIR)/repo.sh"
 
 add_usage_note <<EOF
@@ -28,7 +29,7 @@ repo="$_REPO_LOCAL_PATH"
 pkg="$F_pkg_name"
 if [[ "$pkg" == "all" ]]
 then
-  echo "$(basename "$0"): 'all' target now unsupported" >&2
+  log_rote "'all' target now unsupported"
   exit 1
 fi
 
@@ -45,7 +46,7 @@ src_pkg="$(qualify_dep "$arch" tools "$pkg")"
 
 if [[ -z "$tgt_pkg" || -z "$src_pkg" || "$tgt_pkg" == "$src_pkg" ]]
 then
-  echo "$(basename "$0"): failed to parse --pkg_name=$(sq "$tgt_pkg")" >&2
+  log_rote "failed to parse --pkg_name=$(sq "$tgt_pkg")"
   exit 1
 fi
 
@@ -65,26 +66,26 @@ src_done="$src_basename.done"
 tgt_done="$tgt_basename.done"
 if [[ ! -e "$src_deps" ]]
 then
-  echo "$(basename "$0"): could not find dependencies at $(sq "$src_deps")" >&2
+  log_rote "could not find dependencies at $(sq "$src_deps")"
   exit 1
 fi
 if [[ ! -e "$src_tar" ]]
 then
-  echo "$(basename "$0"): could not find archive at $(sq "$src_tar")" >&2
+  log_rote "could not find archive at $(sq "$src_tar")"
   exit 1
 fi
 if [[ ! -e "$src_version" ]]
 then
-  echo "$(basename "$0"): could not find version at $(sq "$src_version")" >&2
+  log_rote "could not find version at $(sq "$src_version")"
   exit 1
 fi
 if [[ ! -e "$src_done" ]]
 then
-  echo "$(basename "$0"): could not find donefile at $(sq "$src_done")" >&2
+  log_rote "could not find donefile at $(sq "$src_done")"
   exit 1
 fi
 
-echo "$(basename "$0"): converting $(sq "$src_pkg") to $(sq "$tgt_pkg")" >&2
+log_rote "converting $(sq "$src_pkg") to $(sq "$tgt_pkg")"
 
 # Fix dependencies:
 # - Remove i686-clfs-root, as we no longer need /clfs-root/ (we'll use /)
@@ -105,11 +106,11 @@ if { grep -v -E '^'"${arch}-${distro}:.*\$" "$tmp_deps" && true ; } \
   | grep -E '^[^:]+:' \
   >/dev/null 2>&1
 then
-  echo "$(basename "$0"): found non-${distro} dependency unexpectedly" >&2
+  log_rote "found non-${distro} dependency unexpectedly"
   grep -v -E '^'"${arch}-${distro}:.*\$" "$tmp_deps" \
     | sed -re 's@^@'"$(basename "$0"): "'@g' \
     >&2
-  echo "$(basename "$0"): (investigate whether this is a normal use case?)" >&2
+  log_rote "(investigate whether this is a normal use case?)"
   exit 1
 fi
 
@@ -127,4 +128,4 @@ cp -v "$tmp_deps" "$tgt_deps"
 cp -v "$src_version" "$tgt_version"
 touch "$tgt_done"
 
-echo "$(basename "$0"): $(sq "$tgt_pkg") ready" >&2
+log_rote "$(sq "$tgt_pkg") ready"

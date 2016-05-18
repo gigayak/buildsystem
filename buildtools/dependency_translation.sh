@@ -4,6 +4,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/tool_names.sh" # used for $(AWK)
 source "$(DIR)/../flag.sh"
+source "$(DIR)/../log.sh"
 source "$(DIR)/../repo.sh"
 
 # This file allows you to translate Gigayak dependency names to names from
@@ -92,7 +93,7 @@ dep_rewrite()
   local translations="$(DIR)/deptranslate.${os}.txt"
   if [[ ! -e "$translations" ]]
   then
-    echo "${FUNCNAME[0]}: could not find translations file '$translations'" >&2
+    log_rote "could not find translations file '$translations'"
     return 1
   fi
   local retval=0
@@ -104,13 +105,13 @@ dep_rewrite()
     || retval="$?"
   if (( "$retval" > 0 ))
   then
-    echo "${FUNCNAME[0]}: dependency translation failed with code $retval" >&2
+    log_rote "dependency translation failed with code $retval"
     return "$retval"
   fi
 
   if [[ "$translated_dep" == "." ]]
   then
-    echo "${FUNCNAME[0]}: dependency translation suppressed for '$input'" >&2
+    log_rote "dependency translation suppressed for '$input'"
     return 0
   fi
 

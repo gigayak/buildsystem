@@ -3,6 +3,7 @@ set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 source "$(DIR)/repo.sh"
 source "$(DIR)/buildtools/all.sh"
 add_flag --required pkg_name "Name of the package to build."
@@ -31,13 +32,13 @@ constraint_flags=()
 constraints_enabled=0
 if [[ ! -z "$arch" && "$arch" != "$host_arch" ]]
 then
-  echo "$(basename "$0"): targetting architecture $arch" >&2
+  log_rote "targetting architecture $arch"
   constraint_flags+=(--target_architecture="$arch")
   constraints_enabled=1
 fi
 if [[ ! -z "$distro" && "$distro" != "$host_distro" ]]
 then
-  echo "$(basename "$0"): targetting distribution $distro" >&2
+  log_rote "targetting distribution $distro"
   constraint_flags+=(--target_distribution="$distro")
   constraints_enabled=1
 fi
@@ -47,7 +48,7 @@ fi
 lcname="$(echo "$name" | tr '[:upper:]' '[:lower:]')"
 if [[ "$lcname" != "$name" ]]
 then
-  echo "$(basename "$0"): lowercasing the package name to '$lcname'" >&2
+  log_rote "lowercasing the package name to '$lcname'"
   name="$lcname"
 fi
 
@@ -58,7 +59,7 @@ if [[ "$name" == "python-pip" ]] || [[ "$name" == "python-distribute" ]]
 then
   if (( "$constraints_enabled" ))
   then
-    echo "$(basename "$0"): python-* cannot be built with --target_* flags" >&2
+    log_rote "python-* cannot be built with --target_* flags"
     exit 1
   fi
   "$(DIR)/pkg.from_spec.sh" "--pkg_name=$name" -- "${ARGS[@]}"
@@ -77,7 +78,7 @@ elif [[ \
 then
   if (( "$constraints_enabled" ))
   then
-    echo "$(basename "$0"): python-* cannot be built with --target_* flags" >&2
+    log_rote "python-* cannot be built with --target_* flags"
     exit 1
   fi
   # Make sure to remove both the python- prefix and the version restrictions
@@ -86,7 +87,7 @@ then
     | sed -nre 's@^python-([a-zA-Z0-9_-]+)([>=<]+[0-9\.]+)?$@\1@gp')"
   if [[ -z "$stripped" ]]
   then
-    echo "$(basename "$0"): failed to strip pip package name '$name'" >&2
+    log_rote "failed to strip pip package name '$name'"
     exit 1
   fi
   "$(DIR)/pkg.from_pip.sh" "--pkg_name=$stripped" -- "${ARGS[@]}"
@@ -133,14 +134,14 @@ elif [[ "$name" == "go-"* ]]
 then
   if (( "$constraints_enabled" ))
   then
-    echo "$(basename "$0"): go-* cannot be built with --target_* flags" >&2
+    log_rote "go-* cannot be built with --target_* flags"
     exit 1
   fi
   stripped="$(echo "$name" \
     | sed -nre 's@^go-(.*)$@\1@gp')"
   if [[ -z "$stripped" ]]
   then
-    echo "$(basename "$0"): failed to strip go package name '$name'" >&2
+    log_rote "failed to strip go package name '$name'"
     exit 1
   fi
   "$(DIR)/pkg.from_go.sh" "--pkg_name=$stripped" -- "${ARGS[@]}"
@@ -151,7 +152,7 @@ elif which yum >/dev/null 2>&1
 then
   if (( "$constraints_enabled" ))
   then
-    echo "$(basename "$0"): yum cannot be converted with --target_* flags" >&2
+    log_rote "yum cannot be converted with --target_* flags"
     exit 1
   fi
   "$(DIR)/pkg.from_yum.sh" --pkg_name="$name" -- "${ARGS[@]}"
@@ -162,12 +163,12 @@ elif which apt-get >/dev/null 2>&1
 then
   if (( "$constraints_enabled" ))
   then
-    echo "$(basename "$0"): apt cannot be converted with --target_* flags" >&2
+    log_rote "apt cannot be converted with --target_* flags"
     exit 1
   fi
   "$(DIR)/pkg.from_apt.sh" --pkg_name="$name" -- "${ARGS[@]}"
   exit $?
 fi
 
-echo "$(basename "$0"): could not find a builder for package '$name'" >&2
+log_rote "could not find a builder for package '$name'"
 exit 1

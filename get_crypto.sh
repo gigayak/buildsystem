@@ -15,6 +15,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 
 add_flag --boolean path_only "If set, returns just the expected key path."
 add_flag --boolean private "Fetch the private key.  Mutex /w --public."
@@ -30,7 +31,7 @@ key_types=(rsa dsa ssl)
 if (( ( ! "${F_private}" && ! "${F_public}" ) || \
   ( "${F_private}" && "${F_public}" ) ))
 then
-  echo "$(basename "$0"): need exactly one of --public or --private" >&2
+  log_rote "need exactly one of --public or --private"
   exit 1
 fi
 
@@ -45,8 +46,8 @@ do
 done
 if (( ! "$found" ))
 then
-  echo "$(basename "$0"): unknown key type '$F_key_type'" >&2
-  echo "$(basename "$0"): must be one of: ${key_types[@]}" >&2
+  log_rote "unknown key type '$F_key_type'"
+  log_rote "must be one of: ${key_types[@]}"
   exit 1
 fi
 
@@ -67,7 +68,7 @@ fi
 
 if [[ "${F_key_type}" == "ssl" ]]
 then
-  echo "$(basename "$0"): SSL keys not yet supported." >&2
+  log_rote "SSL keys not yet supported."
   exit 1
 fi
 
@@ -82,7 +83,7 @@ fi
 # TODO: ACL checks of some sort :X  This is a huge vulnerability :(
 if [[ ! -e "$key_path" ]]
 then
-  echo "$(basename "$0"): key does not exist at '$key_path'" >&2
+  log_rote "key does not exist at '$key_path'"
   exit 1
 fi
 cat "$key_path"

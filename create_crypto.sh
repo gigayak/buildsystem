@@ -5,9 +5,10 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 source "$(DIR)/config.sh"
 source "$(DIR)/cleanup.sh"
 source "$(DIR)/escape.sh"
+source "$(DIR)/log.sh"
 
-echo "$(basename "$0"): Regenerating all missing crypto files."
-echo "$(basename "$0"): These should never be checked in."
+log_rote "Regenerating all missing crypto files."
+log_rote "These should never be checked in."
 
 # TODO: refactor this into multiple scripts
 # key_strength applies to SSH keys
@@ -40,12 +41,11 @@ ssh_key()
     --key_name="$key_name")"
   if [[ -e "$key_path" ]]
   then
-    echo "${FUNCNAME[0]}: $algo_name SSH key for ${key_name} exists" >&2
+    log_rote "$algo_name SSH key for ${key_name} exists"
     return 0
   fi
-  echo "${FUNCNAME[0]}: generating $key_strength-bit $algo_name" \
-    "SSH key for '${key_name}'" >&2
-  echo "${FUNCNAME[0]}: 8192 bit keys take ~10 minutes." >&2
+  log_rote "generating $key_strength-bit $algo_name SSH key for '${key_name}'"
+  log_rote "8192 bit keys take ~10 minutes."
   time ssh-keygen \
     -t "$algo" \
     -C "${key_name}@$domain" \
@@ -77,7 +77,7 @@ do
 done
 if [[ -z "$temp_root" ]]
 then
-  echo "$(basename "$0"): unable to find writable temp root" >&2
+  log_rote "unable to find writable temp root"
   exit 1
 fi
 root="$temp_root/chroot.certificate_authority"
@@ -128,13 +128,13 @@ ssl_server_cert()
   crt_path="$ca_root/certificates/$key_name.crt"
   if [[ -e "$key_path" && -e "$crt_path" ]]
   then
-    echo "${FUNCNAME[0]}: found SSL cert $(sq "$key_name"), skipping" >&2
+    log_rote "found SSL cert $(sq "$key_name"), skipping"
     return 0
   fi
-  echo "${FUNCNAME[0]}: creating SSL certs for $(sq "$key_name")" >&2
+  log_rote "creating SSL certs for $(sq "$key_name")"
   for san in "$@"
   do
-    echo "${FUNCNAME[0]}: adding alternate name $(sq "$san")" >&2
+    log_rote "adding alternate name $(sq "$san")"
   done
   chroot "$root" ca_generate_certificate "$key_name" "$domain" "$@"
   tgt_path="$localstorage/$key_name/ssl"
@@ -164,10 +164,12 @@ ssl_client_cert()
   crt_path="$ca_root/certificates/client.$username@$fqdn.crt"
   if [[ -e "$key_path" && -e "$crt_path" ]]
   then
-    echo "${FUNCNAME[0]}: found SSL cert $username@$fqdn, skipping" >&2
+    log_rote "found SSL cert $username@$fqdn, skipping"
     return 0
   fi
-  echo -e "no cert found:\nkey_path: $key_path\ncrt_path: $crt_path"
+  log_error "no cert found"
+  log_error " - key_path: $key_path"
+  log_error " - crt_path: $crt_path"
   chroot "$root" ca_generate_client_certificate \
     "$username" "$fqdn" "$domain" "$client_name"
 }
@@ -187,4 +189,4 @@ ssl_client_cert system "dl380.home.$domain" "System / DL380"
 ssl_client_cert system "stage2.automation.$domain" "System / stage2 build"
 ssl_client_cert system "stage3.automation.$domain" "System / stage3 build"
 
-echo "$(basename "$0"): successfully created all keys and certs" >&2
+log_rote "successfully created all keys and certs"

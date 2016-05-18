@@ -5,6 +5,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 source "$(DIR)/cleanup.sh"
 source "$(DIR)/escape.sh"
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 add_usage_note <<EOF
 This script finds dependencies for a given set of paths using LDD lookups.
 It's a total kludge, but I've been using it for sorting out i686-tools-
@@ -17,7 +18,7 @@ parse_flags "$@"
 pkg="$F_pkg_name"
 
 make_temp_dir scratch
-echo "$(basename "$0"): extracting $pkg.tar.gz" >&2
+log_rote "extracting $pkg.tar.gz"
 root="$scratch/root"
 mkdir -p "$root"
 cd "$root"
@@ -26,7 +27,7 @@ tar -zxf "/var/www/html/tgzrepo/$pkg.tar.gz"
 executables="$scratch/executables"
 find . -type f -perm /111 > "$executables"
 
-echo "$(basename "$0"): enumerating all desired libraries" >&2
+log_rote "enumerating all desired libraries"
 libraries="$scratch/libraries"
 while read -r executable
 do
@@ -105,7 +106,7 @@ do
   fi
   # This appears here rather than at the beginning of the loop to
   # ensure we don't output log spam for ignored packages.
-  echo "$(basename "$0"): looking for libraries in $pkg_name" >&2
+  log_rote "looking for libraries in $pkg_name"
 
   manifest=/tmp/pkgmanifest
   tar -tzvf "$pkg" \
@@ -121,17 +122,17 @@ do
     grep -E "/$lib_escaped"'(\s+.*)?$' "$manifest" \
       > /dev/null \
       || continue
-    echo "$(basename "$pkg" .tar.gz) satisfies $lib"
+    log_rote "$(basename "$pkg" .tar.gz) satisfies $lib"
     remove_lib "$lib"
   done
 done < <(find /var/www/html/tgzrepo -iname 'i686-tools-*.tar.gz')
-echo "$(basename "$0"): wrapping up" >&2
+log_rote "wrapping up"
 
 status=0
 for lib in "${desired_libs[@]}"
 do
   echo "NOTHING satisfies $lib"
-  echo "$(basename "$0"): could not find $(sq "$lib")" >&2
+  log_rote "could not find $(sq "$lib")"
   status=1
 done
 

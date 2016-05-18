@@ -3,6 +3,7 @@ set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 source "$(DIR)/mkroot.sh"
 add_flag --required name "Name of container to launch"
 parse_flags "$@"
@@ -42,7 +43,7 @@ done < "$root/etc/container.mounts"
 cinit="$root/usr/bin/container.init"
 if [[ ! -e "$cinit" ]]
 then
-  echo "$(basename "$0"): container.init not found at $cinit" >&2
+  log_rote "container.init not found at $cinit"
   exit 1
 fi
 
@@ -63,6 +64,6 @@ lxc-start \
 
 if (( "$retval" ))
 then
-  echo "$(basename "$0"): lxc-start failed with return code $retval" >&2
+  log_rote "lxc-start failed with return code $retval"
   exit $retval
 fi

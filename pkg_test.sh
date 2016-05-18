@@ -5,6 +5,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 source "$(DIR)/cleanup.sh"
 source "$(DIR)/escape.sh"
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 
 add_flag --boolean preserve_chroot "Set to keep chroot around for debugging."
 parse_flags "$@"
@@ -114,7 +115,7 @@ create_dummy_package()
   basename="${repo}/${pkg}"
   if [[ -e "${basename}.done" ]]
   then
-    echo "${FUNCNAME[0]}: package '$pkg' already exists" >&2
+    log_error "package '$pkg' already exists"
     return 1
   fi
   echo "1.0" > "${basename}.version"
@@ -196,5 +197,5 @@ ensure_not_depends "${arch}-ubuntu:simple-cycle-b" "simple-cycle-a"
 if (( "$F_preserve_chroot" ))
 then
   unregister_temp_file "$tmp"
-  echo "$(basename "$0"): saved $(sq "$tmp") for inspection." >&2
+  log_rote "saved $(sq "$tmp") for inspection."
 fi

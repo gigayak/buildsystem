@@ -2,10 +2,12 @@
 set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-echo "$(basename "$0") is deprecated" >&2
-echo "Code remains to allow an installation CD to be created for stage3." >&2
-echo "Use lfs.stage2.create_raw_image.sh to create stage2 image." >&2
-echo "Use lfs.stage2.sh to boot stage2 image and build stage3." >&2
+source "$(DIR)/log.sh"
+
+log_error "$(basename "$0") is deprecated"
+log_error "Code remains to allow an installation CD to be created for stage3."
+log_error "Use lfs.stage2.create_raw_image.sh to create stage2 image."
+log_error "Use lfs.stage2.sh to boot stage2 image and build stage3."
 exit 1
 
 source "$(DIR)/arch.sh"
@@ -27,7 +29,7 @@ pkgs+=(e2fsprogs) # used to initialize filesystem
 pkgs+=(tar) # used to populate filesystem
 pkgs+=(wget) # used by build system
 pkgs+=(genisoimage) # provides mkisofs; used to create ISO
-echo "Will install: ${pkgs[@]}"
+log_rote "will install: ${pkgs[@]}"
 
 mkroot dir
 
@@ -180,5 +182,5 @@ chroot "$dir" /bin/bash /root/generate_image.sh \
   "$F_mac_address" "$F_ip_address"
 
 # Break out of chroot and export the packages...
-echo "generate_image.sh complete.  Exporting image."
+log_rote "generate_image.sh complete.  Exporting image."
 cp -v "$dir/root/gigayak.iso" "$F_output_path"

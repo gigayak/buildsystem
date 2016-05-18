@@ -4,6 +4,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/escape.sh"
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 add_flag --boolean continue "Whether to avoid wiping state."
 add_flag --required domain "Domain to set up under."
 parse_flags "$@"
@@ -23,8 +24,8 @@ parse_flags "$@"
 
 if ! ls /dev/kvm >/dev/null 2>&1
 then
-  echo "$(basename "$0"): /dev/kvm is missing, stage3 would be really slow" >&2
-  echo "$(basename "$0"): Consider installing the KVM module." >&2
+  log_rote "/dev/kvm is missing, stage3 would be really slow"
+  log_rote "Consider installing the KVM module."
   exit 1
 fi
 

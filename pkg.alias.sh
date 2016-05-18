@@ -4,6 +4,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/repo.sh"
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 add_flag --required alias "Name of the virtual package to create."
 add_flag --default="" alias_architecture \
   "Arch of alias; defaults to arch of actual package"
@@ -43,7 +44,7 @@ target="$(qualify_dep "$target_arch" "$target_distro" "$F_target")"
 
 if [[ -e "$_REPO_LOCAL_PATH/$alias.done" ]]
 then
-  echo "$(basename "$0"): package '$alias' already exists, aborting" >&2
+  log_rote "package '$alias' already exists, aborting"
   exit 1
 fi
 
@@ -52,5 +53,5 @@ echo "alias" > "$_REPO_LOCAL_PATH/$alias.version"
 echo "$target" > "$_REPO_LOCAL_PATH/$alias.dependencies"
 touch "$_REPO_LOCAL_PATH/$alias.done"
 
-echo "$(basename "$0"): aliased '$target' as '$alias'" >&2
-echo "$(basename "$0"): installing '$alias' will install '$target'" >&2
+log_rote "aliased '$target' as '$alias'"
+log_rote "installing '$alias' will install '$target'"

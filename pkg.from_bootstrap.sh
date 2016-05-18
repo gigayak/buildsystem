@@ -5,6 +5,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 source "$(DIR)/cleanup.sh"
 source "$(DIR)/flag.sh"
 source "$(DIR)/repo.sh"
+source "$(DIR)/log.sh"
 source "$(DIR)/mkroot.sh"
 add_flag --required pkg_name "Name of the package to build."
 add_flag --default="" target_architecture \
@@ -42,16 +43,16 @@ do
 done
 if (( ! "$found" ))
 then
-  echo "$(basename "$0"): bootstrap script not found" >&2
+  log_rote "bootstrap script not found"
   for bootstrap in "${bootstrap_files[@]}"
   do
-    echo "$(basename "$0"): consider creating '$bootstrap'" >&2
+    log_rote "consider creating '$bootstrap'"
   done
   exit 1
 fi
 if (( "$F_check_only" ))
 then
-  echo "$(basename "$0"): can build '$F_pkg_name' via bootstrap" >&2
+  log_rote "can build '$F_pkg_name' via bootstrap"
   exit 0
 fi
 
@@ -85,7 +86,7 @@ then
     pkg_arch="$(dep2arch "$arch" "$distro" "$dep")"
     pkg_distro="$(dep2distro "$arch" "$distro" "$dep")"
     pkg="$(dep2name "$arch" "$distro" "$dep")"
-    echo "$(basename "$0"): ensuring ${pkg_arch}-${pkg_distro}:${pkg} exists" >&2
+    log_rote "ensuring ${pkg_arch}-${pkg_distro}:${pkg} exists"
     "$(DIR)/ensure_pkg_exists.sh" \
       --target_architecture="$pkg_arch" \
       --target_distribution="$pkg_distro" \

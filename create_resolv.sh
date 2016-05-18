@@ -2,6 +2,8 @@
 set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
+source "$(DIR)/log.sh"
+
 # HACK SCALE: MAJOR
 #
 # Since we don't have the ability to query our DNS servers nicely while
@@ -24,7 +26,7 @@ found_servers=0
 # the correct nameservers populated, as we will not have a local repo cache.
 if [[ -e "/tools" ]]
 then
-  echo "$(basename "$0"): using /etc/resolv.conf instead of generating it" >&2
+  log_rote "using /etc/resolv.conf instead of generating it"
   cat /etc/resolv.conf
   exit 0
 fi

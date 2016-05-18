@@ -9,6 +9,7 @@ fi
 _CLEANUP_SH_INCLUDED=1
 
 source "$(DIR)/escape.sh" # used by recursive_umount
+source "$(DIR)/log.sh"
 
 _TEMP_ROOTS=()
 _TEMP_ROOTS+=(/mnt/vol_b/tmp)
@@ -24,7 +25,7 @@ register_exit_handler_front()
   fi
 
   exit_handlers=("$1" "${exit_handlers[@]}")
-  echo "${FUNCNAME[0]}: registered exit handler '$1'" >&2
+  log_rote "registered exit handler '$1'"
 }
 
 register_exit_handler_back()
@@ -36,7 +37,7 @@ register_exit_handler_back()
   fi
 
   exit_handlers+=("$1")
-  echo "${FUNCNAME[0]}: registered exit handler '$1'" >&2
+  log_rote "registered exit handler '$1'"
 }
 
 register_exit_handler()
@@ -58,7 +59,7 @@ register_temp_file()
 
   local file="$1"
   paths_to_cleanup+=("$file")
-  echo "${FUNCNAME[0]}: registered '$file' for removal" >&2
+  log_rote "registered '$file' for removal"
 }
 unregister_temp_file()
 {
@@ -77,25 +78,25 @@ cleanup_temp_files()
   do
     if [[ -z "$path" ]]
     then
-      echo "${FUNCNAME[0]}: ignoring empty path to cleanup: $path" >&2
+      log_rote "ignoring empty path to cleanup: $path"
       continue
     fi
 
     if [[ ! -e "$path" ]]
     then
-      echo "${FUNCNAME[0]}: could not find file to cleanup: $path" >&2
+      log_rote "could not find file to cleanup: $path"
       continue
     fi
 
     if [[ -d "$path" ]]
     then
-      echo "${FUNCNAME[0]}: deleting directory: $path" >&2
+      log_rote "deleting directory: $path"
       recursive_umount "$path"
       rm -rf "$path"
       continue
     fi
 
-    echo "${FUNCNAME[0]}: deleting file: $path" >&2
+    log_rote "deleting file: $path"
     rm -f "$path"
   done
 }
@@ -113,7 +114,7 @@ select_temp_root()
     echo "$_temp_root"
     return 0
   done
-  echo "${FUNCNAME[0]}: no suitable temproots found" >&2
+  log_rote "no suitable temproots found"
   return 1
 }
 
@@ -149,15 +150,15 @@ make_temp_file()
 
 run_exit_handlers()
 {
-  echo "${FUNCNAME[0]}: running exit handlers" >&2
+  log_rote "running exit handlers"
   for handler in "${exit_handlers[@]}"
   do
-    echo "${FUNCNAME[0]}: exit handler '$handler' about to run" >&2
+    log_rote "exit handler '$handler' about to run"
     local retval=0
     "$handler" || retval=$?
     if (( "$retval" ))
     then
-      echo "${FUNCNAME[0]}: '$handler' handler failed with code $retval" >&2
+      log_rote "'$handler' handler failed with code $retval"
     fi
   done
 }
@@ -171,18 +172,18 @@ recursive_umount()
     return 1
   fi
 
-  echo "${FUNCNAME[0]}: recursively unmounting $(sq "$_tgt")" >&2
+  log_rote "recursively unmounting $(sq "$_tgt")"
 
   local _failed=0
   local _mountpoint
   while read -r _mountpoint
   do
-    echo "${FUNCNAME[0]}: unmounting $(sq "$_mountpoint")" >&2
+    log_rote "unmounting $(sq "$_mountpoint")"
     local _retval=0
     umount "$_mountpoint" || _retval=$?
     if (( "$_retval" ))
     then
-      echo "${FUNCNAME[0]}: umount $(sq "$_mountpoint") failed /w $retval">&2
+      log_error "umount $(sq "$_mountpoint") failed /w $retval"
       _failed=1
     fi
     if mountpoint -q -- "$_mountpoint" >/dev/null 2>&1
@@ -201,7 +202,7 @@ recursive_umount()
       # on a chroot delete all of the devices in /dev/.
       #
       # This kills the system. A reboot is usually necessary afterwards :(
-      echo "${FUNCNAME[0]}: doing lazy unmount on $(sq "$_mountpoint")" >&2
+      log_rote "doing lazy unmount on $(sq "$_mountpoint")"
       umount -l "$_mountpoint"
       _failed=1
     fi
@@ -215,7 +216,7 @@ recursive_umount()
   # being found in the mount table :)
   if (( "$_failed" ))
   then
-    echo "${FUNCNAME[0]}: failed to deal with $(sq "$_tgt")" >&2
+    log_rote "failed to deal with $(sq "$_tgt")"
     return 1
   fi
   return 0

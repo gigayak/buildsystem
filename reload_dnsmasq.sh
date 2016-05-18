@@ -1,5 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
+
+source "$(DIR)/log.sh"
 
 # HACK SCALE: MAJOR
 #
@@ -21,19 +24,19 @@ do
   # Ignore non-LXC'ed dnsmasq instances.
   if [[ -z "$lxc_name" ]]
   then
-    echo "$(basename "$0"): ignoring non-LXC'ed dnsmasq /w PID $pid" >&2
+    log_rote "ignoring non-LXC'ed dnsmasq /w PID $pid"
     continue
   fi
 
   # Ignore LXC instances not named "dns-##".
   if [[ -z "$(echo "$lxc_name" | sed -nre 's@^/lxc/dns-([0-9-]+)$@\1@gp')" ]]
   then
-    echo "$(basename "$0"): ignoring dnsmasq /w PID $pid and name $lxc_name" >&2
+    log_rote "ignoring dnsmasq /w PID $pid and name $lxc_name"
     continue
   fi
 
   # Send a signal to trigger a reload of configuration.
-  echo "$(basename "$0"): telling dnsmasq /w PID $pid to reload config" >&2
+  log_rote "telling dnsmasq /w PID $pid to reload config"
   kill -SIGHUP "$pid"
 done < <(pgrep dnsmasq)
 

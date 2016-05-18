@@ -9,6 +9,7 @@ fi
 _MKROOT_SH_INCLUDED=1
 source "$(DIR)/cleanup.sh"
 source "$(DIR)/arch.sh"
+source "$(DIR)/log.sh"
 
 # Create a bare-minimum CentOS installation in a temp directory,
 # and then store the name of that directory into the environment
@@ -31,7 +32,7 @@ create_bare_root()
 
   if (( "$UID" != 0 ))
   then
-    echo "${FUNCNAME[0]}: must be run as root (for chroot)" >&2
+    log_rote "must be run as root (for chroot)"
     return 1
   fi
 
@@ -39,7 +40,7 @@ create_bare_root()
   local _original_dir="$PWD"
   make_temp_dir "$env"
   local _root="${!env}"
-  echo "${FUNCNAME[0]}: made temp dir '$_root'" >&2
+  log_rote "made temp dir '$_root'"
 
   # Populate bare minimum packages to run.
   # TODO: Need a way of determining whether we need i686-tools or just bare OS
@@ -121,7 +122,7 @@ populate_dynamic_fs_pieces()
 
   if [[ ! -d "$_root" ]]
   then
-    echo "${FUNCNAME[0]}: target chroot '$_root' does not exist" >&2
+    log_rote "target chroot '$_root' does not exist"
     return 2
   fi
 
@@ -190,7 +191,7 @@ depopulate_dynamic_fs_pieces()
 
   if [[ ! -d "$_root" ]]
   then
-    echo "${FUNCNAME[0]}: target chroot '$_root' does not exist" >&2
+    log_rote "target chroot '$_root' does not exist"
     return 2
   fi
 
@@ -232,7 +233,7 @@ cleanup_dynamic_fs_roots()
     depopulate_dynamic_fs_pieces "$_root" || _retval=$?
     if (( "$_retval" ))
     then
-      echo "${FUNCNAME[0]}: failed to clean up '$_root'" >&2
+      log_rote "failed to clean up '$_root'"
       continue
     fi
   done
@@ -261,14 +262,14 @@ mkroot()
   #       are imported :X
   if [[ -d "$(DIR)/cache/baseroot" && "$2" != "--no-repo" ]]
   then
-    echo "${FUNCNAME[0]}: creating root from baseroot cache" >&2
+    log_rote "creating root from baseroot cache"
     make_temp_dir "$_env"
     cp -r "$(DIR)/cache/baseroot/"* "${!_env}"
     populate_dynamic_fs_pieces "${!_env}"
     return 0
   fi
 
-  echo "${FUNCNAME[0]}: creating root from packages" >&2
+  log_rote "creating root from packages"
   if [[ "$2" == "--no-repo" ]]
   then
     create_bare_root "$_env" --no-repo

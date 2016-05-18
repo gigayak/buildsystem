@@ -1,6 +1,8 @@
 #!/bin/bash
 set -Eeo pipefail
 
+source "$YAK_BUILDSYSTEM/log.sh"
+
 # Take a snapshot of apt-get databases to prevent changes to those databases
 # from making it into the final image.
 mkdir -p "$YAK_WORKSPACE/backups/"{lib,log,cache}
@@ -25,7 +27,7 @@ apt-get download "$YAK_PKG_NAME"
 pkg_count="$(find . -mindepth 1 -maxdepth 1 -iname '*.deb' | wc -l)"
 if (( "$pkg_count" != 1 ))
 then
-  echo "$(basename "$0"): $pkg_count packages downloaded instead of 1" >&2
+  log_rote "$pkg_count packages downloaded instead of 1"
   exit 1
 fi
 

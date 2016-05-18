@@ -9,6 +9,7 @@ fi
 _CONFIG_SH_INCLUDED=1
 
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 
 declare -A _CONFIG_DESCRIPTIONS
 declare -A _CONFIG_VALUES
@@ -22,7 +23,7 @@ create_config()
 
   if [[ "${_CONFIG_DESCRIPTIONS[$F_name]+_}" ]]
   then
-    echo "${FUNCNAME[0]}: cannot redeclare config variable '$F_name'" >&2
+    log_rote "cannot redeclare config variable '$F_name'"
     return 1
   fi
 
@@ -41,11 +42,11 @@ set_config()
 
   if [[ ! "${_CONFIG_DESCRIPTIONS[$name]+_}" ]]
   then
-    echo "${FUNCNAME[0]}: unknown config variable '$name'" >&2
-    echo "${FUNCNAME[0]}: known variables include:" >&2
+    log_rote "unknown config variable '$name'"
+    log_rote "known variables include:"
     for var in "${!_CONFIG_DESCRIPTIONS[@]}"
     do
-      echo "${FUNCNAME[0]}: - $var" >&2
+      log_rote "- $var"
     done
     return 1
   fi
@@ -63,11 +64,11 @@ get_config()
 
   if [[ ! "${_CONFIG_DESCRIPTIONS[$name]+_}" ]]
   then
-    echo "${FUNCNAME[0]}: unknown config variable '$name'" >&2
-    echo "${FUNCNAME[0]}: known variables include:" >&2
+    log_rote "unknown config variable '$name'"
+    log_rote "known variables include:"
     for var in "${!_CONFIG_DESCRIPTIONS[@]}"
     do
-      echo "${FUNCNAME[0]}: - $var" >&2
+      log_rote "- $var"
     done
     return 1
   fi
@@ -122,7 +123,7 @@ for config_path in "${config_paths[@]}"
 do
   if (( ! "$sourced" ))
   then
-    echo "$(basename "$0"): looking for configuration in '$config_path'" >&2
+    log_rote "looking for configuration in '$config_path'"
   fi
   if [[ -e "$config_path" ]]
   then
@@ -138,11 +139,11 @@ for var in "${!_CONFIG_DESCRIPTIONS[@]}"
 do
   if [[ ! "${_CONFIG_VALUES[$var]+_}" ]]
   then
-    echo "$(basename "$0"): no value found for '$var'" >&2
+    log_rote "no value found for '$var'"
     exit 1
   fi
   if (( ! "$sourced" ))
   then
-    echo "$(basename "$0"): ${var}=${_CONFIG_VALUES[$var]}" >&2 
+    log_rote "${var}=${_CONFIG_VALUES[$var]}" 
   fi
 done

@@ -4,6 +4,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/flag.sh"
 source "$(DIR)/cleanup.sh"
+source "$(DIR)/log.sh"
 add_flag --required pkg_name "Name of the package to convert."
 add_flag --default="/var/www/html/tgzrepo" repo_path "Path to output packages."
 parse_flags "$@"
@@ -16,14 +17,14 @@ convert_yum_package()
   local pkg="$1"
   if [[ -z "$pkg" ]]
   then
-    echo "${FUNCNAME[0]}: no package name provided" >&2
+    log_rote "no package name provided"
     return 1
   fi
 
   if [[ -e "$outdir/$pkg.done" ]]
   then
-    echo "${FUNCNAME[0]}: package '$pkg' already exists in '$outdir'" >&2
-    echo "${FUNCNAME[0]}: skipping conversion of package '$pkg'" >&2
+    log_rote "package '$pkg' already exists in '$outdir'"
+    log_rote "skipping conversion of package '$pkg'"
     return 0
   fi
 
@@ -32,9 +33,9 @@ convert_yum_package()
   then
     if [[ -e "$WORKDIR/$pkg.done" ]]
     then
-      echo "${FUNCNAME[0]}: package '$pkg' already processed; skipping" >&2
+      log_rote "package '$pkg' already processed; skipping"
     else
-      echo "${FUNCNAME[0]}: package '$pkg' processing elsewhere; skipping" >&2
+      log_rote "package '$pkg' processing elsewhere; skipping"
     fi
     return 0
   fi
@@ -45,7 +46,7 @@ convert_yum_package()
   local rpm="$(find "$WORKDIR" -iname "$pkg-*.rpm")"
   if [[ -z "$rpm" ]]
   then
-    echo "${FUNCNAME[0]}: failed to find RPM we just downloaded" >&2
+    log_rote "failed to find RPM we just downloaded"
     return 1
   fi
 

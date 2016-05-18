@@ -5,13 +5,14 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 source "$(DIR)/flag.sh"
 source "$(DIR)/mkroot.sh"
 source "$(DIR)/cleanup.sh"
+source "$(DIR)/log.sh"
 add_flag --required pkg_name "Name of Go package to create environment for."
 parse_flags "$@"
 
 # Strip go- prefix if it was given.
 # This may cause odd behaviors if we name a package go-go-power-rangers...
 pkg_name="$(echo "$F_pkg_name" | sed -re 's@^go-@@')"
-echo "$(basename "$0"): preparing environment for $pkg_name" >&2
+log_rote "preparing environment for $pkg_name"
 
 mkroot root
 

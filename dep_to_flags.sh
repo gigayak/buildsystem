@@ -5,6 +5,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 source "$(DIR)/escape.sh"
 source "$(DIR)/repo.sh"
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 add_flag --required dep "Name of dependency to convert to flags."
 add_usage_note <<'EOF'
 This utility accepts a dependency via the --dep flag and outputs flags which
@@ -17,7 +18,7 @@ dep="$F_dep"
 name="$(dep2name "" "" "$dep")"
 if [[ -z "$name" ]]
 then
-  echo "$(basename "$0"): no package name found for dependency '$dep'" >&2
+  log_rote "no package name found for dependency '$dep'"
   exit 1
 fi
 echo "--pkg_name=$(sq "$name")"

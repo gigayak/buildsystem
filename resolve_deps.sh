@@ -4,6 +4,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/repo.sh"
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 add_flag --required pkg_name "Name of the dependency to install."
 add_flag --default="" installed_list \
   "Directory containing filelists of packages which have already been installed."
@@ -18,10 +19,10 @@ parse_flags "$@"
 
 if [[ -z "$F_pkg_name" ]]
 then
-  echo "$(basename "$0"): dependency cannot be blank" >&2
+  log_rote "dependency cannot be blank"
   exit 1
 fi
-echo "$(basename "$0"): resolving package '$F_pkg_name' deps" >&2
+log_rote "resolving package '$F_pkg_name' deps"
 
 arch="$("$(DIR)/os_info.sh" --architecture)"
 if [[ ! -z "$F_target_architecture" ]]

@@ -5,6 +5,7 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 source "$(DIR)/config.sh"
 source "$(DIR)/escape.sh"
 source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
 add_usage_note <<EOF
 This is a bit of a shell-based dumb DNS replacement.  DHCP is one of the more
 mobile wiggly bits for LXC and qemu across distributions, and tends to be the
@@ -58,7 +59,7 @@ parse_flags "$@"
 owner_type="$(echo "$F_owner" | sed -nre 's@^([^:]+):.*$@\1@gp')"
 if [[ -z "$owner_type" ]]
 then
-  echo "$(basename "$0"): failed to parse owner type from '$F_owner'" >&2
+  log_rote "failed to parse owner type from '$F_owner'"
   exit 1
 fi
 case "$owner_type" in
@@ -69,7 +70,7 @@ chroot)
 vm)
   ;;
 *)
-  echo "$(basename "$0"): unknown owner type '$owner_type'" >&2
+  log_rote "unknown owner type '$owner_type'"
   exit 1
 esac
 
@@ -79,7 +80,7 @@ if grep -E "^\S+\s+$(grep_escape "$F_owner")$" "$F_lease_file" >/dev/null 2>&1
 then
   ip="$(grep -E "^\S+\s+$(grep_escape "$F_owner")$" "$F_lease_file" \
     | cut -d' ' -f1)"
-  echo "$(basename "$0"): found existing lease at $ip for '$F_owner'" >&2
+  log_rote "found existing lease at $ip for '$F_owner'"
   echo "$ip"
   exit 0
 fi
@@ -87,7 +88,7 @@ fi
 # Bail out if only reading leases.
 if (( "$F_read_only" ))
 then
-  echo "$(basename "$0"): in read-only mode, did not find IP for '$F_owner'" >&2
+  log_rote "in read-only mode, did not find IP for '$F_owner'"
   exit 1
 fi
 
@@ -96,14 +97,14 @@ subnet_start="$(echo "$F_subnet" \
   | sed -nre 's@^([1-9][0-9]*\.[0-9]+\.[0-9]+\.[0-9]+)/[1-9][0-9]*$@\1@gp')"
 if [[ -z "$subnet_start" ]]
 then
-  echo "$(basename "$0"): failed to parse subnet start from '$F_subnet'" >&2
+  log_rote "failed to parse subnet start from '$F_subnet'"
   exit 1
 fi
 subnet_size="$(echo "$F_subnet" \
   | sed -nre 's@^[1-9][0-9]*\.[0-9]+\.[0-9]+\.[0-9]+/([1-9][0-9]*)$@\1@gp')"
 if [[ -z "$subnet_size" ]]
 then
-  echo "$(basename "$0"): failed to parse subnet size from '$F_subnet'" >&2
+  log_rote "failed to parse subnet size from '$F_subnet'"
   exit 1
 fi
 
@@ -119,34 +120,34 @@ ip_to_dec()
     | sed -nre 's@^([1-9][0-9]*)\.[0-9]+\.[0-9]+\.[0-9]+$@\1@gp')"
   if [[ -z "$_ipa" ]]
   then
-    echo "${FUNCNAME[0]}: failed to parse byte 1 of IP '$_ip'" >&2
+    log_rote "failed to parse byte 1 of IP '$_ip'"
     return 1
   fi
   _ipb="$(echo "$_ip" \
     | sed -nre 's@^[1-9][0-9]*\.([0-9]+)\.[0-9]+\.[0-9]+$@\1@gp')"
   if [[ -z "$_ipb" ]]
   then
-    echo "${FUNCNAME[0]}: failed to parse byte 2 of IP '$_ip'" >&2
+    log_rote "failed to parse byte 2 of IP '$_ip'"
     return 1
   fi
   _ipc="$(echo "$_ip" \
     | sed -nre 's@^[1-9][0-9]*\.[0-9]+\.([0-9]+)\.[0-9]+$@\1@gp')"
   if [[ -z "$_ipc" ]]
   then
-    echo "${FUNCNAME[0]}: failed to parse byte 3 of IP '$_ip'" >&2
+    log_rote "failed to parse byte 3 of IP '$_ip'"
     return 1
   fi
   _ipd="$(echo "$_ip" \
     | sed -nre 's@^[1-9][0-9]*\.[0-9]+\.[0-9]+\.([0-9]+)$@\1@gp')"
   if [[ -z "$_ipd" ]]
   then
-    echo "${FUNCNAME[0]}: failed to parse byte 4 of IP '$_ip'" >&2
+    log_rote "failed to parse byte 4 of IP '$_ip'"
     return 1
   fi
   dec="$(echo "$_ipa*2^24 + $_ipb*2^16 + $_ipc*2^8 + $_ipd*2^0" | bc)"
   if [[ -z "$dec" ]] || (( ! "$dec" ))
   then
-    echo "${FUNCNAME[0]}: failed to convert IP '$_ip' to decimal" >&2
+    log_rote "failed to convert IP '$_ip' to decimal"
     return 1
   fi
   echo "$dec"
@@ -163,25 +164,25 @@ dec_to_ip()
   _ipa="$(echo "$_dec / 2^24" | bc)"
   if [[ -z "$_ipa" ]]
   then
-    echo "${FUNCNAME[0]}: failed to convert byte 1 of IP '$_dec'" >&2
+    log_rote "failed to convert byte 1 of IP '$_dec'"
     return 1
   fi
   _ipb="$(echo "$_dec / 2^16 % 256" | bc)"
   if [[ -z "$_ipb" ]]
   then
-    echo "${FUNCNAME[0]}: failed to convert byte 2 of IP '$_dec'" >&2
+    log_rote "failed to convert byte 2 of IP '$_dec'"
     return 1
   fi
   _ipc="$(echo "$_dec / 2^8 % 256" | bc)"
   if [[ -z "$_ipc" ]]
   then
-    echo "${FUNCNAME[0]}: failed to convert byte 3 of IP '$_dec'" >&2
+    log_rote "failed to convert byte 3 of IP '$_dec'"
     return 1
   fi
   _ipd="$(echo "$_dec / 2^0 % 256" | bc)"
   if [[ -z "$_ipd" ]]
   then
-    echo "${FUNCNAME[0]}: failed to convert byte 4 of IP '$_dec'" >&2
+    log_rote "failed to convert byte 4 of IP '$_dec'"
     return 1
   fi
   echo "$_ipa.$_ipb.$_ipc.$_ipd"
@@ -198,7 +199,7 @@ subnet_end_dec="$(echo "$subnet_start_dec + 2^(32-$subnet_size) - 1" | bc)"
 # Retreat by 1 reserved IP: last IP is reserved as broadcast address.
 valid_end_dec="$(echo "$subnet_end_dec - 1" | bc)"
 valid_end="$(dec_to_ip "$valid_end_dec")"
-echo "$(basename "$0"): will choose IP between $valid_start and $valid_end" >&2
+log_rote "will choose IP between $valid_start and $valid_end"
 
 # TODO: Validate that we've chosen a valid start point for the subnet, as they
 # are bit-aligned based on the mask.
@@ -221,14 +222,14 @@ while true
 do
   ip_dec="$(random_ip_dec "$valid_start_dec" "$valid_end_dec")"
   ip="$(dec_to_ip "$ip_dec")"
-  echo "$(basename "$0"): considering IP $ip" >&2
+  log_rote "considering IP $ip"
   match="$(grep -E "^$(grep_escape "$ip")\s+" "$F_lease_file" || true)"
   if [[ -z "$match" ]]
   then
-    echo "$(basename "$0"): settling on IP $ip" >&2
+    log_rote "settling on IP $ip"
     break
   else
-    echo "$(basename "$0"): found collision: $match" >&2
+    log_rote "found collision: $match"
   fi
 done
 
@@ -251,10 +252,10 @@ fi
 host="$(echo "$F_owner" | sed -nre 's@^[^:]+:(.*)$@\1@gp')"
 if [[ -z "$host" ]]
 then
-  echo "$(basename "$0"): unable to parse hostname from owner '$F_owner'" >&2
+  log_rote "unable to parse hostname from owner '$F_owner'"
   exit 1
 fi
-echo "$(basename "$0"): doing a super hacky DNS update to register '$host'" >&2
+log_rote "doing a super hacky DNS update to register '$host'"
 # We'll take care to also remove the replica numbers from the host name, so that
 # we get some DNS load balancing if we're lucky.
 shared_host="$(echo "$host" | sed -nre 's@^([a-zA-Z0-9_-]+)-[0-9]+$@\1@gp')"
