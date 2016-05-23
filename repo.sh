@@ -8,8 +8,10 @@ then
 fi
 _REPO_SH_INCLUDED=1
 
+source "$(DIR)/config.sh"
 source "$(DIR)/cleanup.sh"
 source "$(DIR)/escape.sh"
+source "$(DIR)/flag.sh"
 source "$(DIR)/log.sh"
 
 
@@ -19,9 +21,9 @@ source "$(DIR)/log.sh"
 # This is likely faster than downloading them, but likely to be out of date.
 if [[ -z "$_REPO_LOCAL_PATH" ]]
 then
-  if [[ -e "/var/www/html/tgzrepo" ]]
+  if [[ -e "$(get_config REPO_LOCAL_PATH)" ]]
   then
-    export _REPO_LOCAL_PATH="/var/www/html/tgzrepo"
+    export _REPO_LOCAL_PATH="$(get_config REPO_LOCAL_PATH)"
   else
     export _REPO_LOCAL_PATH=""
   fi
@@ -36,7 +38,7 @@ set_repo_local_path()
 # latest packages.  It's expected to be slow, but accurate and up-to-date.
 if [[ -z "$_REPO_URL" ]]
 then
-  export _REPO_URL="https://repo.jgilik.com"
+  export _REPO_URL="$(get_config REPO_URL)"
 fi
 
 set_repo_remote_url()
@@ -109,7 +111,7 @@ repo_get()
       "$_url" \
     > "$_REPO_SCRATCH/$_path" \
     || {
-      log_rote "error code '$?' fetching '$_url'"
+      log_error "error code '$?' fetching '$_url'"
       return 1
     }
     mv -f "$_REPO_SCRATCH/$_path" "$_REPO_LOCAL_PATH/$_path"
@@ -125,7 +127,7 @@ repo_get()
       --retry-connrefused \
       "$_url" \
     || {
-      log_rote "error code '$?' fetching '$_url'"
+      log_error "error code '$?' fetching '$_url'"
       return 1
     }
   fi
@@ -158,7 +160,7 @@ dependency_to_property()
     group='\3'
     p='pkg'
   else
-    log_rote "unknown property '$prop'"
+    log_error "unknown property '$prop'"
     return 1
   fi
 
@@ -184,7 +186,7 @@ dependency_to_property()
     return 0
   fi
 
-  log_rote "unknown property '$prop'"
+  log_error "unknown property '$prop'"
   return 1
 }
 dep2name()
@@ -228,16 +230,21 @@ qualify_dep()
 
 resolve_deps()
 {
-  host_arch="$1"
-  host_os="$2"
-  dep="$3"
-  installed_list="$4"
-  if (( "$#" < 3 || "$#" > 4 ))
-  then
-    echo "Usage: ${FUNCNAME[0]} <arch> <os> <dep>" \
-      "[<dir containing filelists of installed pkgs>]" >&2
-    return 1
-  fi
+  add_flag --required target_architecture \
+    "Name of architecture of package to list dependencies for."
+  add_flag --required target_distribution \
+    "Name of distribution of package to list dependencies for."
+  add_flag --required pkg_name "Name of package to list dependencies for."
+  add_flag --required pkg_list "List of already-installed packages."
+  add_flag --boolean no_build \
+    "Triggers failure instead of package build if package is missing."
+  add_flag --array dependency_history \
+    "List of dependencies that led to this dependency in chronological order."
+  parse_flags "$@"
+  host_arch="$F_target_architecture"
+  host_os="$F_target_distribution"
+  dep="$F_pkg_name"
+  installed_list="$F_pkg_list"
 
   # Make sure we have a place to work.
   make_temp_dir scratch
@@ -248,14 +255,42 @@ resolve_deps()
   os="$(dep2distro "$host_arch" "$host_os" "$dep")"
   dep="$(qualify_dep "$host_arch" "$host_os" "$dep")"
 
+  # Prepare history flags in case recursive build is required.
+  local dependency_history_flags
+  dependency_history_flags=(--dependency_history="$dep")
+  local _hist_entry
+  for _hist_entry in "${F_dependency_history[@]}"
+  do
+    dependency_history_flags+=(--dependency_history="$_hist_entry")
+  done
+
   # Resolve all missing dependencies.
   orig_deps_name="${dep}.dependencies"
   orig_deps_path="$scratch/$orig_deps_name"
   if ! repo_get "$orig_deps_name" > "$orig_deps_path"
   then
-    log_rote "no dependencies for '$pkg_name' found"
-    log_rote "expected at '$orig_deps_name'"
-    exit 1
+    if (( "$F_no_build" ))
+    then
+      log_error "no dependencies for '$pkg_name' found"
+      log_error "expected at '$orig_deps_name'"
+      exit 1
+    elif ! "$(DIR)/pkg.from_name.sh" \
+      --target_architecture="$arch" \
+      --target_distribution="$os" \
+      --pkg_name="$pkg_name" \
+      -- "${dependency_history_flags[@]}" \
+      >&2
+    then
+      log_error "could not build dependency '$pkg_name'"
+      exit 1
+    elif ! repo_get "$orig_deps_name" > "$orig_deps_path"
+    then
+      log_error "failed to fetch recursively build dependency"
+      log_error "weird - '$pkg_name' should be available now..."
+      exit 1
+    else
+      log_error "successfully built dependency '$pkg_name'"
+    fi
   fi
 
   new_deps="$scratch/deps.new"
@@ -307,8 +342,27 @@ resolve_deps()
     subdeps="$new_dep.dependencies"
     if ! repo_get "$subdeps" > "$deps_path"
     then
-      log_rote "could not find subdependencies at '$subdeps'"
-      return 1
+      if (( "$F_no_build" ))
+      then
+        log_error "no subdependencies for '$new_dep' found at '$subdeps'"
+        exit 1
+      elif ! "$(DIR)/pkg.from_name.sh" \
+        --target_architecture="$current_arch" \
+        --target_distribution="$current_distro" \
+        --pkg_name="$new_dep" \
+        -- "${dependency_history_flags[@]}" \
+        >&2
+      then
+        log_error "could not build dependency '$new_dep'"
+        exit 1
+      elif ! repo_get "$subdeps" > "$deps_path"
+      then
+        log_error "failed to fetch recursively build dependency"
+        log_error "weird - '$new_dep' should be available now..."
+        exit 1
+      else
+        log_rote "successfully built dependency '$new_dep'"
+      fi
     fi
     while read -r dep
     do

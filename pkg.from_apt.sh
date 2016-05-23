@@ -4,8 +4,8 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/cleanup.sh"
 source "$(DIR)/flag.sh"
-source "$(DIR)/buildtools/all.sh"
 source "$(DIR)/log.sh"
+source "$(DIR)/buildtools/all.sh"
 add_flag --required pkg_name "Name of the package to build."
 parse_flags "$@"
 
@@ -19,7 +19,7 @@ arch="$("$(DIR)/os_info.sh" --architecture)"
 os=ubuntu
 qual_name="$(qualify_dep "$arch" "$os" "$pkgname")"
 translation="$(dep --arch="$arch" --distro="$os" "$pkgname")"
-if [[ "$qual_name" != "$translation" ]]
+if [[ "$pkgname" != "$translation" && "$qual_name" != "$translation" ]]
 then
   log_rote "translated name '$qual_name' to '$translation'"
 fi
@@ -39,7 +39,7 @@ do
   qual_dep="$(qualify_dep "$arch" "$os" "$dep")"
 
   # Don't attempt to recursively build self, as that will infinitely loop.
-  if [[ "$dep" == "$qual_name" || "$qual_dep" == "$qual_name" ]]
+  if [[ "$dep" == "$pkgname" || "$qual_dep" == "$qual_name" ]]
   then
     built_original_name=1
     continue

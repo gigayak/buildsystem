@@ -9,8 +9,8 @@ source "$(DIR)/cleanup.sh"
 source "$(DIR)/log.sh"
 add_flag --required pkg_name "Name of the package to install."
 # TODO: Deprecate local cache until invalidation works.
-add_flag --default="/var/www/html/tgzrepo" repo_path "Path to find packages."
-add_flag --default="https://repo.jgilik.com" repo_url "URL to find packages."
+add_flag --default="" repo_path "Path to find packages."
+add_flag --default="" repo_url "URL to find packages."
 add_flag --required install_root "Directory to install package to."
 add_flag --array dependency_history \
   "Names of packages that are currently being built - for cycle detection."
@@ -25,13 +25,18 @@ parse_flags "$@"
 pkg="$F_pkg_name"
 if [[ -z "$pkg" ]]
 then
-  log_rote "package name cannot be blank"
-  exit 1
+  log_fatal "package name cannot be blank"
 fi
 log_rote "installing package '$pkg' and deps"
 
-set_repo_local_path "$F_repo_path"
-set_repo_remote_url "$F_repo_url"
+if [[ ! -z "$F_repo_path" ]]
+then
+  set_repo_local_path "$F_repo_path"
+fi
+if [[ ! -z "$F_repo_url" ]]
+then
+  set_repo_remote_url "$F_repo_url"
+fi
 
 
 # Detect current OS information.
@@ -66,6 +71,7 @@ for hist_entry in "${F_dependency_history[@]}"
 do
   hist_args+=(--dependency_history="$hist_entry")
 done
+resolve_build_flag="--no_build"
 if (( ! "${F_no_build}" ))
 then
   "$(DIR)/ensure_pkg_exists.sh" \
@@ -75,10 +81,18 @@ then
     --repo_path="$_REPO_LOCAL_PATH" \
     --repo_url="$_REPO_URL" \
     "${hist_args[@]}"
+  resolve_build_flag=""
 fi
 
 # Get all of the required dependencies...
-resolve_deps "$target_arch" "$target_os" "$pkg" "$pkglist" > "$ordered_deps"
+resolve_deps \
+  --target_architecture="$target_arch" \
+  --target_distribution="$target_os" \
+  --pkg_name="$pkg" \
+  --pkg_list="$pkglist" \
+  "$resolve_build_flag" \
+  "${hist_args[@]}" \
+  > "$ordered_deps"
 
 # Now install all of the required packages in proper dependency order.
 while read -r dep
@@ -101,13 +115,11 @@ do
   versionpath="$scratch/$dep.version"
   if ! repo_get "$dep.tar.gz" > "$pkgpath"
   then
-    log_rote "could not find archive for package '$dep'"
-    exit 1
+    log_fatal "could not find archive for package '$dep'"
   fi
   if ! repo_get "$dep.version" > "$versionpath"
   then
-    log_rote "could not find package version '$dep.version'"
-    exit 1
+    log_fatal "could not find package version '$dep.version'"
   fi
   tar -zxf "$pkgpath" --directory "$F_install_root"
   tar -tzf "$pkgpath" | sed 's/^\.\///g' > "$pkglist/$dep"

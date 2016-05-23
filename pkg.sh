@@ -4,7 +4,6 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/escape.sh"
 source "$(DIR)/flag.sh"
-source "$(DIR)/log.sh"
 source "$(DIR)/repo.sh"
 add_usage_note <<EOF
 This script is used internally to take some package specs and turn them into
@@ -72,6 +71,10 @@ parse_flags "$@"
 
 pkgname="$F_pkg_name"
 log_rote "building package $pkgname"
+if type pstree >/dev/null 2>&1
+then
+  log_rote "$pkgname build invoked by: $(pstree -Alsp "$$")"
+fi
 version="$F_version_script"
 
 # Manually export a select set of environment variables.
@@ -130,7 +133,7 @@ outputname_debug_exit_handler()
 {
   if (( "$outputname_debug_exit_handler_needed" ))
   then
-    log_rote "failed to build $outputname"
+    log_error "failed to build $outputname"
   fi
 }
 register_exit_handler_back outputname_debug_exit_handler
@@ -142,43 +145,39 @@ for path in "$version"
 do
   if [[ ! -e "$path" ]]
   then
-    log_rote "required: '$path', please create"
-    exit 1
+    log_fatal "required: '$path', please create"
   fi
 done
 
 
 # Scan for circular dependencies.
+log_rote "looking for $outputname in dependency history"
+cycle_found=0
+cycle_culprit=""
 log_rote "dependency history for $outputname:"
 log_rote "- $outputname (current build)"
 for hist_entry in "${F_dependency_history[@]}"
 do
-  log_rote "- $hist_entry"
-done
-log_rote "  (first build)"
-log_rote "looking for $outputname in dependency history"
-cycle_found=0
-cycle_culprit=""
-for hist_entry in "${F_dependency_history[@]}"
-do
+  tag=""
+  cyclic=0
   if [[ "$hist_entry" == "$outputname" ]]
   then
-    log_rote "$hist_entry is part of this build"
+    tag=" (cyclic)"
+    cyclic=1
+  fi
+  log_rote "- ${hist_entry}${tag}"
+  if (( ! "$cycle_found" && "$cyclic" ))
+  then
     cycle_culprit="$hist_entry"
     cycle_found=1
-    break
-  else
-    log_rote "$hist_entry has been built fully"
   fi
 done
 if (( "$cycle_found" && ! "$F_break_dependency_cycles" ))
 then
-  log_rote "found a dependency cycle due to '$cycle_culprit'"
-  exit 1
+  log_fatal "found a dependency cycle due to '$cycle_culprit'"
 elif (( "$cycle_found" ))
 then
-  log_rote "WARNING: removing cyclic dependencies"
-  log_rote "WARNING: this may lead to undefined behavior"
+  log_warn "removing cyclic dependencies; this may lead to undefined behavior"
 fi
 
 
@@ -200,7 +199,7 @@ run_in_root()
 
   if [[ ! -e "$script_path" ]]
   then
-    log_rote "script '$script_path' does not exist"
+    log_error "script '$script_path' does not exist"
     return 2
   fi
 
@@ -243,7 +242,7 @@ run_in_root()
   if [[ -e "${dir}${YAK_WORKSPACE}/FAILED" ]]
   then
     retval="$(cat "${dir}${YAK_WORKSPACE}/FAILED")"
-    log_rote "script '$script' failed with code $retval"
+    log_error "script '$script' failed with code $retval"
     dont_depopulate_dynamic_fs_pieces "$dir"
     unregister_temp_file "$dir"
     log_rote "directory $(sq "$dir") saved for inspection"
@@ -293,6 +292,27 @@ install_deps()
       continue
     fi
 
+    # Prevent cycle detection from going haywire:
+    # Abort early if package being built has somehow been installed.
+    # This helps with two packages that depend on each other, such as:
+    #   Package a depends on package b.
+    #   Package b depends on package a.
+    #   Build 1 is of package b.
+    #     To build package b, dependencies a and b are found
+    #   Build 2 is of package a.  Triggered by build 1.
+    #     Within package a, dependencies a and b are found
+    #   Build 3 is of package a.  Triggered by build 2.
+    #     Within package a, dependencies a and b are found.
+    #     a is removed as a cyclic dependency
+    #     Dependency b remains.
+    #   Build 4 is of package b.  Triggered by build 3.
+    #     Within package b, dependencies a and b are found.
+    #     a and b are removed as cyclic dependencies.
+    #     No dependencies remain.
+    #     Package b is output with no dependencies declared.
+    #   Build 3 resumes.
+    #     ???
+    
     # Convert dependency history array to a fresh set of flags.
     local _hist_flags
     _hist_flags=(--dependency_history="$outputname")
@@ -385,17 +405,13 @@ then
   deplist="$(<"$workdir/deps.txt")"
 fi
 
-# remove cycles if requested (and found)
-if (( "$F_break_dependency_cycles" && "$cycle_found" ))
+if (( "$F_break_dependency_cycles" ))
 then
-  log_rote "attempting to remove cyclic dependency"
-  log_rote "in package $outputname build"
+  log_rote "checking for cyclic deps in package $outputname"
   found=0
-  for possible_culprit in "${F_dependency_history[@]}"
+  for possible_culprit in "$outputname" "${F_dependency_history[@]}"
   do
-    deplist="$(echo "$deplist" \
-      | grep -vE "^${possible_culprit}\$" \
-      || true)"
+    echo >/dev/null # vi's syntax highlighter does not want do to begin with {
     {
       while read -r possible_dep
       do
@@ -417,15 +433,15 @@ then
     fi
     mv -f "$workdir/deps.txt.new" "$workdir/deps.txt"
   done
+  deplist="$(<"$workdir/deps.txt")"
   log_rote "new $outputname deplist after cycle removal:"
   while read -r newdep
   do
     log_rote " - $newdep"
   done < "$workdir/deps.txt"
-  if (( ! "$found" ))
+  if (( ! "$found" && "$cycle_found" ))
   then
-    log_rote "failed to remove dependency cycle"
-    exit 1
+    log_fatal "found a dependency cycle earlier, but failed to remove it"
   fi
 fi
 
@@ -448,10 +464,11 @@ if [[ -e "$dir/.installed_pkgs/$outputname" ]]
 then
   if (( "$F_break_dependency_cycles" ))
   then
-    log_rote "found dependency cycle that was broken downstream; exiting."
+    log_rote "found dependency cycle that was broken downstream; exiting"
+    export outputname_debug_exit_handler_needed=0
     exit 0
   fi
-  log_fatal "found disallowed dependency cycle; failing."
+  log_fatal "found disallowed dependency cycle"
 fi
 
 
@@ -496,8 +513,7 @@ log_rote "running version script for $outputname"
 pkgversion="$(run_in_root "${version}")"
 if [[ -z "$pkgversion" ]]
 then
-  log_rote "version script '$version' yielded no output"
-  exit 1
+  log_fatal "version script '$version' yielded no output"
 fi
 log_rote "version for $outputname is: $pkgversion"
 
@@ -554,7 +570,7 @@ rsync \
 
 # Create package output...
 make_temp_dir pkgdir
-log_rote "packaging different file for $outputname to '$pkgdir'"
+log_rote "packaging different files for $outputname to '$pkgdir'"
 retval=0
 "$(DIR)/copy_diff_files.sh" "$dir" "$pkgdir" < "$diff" \
   || retval=$?
@@ -563,10 +579,10 @@ then
   unregister_temp_file "$snapshot"
   unregister_temp_file "$dir"
   unregister_temp_file "$diffdir"
-  log_rote "copy_diff_files failed for $outputname; see:"
-  log_rote "post-build snapshot: $snapshot"
-  log_rote "post-install snapshot: $dir"
-  log_rote "diff: $diff"
+  log_error "copy_diff_files failed for $outputname; see:"
+  log_error "  post-build snapshot: $snapshot"
+  log_error "  post-install snapshot: $dir"
+  log_error "  diff: $diff"
   exit 1
 fi
 
@@ -615,11 +631,9 @@ then
       chown "$uid:$gid" "$pkgdir/$path"
       chmod "$perms" "$pkgdir/$path"
     else
-      log_rote "$pkgdir/$path was explicitly declared, but"
-      log_rote "is not a directory or does not exist at all."
-      log_rote "Explicit declarations are a hack with" 
-      log_rote "limited scope.  Please reconsider."
-      exit 1
+      log_fatal "$pkgdir/$path was explicitly declared, but is not a" \
+        "directory or does not exist at all.  Explicit declarations are a" \
+        "hack with limited scope.  Please reconsider."
     fi
   done < "$diffdir/extra_installed_paths"
 fi
