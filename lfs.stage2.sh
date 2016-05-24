@@ -5,9 +5,9 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 source "$(DIR)/arch.sh"
 source "$(DIR)/flag.sh"
 source "$(DIR)/cleanup.sh"
+source "$(DIR)/escape.sh"
 source "$(DIR)/log.sh"
 source "$(DIR)/mkroot.sh"
-source "$(DIR)/escape.sh"
 
 add_flag --boolean interactive "If set, pauses for interactive login at end."
 add_flag --required ip_address "IP address we should expect the VM to use."
@@ -32,7 +32,7 @@ pkgs+=(qemu)
 pkgs+=(openssh-clients) # used to kick off install process
 pkgs+=(parted) # used to set up loop device for package export
 pkgs+=(rsync) # for installation of buildsystem
-echo "Will install: ${pkgs[@]}"
+log_rote "will install: ${pkgs[@]}"
 
 mkroot dir
 
@@ -50,11 +50,17 @@ cp -v "$F_image_path" "$dir/root/$image_name"
 
 # Specially package up the latest buildsystem, as it's likely we have files open
 # while running this.
-echo "Installing current buildsystem to chroot."
+log_rote "installing current buildsystem to chroot"
 mkdir "$dir/root/buildsystem"
 "$(DIR)/install_buildsystem.sh" --output_path="$dir/root/buildsystem"
 
-echo "Starting VM; logging to $dir/root/log.qemu"
+# Install the cluster's configuration into the chroot, so that it can be used
+# to install the buildsystem on the target system.
+log_rote "installing cluster configuration to chroot"
+mkdir -pv "$dir/etc/yak.config.d"
+"$(DIR)/dump_config.sh" > "$dir/etc/yak.config.d/00_inherited_config.sh"
+
+log_rote "starting VM; logging to $dir/root/log.qemu"
 
 cat > "$dir/root/start_vm.sh" <<'EOF_START_VM'
 #!/bin/bash
@@ -265,10 +271,11 @@ chroot "$dir" /bin/bash /root/start_vm.sh \
   "$F_interactive" "$F_ip_address" "$image_name" "$F_start_at"
 
 # Break out of chroot and export the packages...
-echo "chroot complete.  Exporting packages."
+log_rote "chroot complete.  Exporting packages."
 cp -r --no-target-directory "$dir/root/pkgs/" "/var/www/html/tgzrepo/"
 
 if (( "$F_preserve_chroot" ))
 then
+  log_rote "preserving chroot at $(sq "$dir") for inspection"
   unregister_temp_file "$dir"
 fi

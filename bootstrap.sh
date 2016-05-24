@@ -55,9 +55,11 @@ then
   echo "set_config REPO_URL $(sq "https://repo.${F_domain}")" >> "$yakrc"
 fi
 
+if false; then
 "$(DIR)/create_crypto.sh"
 "$(DIR)/create_all_containers.sh"
 "$(DIR)/lfs.stage1.sh"
+fi
 ip="$("$(DIR)/create_ip.sh" --owner="vm:stage2")"
 image_path="/var/www/html/tgzrepo/stage2.raw"
 "$(DIR)/lfs.stage2.create_raw_image.sh" \

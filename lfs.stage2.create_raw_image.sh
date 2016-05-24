@@ -3,10 +3,11 @@ set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/arch.sh"
-source "$(DIR)/flag.sh"
 source "$(DIR)/cleanup.sh"
-source "$(DIR)/mkroot.sh"
 source "$(DIR)/escape.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
+source "$(DIR)/mkroot.sh"
 
 add_flag --required output_path "Where to store the image."
 add_flag --required mac_address "MAC address to assign to eth0."
@@ -21,7 +22,7 @@ pkgs+=(syslinux) # bootloader
 pkgs+=(e2fsprogs) # used to initialize filesystem
 pkgs+=(tar) # used to populate filesystem
 pkgs+=(wget) # used by build system
-echo "Will install: ${pkgs[@]}"
+log_rote "will install: ${pkgs[@]}"
 
 mkroot dir
 
@@ -38,11 +39,17 @@ then
   done
 fi
 
+log_rote "installing buildsystem in chroot"
 target_buildsystem="$dir/buildsystem"
 mkdir -pv "$target_buildsystem"
 "$(DIR)/install_buildsystem.sh" \
   --output_path="$target_buildsystem"
 
+log_rote "installing cluster config in chroot"
+mkdir -pv "$dir/etc/yak.config.d"
+"$(DIR)/dump_config.sh" > "$dir/etc/yak.config.d/00_inherited_config.sh"
+
+log_rote "copying stage2 packages into chroot"
 target_pkgdir="$dir/pkgs"
 mkdir -pv "$target_pkgdir"
 pkgs=()
@@ -56,6 +63,7 @@ do
 done < <(find /var/www/html/tgzrepo -iname "i686-${F_distro_name}:*.tar.gz")
 
 # Ensure that internal DNS is available.
+log_rote "installing DNS config into chroot"
 "$(DIR)/create_resolv.sh" > "$dir/root/resolv.conf"
 
 cat > "$dir/root/generate_image.sh" <<'EOF_GEN_IMAGE'
@@ -250,6 +258,7 @@ trap - EXIT ERR
 EOF_GEN_IMAGE
 chmod +x "$dir/root/generate_image.sh"
 
+log_rote "running generate_image.sh"
 strip_prefix=""
 if [[ "$F_distro_name" == "tools2" ]]
 then
@@ -257,8 +266,9 @@ then
 fi
 chroot "$dir" /bin/bash /root/generate_image.sh \
   "$F_mac_address" "$F_ip_address" "$strip_prefix" "$F_distro_name" "${pkgs[@]}"
+log_rote "generate_image.sh complete"
 
 
 # Break out of chroot and export the packages...
-echo "generate_image.sh complete.  Exporting image."
+log_rote "exporting image"
 cp -v "$dir/root/gigayak.raw.img" "$F_output_path"
