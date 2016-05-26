@@ -94,13 +94,18 @@ kconfig_kernel_finalize_hack()
   make "$@" \
     KCONFIG_ALLCONFIG=config.partial \
     allnoconfig
+  should_die=0
   for e in "${expected_values[@]}"
   do
     if ! grep -E "^$e\$" .config >/dev/null 2>&1
     then
       echo "Could not find setting '$e' in .config" >&2
-      exit 1
+      should_die=1
     fi
   done
+  if (( "$should_die" ))
+  then
+    exit 1
+  fi
 }
 

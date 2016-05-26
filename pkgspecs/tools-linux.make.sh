@@ -26,6 +26,43 @@ kconfig_set DEVTMPFS y
 # HP Smart Array driver - needed for P410i on HP DL380g7.
 kconfig_set SCSI_LOWLEVEL y # required for SCSI_HPSA
 kconfig_set SCSI_HPSA y # SCSI driver itself
+# KVM is required to build a new copy of this OS, as it uses KVM-accelerated
+# qemu in the build process.
+# The following kernel flags came from:
+#   www.linux-kvm.org/page/Tuning_Kernel
+#  HIGH_RES_TIMER \
+#  VIRTIO_SERIAL \
+#  PARAVIRT_GUEST \
+#  KVM_CLOCK \
+#  KVM_GUEST \
+#  PARAVIRT \
+#  MEMORY_HOTPLUG \
+#  MEMORY_HOTREMOVE \
+#  ACPIPHP \
+#  PCI_HOTPLUG \
+for flag in \
+  VIRTUALIZATION \
+  KVM \
+  KVM_INTEL \
+  KVM_AMD \
+  VHOST_NET \
+  HPET \
+  COMPACTION \
+  MIGRATION \
+  KSM \
+  TRANSPARENT_HUGEPAGE \
+  CGROUPS \
+  VIRTIO \
+  VIRTIO_NET \
+  VIRTIO_BLK \
+  VIRTIO_PCI \
+  VIRTIO_BALLOON \
+  VIRTIO_CONSOLE \
+  HW_RANDOM_VIRTIO \
+  PCI_MSI
+do
+  kconfig_set "$flag" y
+done
 kconfig_kernel_finalize_hack \
   ARCH=i386 \
   CROSS_COMPILE=${CLFS_TARGET}-
