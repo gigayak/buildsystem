@@ -49,7 +49,7 @@ log_rote "installing cluster config in chroot"
 mkdir -pv "$dir/etc/yak.config.d"
 "$(DIR)/dump_config.sh" > "$dir/etc/yak.config.d/00_inherited_config.sh"
 
-log_rote "copying stage2 packages into chroot"
+log_rote "copying $F_distro_name packages into chroot"
 target_pkgdir="$dir/pkgs"
 mkdir -pv "$target_pkgdir"
 pkgs=()
