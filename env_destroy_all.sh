@@ -95,6 +95,11 @@ lease_file_new="$lease_file.new"
 rm -fv "$lease_file_new"
 touch "$lease_file_new"
 localstorage="$("$(DIR)/find_localstorage.sh")"
+dns_dir="$localstorage/dns/dns"
+if [[ ! -e "$dns_dir" ]]
+then
+  mkdir -pv "$dns_dir"
+fi
 hosts_file="$localstorage/dns/dns/hosts.autogen"
 hosts_file_new="$hosts_file.new"
 rm -fv "$hosts_file_new"
