@@ -92,13 +92,42 @@ iso)
   ;;
 esac
 
-# Boot the machine and wait for SSH to be available.
-sync # Ensure no dangling I/Os are waiting.
+# Detect whether we can use hardware acceleration.
+join_strings()
+{
+  local separator="$1"
+  shift
+  local first=1
+  for arg in "$@"
+  do
+    if (( "$first" ))
+    then
+      first=0
+    else
+      echo -n "$separator"
+    fi
+    echo -n "$arg"
+  done
+}
+machine_args=()
 machine_type="$(qemu-system-i386 -machine help \
   | grep '(default)' \
   | awk '{print $1}')"
+machine_args+=("$machine_type")
+if [[ -e "/dev/kvm" ]]
+then
+  machine_args+=("accel=kvm")
+  # TODO: Add detection for iommu.  Right now, it's assumed that if KVM is
+  # present, then IOMMU acceleration is as well.
+  machine_args+=("iommu=on")
+fi
+machine_arg="$(join_strings ',' "${machine_args[@]}")"
+machine_args=(-machine "$machine_arg")
+
+# Boot the machine and wait for SSH to be available.
+sync # Ensure no dangling I/Os are waiting.
 qemu-system-i386 \
-  -machine "${machine_type},accel=kvm,iommu=on" \
+  "${machine_args[@]}" \
   -m 1024 \
   "${image_args[@]}" \
   -netdev bridge,id=network0,br=virbr0 \

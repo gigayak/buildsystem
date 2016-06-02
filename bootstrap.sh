@@ -24,9 +24,8 @@ parse_flags "$@"
 
 if ! ls /dev/kvm >/dev/null 2>&1
 then
-  log_rote "/dev/kvm is missing, stage3 would be really slow"
-  log_rote "Consider installing the KVM module."
-  exit 1
+  log_warn "/dev/kvm is missing, stage3 will be really slow"
+  log_warn "consider installing the KVM kernel module"
 fi
 
 if (( ! "$F_continue" ))
