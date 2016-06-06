@@ -11,3 +11,9 @@ unset f
 export INPUTRC=/etc/inputrc
 export LC_ALL=en_US.UTF-8
 EOF
+
+# TODO: make this work in a .d config directory...
+echo > /etc/shells <<'EOF'
+# valid login shells
+/bin/bash
+EOF
