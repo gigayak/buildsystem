@@ -102,6 +102,7 @@ build yak readline
 build yak bash
 build yak bash-aliases
 build yak bash-config
+build yak bash-profile
 build yak bc
 build yak diffutils
 build yak file
@@ -158,3 +159,5 @@ build yak go-sget
 build yak dropbear
 build yak dropbear-config
 build yak lxc
+build yak config-os-release-info
+build yak rsync
