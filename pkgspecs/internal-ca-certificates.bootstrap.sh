@@ -68,4 +68,9 @@ if [[ "$YAK_TARGET_OS" != "tools2" && "$YAK_TARGET_OS" != "yak" ]]
 then
   cp etc/ssl/certs/ca-certificates.crt "$new_root/etc/ssl/certs/"
 fi
+
+# Provide CA certificate in a way that sget can find it.
+# TODO: Clean this up by making sget look here first.
+ln -sv "/${cert_dir}/gigayak.pem" "$new_root/opt/ssl/ca.crt"
+
 tar -cz -C "$new_root" .
