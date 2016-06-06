@@ -84,7 +84,10 @@ create_bare_root()
     _pkgs+=("bash-profile")
     # Brought in by buildtools/tool_names.sh:
     _pkgs+=("coreutils")
-    _pkgs+=("coreutils-aliases")
+    if [[ "$os" == "tools" || "$os" == "tools2" ]]
+    then
+      _pkgs+=("coreutils-aliases")
+    fi
     _pkgs+=("gawk")
     _pkgs+=("grep")
     # Used for getopt by flag.sh:
@@ -92,7 +95,12 @@ create_bare_root()
     # Used by flag.sh:
     _pkgs+=("sed")
     # Used when installing dependencies directly in dep scripts.
-    _pkgs+=("stage2-certificate")
+    if [[ "$os" == "tools" || "$os" == "tools2" ]]
+    then
+      _pkgs+=("stage2-certificate")
+    else
+      _pkgs+=("stage3-certificate")
+    fi
     _pkgs+=("internal-ca-certificates")
     _pkgs+=("go-sget")
     local _pkg
