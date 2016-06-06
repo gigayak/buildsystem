@@ -2,7 +2,7 @@
 set -Eeo pipefail
 cat > /etc/os-release <<'EOF'
 NAME="Gigayak Linux"
-ID=i686-yak
+ID=yak
 ID_LIKE=yak
 PRETTY_NAME="Gigayak Linux"
 ANSI_COLOR="0;36"
