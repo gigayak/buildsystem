@@ -101,10 +101,14 @@ do
 done
 
 ca_root="$root/opt/ca"
-localstorage="$("$(DIR)/find_localstorage.sh")"
 if [[ ! -e "$ca_root" ]]
 then
   mkdir -p "$ca_root"
+fi
+localstorage="$("$(DIR)/find_localstorage.sh")"
+if [[ ! -e "$localstorage/certificate-authority/ca" ]]
+then
+  mkdir -p "$localstorage/certificate-authority/ca"
 fi
 if ! mountpoint -q -- "$ca_root"
 then
