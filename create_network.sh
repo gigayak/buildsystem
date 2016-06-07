@@ -23,6 +23,32 @@ TODO: Default to eth0, allow it to be configured.
 EOF
 parse_flags "$@"
 
+# Ensure all kernel modules are in place.
+# (A barebones system may not load these.)
+#
+# TODO: Perhaps factor stuff like this out, into a machine prep script?
+# That way it's still easy to bootstrap, but informed admins can use Puppet
+# or whatever to prep their machine.
+module_dir="/lib/modules/$(uname -r)/kernel"
+for module in \
+  nf_nat \
+  nf_nat_ipv4 \
+  nf_nat_masquerade_ipv4 \
+  iptable_nat \
+  ipt_MASQUERADE \
+  xt_nat
+do
+  if ! lsmod \
+    | awk '{print $1}' \
+    | tail -n+2 \
+    | grep -E "^${module}\$" \
+    >/dev/null 2>&1
+  then
+    log_rote "loading $(sq "$module") kernel module"
+    insmod "$(find "$module_dir" -iname "${module}.ko")"
+  fi
+done
+
 # Ensure a network bridge exists and is up.
 # CentOS-specific implementation.
 create_centos_bridge()
