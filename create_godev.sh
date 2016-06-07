@@ -24,7 +24,7 @@ deps+=(git openssh-clients)
 # Needed to authenticate git server for download:
 deps+=(internal-ca-certificates)
 # Needed for root user to be usable:
-deps+=(rootfiles)
+deps+=(filesystem-skeleton)
 # Needed to actually horse around with Go code:
 deps+=(vim vim-pathogen vim-pathogen-config vim-go)
 for dep in "${deps[@]}"

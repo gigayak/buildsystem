@@ -2,4 +2,4 @@
 set -Eeo pipefail
 source "$YAK_BUILDTOOLS/all.sh"
 
-dep rootfiles
+dep filesystem-skeleton

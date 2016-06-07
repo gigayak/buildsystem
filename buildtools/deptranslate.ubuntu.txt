@@ -33,7 +33,7 @@ curl libcurl4-gnutls-dev
 pkg-config-lite pkg-config
 pkgconfig pkg-config
 redhat-rpm-config .
-rootfiles .
+filesystem-skeleton .
 sqlite libsqlite0
 sqlite libsqlite0-dev
 sqlite-devel libsqlite0-dev

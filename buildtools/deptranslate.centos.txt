@@ -9,3 +9,4 @@ perl perl
 perl perl-devel
 tcl tcl
 tcl tcl-devel
+filesystem-skeleton rootfiles

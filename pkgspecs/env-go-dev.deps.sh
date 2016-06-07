@@ -5,7 +5,7 @@ source "$YAK_BUILDTOOLS/all.sh"
 dep go
 dep gcc
 
-dep rootfiles
+dep filesystem-skeleton
 dep vim-enhanced
 dep vim-go
 
