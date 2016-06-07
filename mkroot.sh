@@ -94,6 +94,8 @@ create_bare_root()
     _pkgs+=("util-linux")
     # Used by flag.sh:
     _pkgs+=("sed")
+    # Used by config.sh:
+    _pkgs+=("findutils")
     # Used when installing dependencies directly in dep scripts.
     if [[ "$os" == "tools" || "$os" == "tools2" ]]
     then
