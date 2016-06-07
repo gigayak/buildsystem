@@ -12,7 +12,8 @@ log_rote "These should never be checked in."
 
 # TODO: refactor this into multiple scripts
 # key_strength applies to SSH keys
-key_strength="8192"
+# Dropbear and GnuPG have 4096-bit maximums, so we use 4096 bits.
+key_strength="4096"
 rsa_key_strength="$key_strength"
 ssl_key_strength="$key_strength"
 # DSA keys are apparently limited by standards to 1024 bits.
@@ -46,12 +47,30 @@ ssh_key()
   fi
   log_rote "generating $key_strength-bit $algo_name SSH key for '${key_name}'"
   log_rote "8192 bit keys take ~10 minutes."
-  time ssh-keygen \
-    -t "$algo" \
-    -C "${key_name}@$domain" \
-    -b "$key_strength" \
-    -f "$key_path" \
-    -N ''
+  if type ssh-keygen >/dev/null 2>&1
+  then
+    log "using ssh-keygen binary for key generation"
+    time ssh-keygen \
+      -t "$algo" \
+      -C "${key_name}@$domain" \
+      -b "$key_strength" \
+      -f "$key_path" \
+      -N ''
+  elif type dropbearkey >/dev/null 2>&1
+  then
+    # Dropbear uses a different name for DSA - go figure.
+    if [[ "$algo" == "dsa" ]]
+    then
+      algo=dss
+    fi
+    time dropbearkey \
+      -t "$algo" \
+      -f "$key_path" \
+      -s "$key_strength"
+  else
+    log_error "unable to find an SSH key generation program"
+    return 1
+  fi
 }
 ssh_rsa_key()
 {
