@@ -13,9 +13,9 @@ add_flag --default="" name "Name of container to create -- default is random."
 parse_flags "$@"
 
 ip="$("$(DIR)/create_ip.sh" --owner="lxc:$F_name")"
-echo "Will use IP address '$ip' for container"
+log_rote "will use IP address $(sq "$ip") for container"
 
-echo "Will install: ${F_pkg[@]}"
+log_rote "will install: ${F_pkg[@]}"
 
 make_temp_dir tmp
 "$(DIR)/create_chroot.sh" "${F_pkg[@]}" 2>&1 \
@@ -28,6 +28,7 @@ then
   log_rote "unable to find create_chroot.sh's results"
   exit 1
 fi
+log_rote "using $(sq "$root") as container chroot"
 
 name="${F_name}"
 if [[ -z "$name" ]]
@@ -93,6 +94,6 @@ EOF
 
 
 # Create container from this configuration.
-echo "Creating container."
-lxc-create --name="$name" -f "$tmp/lxc.conf"
-echo "Woo-hoo, container '$name' should be ready to lxc-start"
+log_rote "creating container using config $(sq "$tmp/lxc.conf")"
+lxc-create --name="$name" --config="$tmp/lxc.conf" --template=none
+log_rote "container $(sq "$name") should be ready to lxc-start"
