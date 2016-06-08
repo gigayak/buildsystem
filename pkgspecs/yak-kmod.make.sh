@@ -17,3 +17,12 @@ cd *-*/
   --with-zlib \
   --with-xz
 make
+
+cat >> "$YAK_WORKSPACE/extra_installed_paths" <<'EOF'
+/bin/lsmod
+/bin/rmmod
+/bin/insmod
+/bin/modinfo
+/bin/modprobe
+/bin/depmod
+EOF
