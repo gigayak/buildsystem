@@ -146,12 +146,15 @@ bridge()
     return 1
   fi
 
-  if which yum >/dev/null 2>&1
+  distro="$("$(DIR)/os_info.sh" --distribution)"
+  if [[ "$distro" == "centos" ]]
   then
     create_centos_bridge "$@"
-  elif which apt-get >/dev/null 2>&1
+  elif [[ "$distro" == "ubuntu" ]]
   then
     create_ubuntu_bridge "$@"
+  else
+    log_fatal "no idea how to create bridge in $distro"
   fi
 }
 
