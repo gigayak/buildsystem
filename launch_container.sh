@@ -19,23 +19,23 @@ storage_root="$localstorage/${F_name}"
 mkdir -pv "$storage_root"
 while read -r mountinfo
 do
-  echo "mountinfo: $mountinfo"
+  log_rote "mountinfo: $mountinfo"
   mountname="$(echo "$mountinfo" | awk '{print $1}')"
   mountpoint="${root}$(echo "$mountinfo" | awk '{print $2}')"
   mountsource="$storage_root/$mountname"
   if [[ ! -d "$mountsource" ]]
   then
-    echo "Creating directory $mountsource"
+    log_rote "creating persistent storage directory $mountsource"
     mkdir -p "$mountsource"
   fi
   if [[ ! -d "$mountpoint" ]]
   then
-    echo "Creating directory $mountpoint"
+    log_rote "creating bind mount point $mountpoint"
     mkdir -p "$mountpoint"
   fi
   if ! findmnt "$mountpoint"
   then
-    echo "$mountsource -> $mountpoint"
+    log_rote "mounting $mountsource at $mountpoint"
     mount --bind "$mountsource" "$mountpoint"
   fi
 done < "$root/etc/container.mounts"
@@ -52,7 +52,7 @@ mkdir -pv "$logdir"
 rm -fv "$logdir/${F_name}.console.log"
 rm -fv "$logdir/${F_name}.lxc.log"
 
-echo "Starting container '${F_name}'"
+log_rote "starting container $(sq "${F_name}")"
 lxc-start \
   --name="${F_name}" \
   --daemon \
