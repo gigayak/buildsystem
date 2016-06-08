@@ -8,5 +8,6 @@ dep wget # to download source
 
 # to build source
 dep gcc
+dep make
 dep automake
 dep autoconf
