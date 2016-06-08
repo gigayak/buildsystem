@@ -161,3 +161,6 @@ build yak dropbear-config
 build yak lxc
 build yak config-os-release-info
 build yak rsync
+build yak libmnl
+build yak libnftnl
+build yak iptables
