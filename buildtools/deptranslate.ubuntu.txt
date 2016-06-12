@@ -82,3 +82,4 @@ libuuid-devel uuid-dev
 openssh-clients openssh-client
 coreutils coreutils
 coreutils hostname
+linux-credentials .
