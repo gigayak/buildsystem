@@ -92,8 +92,26 @@ lxc.haltsignal = SIGTERM
 lxc.stopsignal = SIGKILL
 EOF
 
+# Determine whether to explicitly disable templates.
+#
+# This attempts to address a bug in lxc-create via version sniffing.
+# See: https://bugs.launchpad.net/ubuntu/+source/lxc/+bug/1466458
+#
+# Bug documentation implies that 1.1.2 is affected, and 1.1.5 is not,
+# but which version in between to cut off is ambiguous, so the
+# --template=none flag is added for any lxc-create > 1.1.2.
+#
+# Note that in earlier versions of lxc-create, --template is optional,
+# but this bug is present - and in later ones, --template is required.
+# *sigh*
+template_args=()
+lxc_version="$(lxc-create --version)"
+if [[ "$(echo -e "${lxc_version}\\n1.1.2" | sort -rV | head -1)" != "1.1.2" ]]
+then
+  template_args=(--template="none")
+fi
 
 # Create container from this configuration.
 log_rote "creating container using config $(sq "$tmp/lxc.conf")"
-lxc-create --name="$name" --config="$tmp/lxc.conf" --template=none
+lxc-create --name="$name" --config="$tmp/lxc.conf" "${template_args[@]}"
 log_rote "container $(sq "$name") should be ready to lxc-start"
