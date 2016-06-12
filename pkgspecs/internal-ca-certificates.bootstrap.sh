@@ -71,6 +71,7 @@ fi
 
 # Provide CA certificate in a way that sget can find it.
 # TODO: Clean this up by making sget look here first.
-ln -sv "/${cert_dir}/gigayak.pem" "$new_root/opt/ssl/ca.crt"
+mkdir -p "$new_root/opt/ssl"
+ln -s "/${cert_dir}/gigayak.pem" "$new_root/opt/ssl/ca.crt"
 
 tar -cz -C "$new_root" .
