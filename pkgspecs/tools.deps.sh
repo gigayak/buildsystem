@@ -11,7 +11,7 @@ for p in \
   gcc-aliases bash-aliases coreutils-aliases grep-aliases \
   file-aliases sysvinit-aliases shadow-aliases linux-aliases linux-devices \
   linux-credentials linux-log-directories bash-profile \
-  iproute2 dhcp dhcp-config dropbear dropbear-config nettle gnutls \
+  iproute2 dhcp dhcp-config dropbear dropbear-config nettle libtasn1 gnutls \
   internal-ca-certificates wget rsync buildsystem
 do
   if [[ "$YAK_PKG_NAME" == "$p" ]]

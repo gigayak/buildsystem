@@ -2,9 +2,11 @@
 set -Eeo pipefail
 source /tools/env.sh
 
-version="3.3.11"
+version="3.4.13"
 echo "$version" > "$YAK_WORKSPACE/version"
-url="ftp://ftp.gnutls.org/gcrypt/gnutls/v3.3/gnutls-3.3.11.tar.xz"
+major="$(echo "$version" | cut -d. -f1,2)"
+urldir="https://www.gnupg.org/ftp/gcrypt/gnutls/v${major}"
+url="${urldir}/gnutls-${version}.tar.xz"
 
 cd "$YAK_WORKSPACE"
 wget "$url"
@@ -15,6 +17,7 @@ cd "gnutls-$version"
   --prefix=/tools/i686 \
   --build="${CLFS_HOST}" \
   --host="${CLFS_TARGET}" \
+  --without-p11-kit \
   --with-default-trust-store-dir=/tools/i686/etc/ssl/certs
 make
 

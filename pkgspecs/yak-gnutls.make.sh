@@ -1,19 +1,22 @@
 #!/bin/bash
 set -Eeo pipefail
 
-version="3.3.11"
-without_revision="$(echo "$version" | sed -re 's@\.[0-9]+$@@')"
-echo "$version" > "$YAK_WORKSPACE/version"
-basedir="ftp://ftp.gnutls.org/gcrypt/gnutls/v$without_revision"
-url="$basedir/gnutls-${version}.tar.xz"
-
 cd "$YAK_WORKSPACE"
-wget "$url"
+
+version="3.4.13"
+echo "$version" > "version"
+major="$(echo "$version" | cut -d. -f1,2)"
+urldir="https://www.gnupg.org/ftp/gcrypt/gnutls/v${major}"
+url="${urldir}/gnutls-${version}.tar.xz"
+
+wget --no-check-certificate "$url"
 tar -Jxf "gnutls-$version.tar.xz"
 cd *-*/
 
+# TODO: support polkit and remove --without-p11-kit flag
 ./configure \
   --prefix=/usr \
+  --without-p11-kit \
   --with-default-trust-store-dir=/etc/ssl/certs
 make
 
