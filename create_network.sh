@@ -88,8 +88,7 @@ EOF
 }
 
 # Ensure a network bridge exists and is up.
-# Ubuntu-specific implementation.
-create_ubuntu_bridge()
+create_brctl_bridge()
 {
   local _bridge_name="$1"
   local _ip="$2"
@@ -150,9 +149,9 @@ bridge()
   if [[ "$distro" == "centos" ]]
   then
     create_centos_bridge "$@"
-  elif [[ "$distro" == "ubuntu" ]]
+  elif [[ "$distro" == "ubuntu" || "$distro" == "yak" ]]
   then
-    create_ubuntu_bridge "$@"
+    create_brctl_bridge "$@"
   else
     log_fatal "no idea how to create bridge in $distro"
   fi
@@ -163,7 +162,11 @@ log_rote "setting nameserver to 8.8.8.8"
 log_rote "(many consumer ISPs have unreliable nameservers.)"
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
-bridge virbr0 192.168.122.1 255.255.255.0
+br_gateway_ip="192.168.122.1"
+br_ip="192.168.122.0"
+br_mask="255.255.255.0"
+br_subnet="192.168.122.0/24"
+bridge virbr0 "$br_gateway_ip" "$br_mask"
 # TODO: Which interface to NAT to should be a configuration option....
 ext_if=eth0 # Which external interface to NAT to
 ext_ip="$(ip addr show primary dev "$ext_if" scope global \
@@ -191,7 +194,7 @@ then
     "--state NEW,ESTABLISHED,RELATED -j DNAT --to $proxy_ip" \
     >> "$rules"
 fi
-echo "-A POSTROUTING -s 192.168.122.0/24 -o $ext_if -j SNAT --to-source $ext_ip" \
+echo "-A POSTROUTING -s $br_subnet -o $ext_if -j SNAT --to-source $ext_ip" \
   >> "$rules"
 echo "COMMIT" >> "$rules"
 

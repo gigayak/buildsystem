@@ -59,6 +59,10 @@ for flag in \
 do
   kconfig_set "$flag" y
 done
+# Bridges are required for LXC.
+kconfig_set NET y
+kconfig_set BRIDGE y
+
 kconfig_kernel_finalize_hack
 
 # Build the kernel

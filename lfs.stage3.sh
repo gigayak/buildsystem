@@ -146,6 +146,7 @@ build yak fstab-config
 build yak linux
 build yak linux-credentials
 build yak nettle
+build yak libtasn1
 build yak gnutls
 build yak wget
 build yak go14
@@ -164,3 +165,4 @@ build yak rsync
 build yak libmnl
 build yak libnftnl
 build yak iptables
+build yak bridge-utils
