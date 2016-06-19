@@ -177,12 +177,12 @@ echo 'Running lfs.stage3.sh'
   "$start_at" \
   2>&1 | tee /root/lfs.stage3.log \
   || retval=$?
+sync
 if (( "$retval" ))
 then
   echo "The installation failed with return code $retval"
   exit 1
 fi
-sync
 echo 'Success' > /root/installer_success
 exit 0
 EOF_INSTALLER
@@ -221,10 +221,6 @@ then
     echo "Enter 'yes' to exit."
     echo -n '> '
   done
-fi
-if (( "$retval" ))
-then
-  exit 1
 fi
 
 echo "Shutting down VM gracefully to prevent I/O contention."
@@ -292,12 +288,19 @@ losetup -d "$loop_dev"
 trap - EXIT ERR
 trap
 
+if (( "$retval" ))
+then
+  echo "Exiting with failure due to installer failure."
+  exit 1
+fi
 echo "Exiting chroot."
 EOF_START_VM
 chmod +x "$dir/root/start_vm.sh"
 
+retval=0
 chroot "$dir" /bin/bash /root/start_vm.sh \
-  "$F_interactive" "$F_ip_address" "$image_name" "$F_start_at"
+  "$F_interactive" "$F_ip_address" "$image_name" "$F_start_at" \
+  || retval="$?"
 
 # Break out of chroot and export the packages...
 log_rote "chroot complete.  Exporting packages."
@@ -307,4 +310,9 @@ if (( "$F_preserve_chroot" ))
 then
   log_rote "preserving chroot at $(sq "$dir") for inspection"
   unregister_temp_file "$dir"
+fi
+
+if (( "$retval" ))
+then
+  log_fatal "failed to build some packages"
 fi
