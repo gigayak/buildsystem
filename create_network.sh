@@ -2,10 +2,12 @@
 set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
+source "$(DIR)/config.sh"
 source "$(DIR)/mkroot.sh"
 source "$(DIR)/escape.sh"
 source "$(DIR)/flag.sh"
 source "$(DIR)/log.sh"
+source "$(DIR)/net.sh"
 
 add_usage_note <<EOF
 This utility should create all network interfaces in a reasonably sane way.
@@ -162,10 +164,13 @@ log_rote "setting nameserver to 8.8.8.8"
 log_rote "(many consumer ISPs have unreliable nameservers.)"
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
-br_gateway_ip="192.168.122.1"
-br_ip="192.168.122.0"
-br_mask="255.255.255.0"
-br_subnet="192.168.122.0/24"
+br_subnet="$(get_config CONTAINER_SUBNET)"
+br_ip="$(parse_subnet_start "$br_subnet")"
+br_ip_dec="$(ip_to_dec "$br_ip")"
+br_gateway_ip_dec="$(expr "$br_ip_dec" + 1)"
+br_gateway_ip="$(dec_to_ip "$br_gateway_ip_dec")"
+br_subnet_size="$(parse_subnet_size "$br_subnet")"
+br_mask="$(size_to_mask "$br_subnet_size")"
 bridge virbr0 "$br_gateway_ip" "$br_mask"
 # TODO: Which interface to NAT to should be a configuration option....
 ext_if=eth0 # Which external interface to NAT to

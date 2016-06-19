@@ -7,5 +7,6 @@ set -Eeo pipefail
 # interactive prompt when not provided.
 #set_config DOMAIN example.com
 
-set_config REPO_LOCAL_PATH /var/www/html/tgzrepo
-set_config REPO_URL https://repo.example.com
+set_config REPO_LOCAL_PATH "/var/www/html/tgzrepo"
+set_config REPO_URL "https://repo.example.com"
+set_config CONTAINER_SUBNET "192.168.122.0/24"

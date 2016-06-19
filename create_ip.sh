@@ -6,6 +6,7 @@ source "$(DIR)/config.sh"
 source "$(DIR)/escape.sh"
 source "$(DIR)/flag.sh"
 source "$(DIR)/log.sh"
+source "$(DIR)/net.sh"
 add_usage_note <<EOF
 This is a bit of a shell-based dumb DNS replacement.  DHCP is one of the more
 mobile wiggly bits for LXC and qemu across distributions, and tends to be the
@@ -36,7 +37,8 @@ Example of --owner:
 The value for --owner is minimally a unique identifier.
 EOF
 
-add_flag subnet --default='192.168.122.0/24' "The IP range we can assign into."
+add_flag subnet --default="$(get_config CONTAINER_SUBNET)" \
+  "The IP range we can assign into.  Default is CONTAINER_SUBNET."
 add_usage_note <<EOF
 Example of --subnet:
   $(basename "$0") --subnet=192.168.122.0/24
@@ -92,136 +94,12 @@ then
   exit 1
 fi
 
-# Parse subnet specification formatting.
-subnet_start="$(echo "$F_subnet" \
-  | sed -nre 's@^([1-9][0-9]*\.[0-9]+\.[0-9]+\.[0-9]+)/[1-9][0-9]*$@\1@gp')"
-if [[ -z "$subnet_start" ]]
-then
-  log_rote "failed to parse subnet start from '$F_subnet'"
-  exit 1
-fi
-subnet_size="$(echo "$F_subnet" \
-  | sed -nre 's@^[1-9][0-9]*\.[0-9]+\.[0-9]+\.[0-9]+/([1-9][0-9]*)$@\1@gp')"
-if [[ -z "$subnet_size" ]]
-then
-  log_rote "failed to parse subnet size from '$F_subnet'"
-  exit 1
-fi
-
-ip_to_dec()
-{
-  _ip="$1"
-  if [[ -z "$_ip" ]]
-  then
-    echo "Usage: ${FUNCNAME[0]} <ip>" >&2
-    return 1
-  fi
-  _ipa="$(echo "$_ip" \
-    | sed -nre 's@^([1-9][0-9]*)\.[0-9]+\.[0-9]+\.[0-9]+$@\1@gp')"
-  if [[ -z "$_ipa" ]]
-  then
-    log_rote "failed to parse byte 1 of IP '$_ip'"
-    return 1
-  fi
-  _ipb="$(echo "$_ip" \
-    | sed -nre 's@^[1-9][0-9]*\.([0-9]+)\.[0-9]+\.[0-9]+$@\1@gp')"
-  if [[ -z "$_ipb" ]]
-  then
-    log_rote "failed to parse byte 2 of IP '$_ip'"
-    return 1
-  fi
-  _ipc="$(echo "$_ip" \
-    | sed -nre 's@^[1-9][0-9]*\.[0-9]+\.([0-9]+)\.[0-9]+$@\1@gp')"
-  if [[ -z "$_ipc" ]]
-  then
-    log_rote "failed to parse byte 3 of IP '$_ip'"
-    return 1
-  fi
-  _ipd="$(echo "$_ip" \
-    | sed -nre 's@^[1-9][0-9]*\.[0-9]+\.[0-9]+\.([0-9]+)$@\1@gp')"
-  if [[ -z "$_ipd" ]]
-  then
-    log_rote "failed to parse byte 4 of IP '$_ip'"
-    return 1
-  fi
-  dec="$(echo "$_ipa*2^24 + $_ipb*2^16 + $_ipc*2^8 + $_ipd*2^0" | bc)"
-  if [[ -z "$dec" ]] || (( ! "$dec" ))
-  then
-    log_rote "failed to convert IP '$_ip' to decimal"
-    return 1
-  fi
-  echo "$dec"
-}
-
-dec_to_ip()
-{
-  _dec="$1"
-  if [[ -z "$_dec" ]]
-  then
-    echo "Usage: ${FUNCNAME[0]} <ip in decimal form>" >&2
-    return 1
-  fi
-  _ipa="$(echo "$_dec / 2^24" | bc)"
-  if [[ -z "$_ipa" ]]
-  then
-    log_rote "failed to convert byte 1 of IP '$_dec'"
-    return 1
-  fi
-  _ipb="$(echo "$_dec / 2^16 % 256" | bc)"
-  if [[ -z "$_ipb" ]]
-  then
-    log_rote "failed to convert byte 2 of IP '$_dec'"
-    return 1
-  fi
-  _ipc="$(echo "$_dec / 2^8 % 256" | bc)"
-  if [[ -z "$_ipc" ]]
-  then
-    log_rote "failed to convert byte 3 of IP '$_dec'"
-    return 1
-  fi
-  _ipd="$(echo "$_dec / 2^0 % 256" | bc)"
-  if [[ -z "$_ipd" ]]
-  then
-    log_rote "failed to convert byte 4 of IP '$_dec'"
-    return 1
-  fi
-  echo "$_ipa.$_ipb.$_ipc.$_ipd"
-}
-
-# Determine range of valid IPs we can choose from.
-subnet_start_dec="$(ip_to_dec "$subnet_start")"
-# Advance by 2 reserved IPs: first IP is reserved as network identifier, second
-# is reserved by us for a default gateway.
-valid_start_dec="$(echo "$subnet_start_dec + 2" | bc)"
-valid_start="$(dec_to_ip "$valid_start_dec")"
-# -1 here is because the size includes the IP at subnet_start
-subnet_end_dec="$(echo "$subnet_start_dec + 2^(32-$subnet_size) - 1" | bc)"
-# Retreat by 1 reserved IP: last IP is reserved as broadcast address.
-valid_end_dec="$(echo "$subnet_end_dec - 1" | bc)"
-valid_end="$(dec_to_ip "$valid_end_dec")"
-log_rote "will choose IP between $valid_start and $valid_end"
-
-# TODO: Validate that we've chosen a valid start point for the subnet, as they
-# are bit-aligned based on the mask.
-
 # Now we have a problem: how do we choose a random IP, while avoiding any
 # collisions?  Perhaps just do random retry when we encounter a collision for
 # now?
-random_ip_dec()
-{
-  _start="$1"
-  _end="$2"
-  if [[ -z "$_start" || -z "$_end" ]]
-  then
-    echo "Usage: ${FUNCNAME[0]} <start IP in decimal> <end IP in decimal>" >&2
-    return 1
-  fi
-  echo "$_start + ($RANDOM*32768 + $RANDOM) % ($_end - $_start)" | bc
-}
 while true
 do
-  ip_dec="$(random_ip_dec "$valid_start_dec" "$valid_end_dec")"
-  ip="$(dec_to_ip "$ip_dec")"
+  ip="$(random_ip "$F_subnet")"
   log_rote "considering IP $ip"
   match="$(grep -E "^$(grep_escape "$ip")\s+" "$F_lease_file" || true)"
   if [[ -z "$match" ]]

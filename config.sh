@@ -90,6 +90,8 @@ path_prepend()
 
 create_config --name=DOMAIN \
   --description="Where this instance of Gigayak is hosted."
+create_config --name=CONTAINER_SUBNET \
+  --description="Subnet specification for container network a la 10.0.0.0/8."
 create_config --name=REPO_LOCAL_PATH \
   --description="Working copy of package repository; stores package output."
 create_config --name=REPO_URL \
