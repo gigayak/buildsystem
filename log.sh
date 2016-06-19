@@ -8,8 +8,6 @@ then
 fi
 _LOG_SH_INCLUDED=1
 
-source "$(DIR)/flag.sh"
-
 _main_filename()
 {
   for i in $(seq 0 "$(expr "${#BASH_SOURCE[@]}" - 1)")
@@ -25,18 +23,20 @@ _main_filename()
 
 _log_message_with_level()
 {
-  add_flag --required level "Log level (ROTE, WARN, ERROR, FATAL)."
-  add_flag --required message "Message to log."
-  parse_flags "$@"
+  # Avoiding using flag.sh parsing to avoid cyclic dependencies, as flag.sh
+  # uses log.sh to report parsing errors and such.
+  level="$1"
+  shift
+  message="$*"
 
   local level_tag=""
-  case "$F_level" in
+  case "$level" in
     ROTE) level_tag="R";;
     WARN) level_tag="W";;
     ERROR) level_tag="E";;
     FATAL) level_tag="F";;
     *)
-      echo "F ${FUNCNAME[0]}: unknown --level $F_level" >&2
+      echo "F ${FUNCNAME[0]}: unknown --level $level" >&2
       return 1
       ;;
   esac
@@ -47,23 +47,23 @@ _log_message_with_level()
   local pid_tag=""
   pid_tag="${$}[$(_main_filename)]"
 
-  echo "${level_tag}${pid_tag} ${loc_tag}: ${F_message}" >&2
+  echo "${level_tag}${pid_tag} ${loc_tag}: ${message}" >&2
 }
 
 log_rote()
 {
-  _log_message_with_level --message="$*" --level=ROTE
+  _log_message_with_level ROTE "$*"
 }
 log_warn()
 {
-  _log_message_with_level --message="$*" --level=WARN
+  _log_message_with_level WARN "$*"
 }
 log_error()
 {
-  _log_message_with_level --message="$*" --level=ERROR
+  _log_message_with_level ERROR "$*"
 }
 log_fatal()
 {
-  _log_message_with_level --message="$*" --level=FATAL
+  _log_message_with_level FATAL "$*"
   exit 1
 }
