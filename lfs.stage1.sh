@@ -81,7 +81,8 @@ for p in \
   gcc-aliases bash-aliases coreutils-aliases grep-aliases file-aliases \
   sysvinit-aliases shadow-aliases linux-aliases linux-devices \
   linux-credentials linux-fstab-cd linux-fstab-hd linux-log-directories \
-  bash-profile iproute2 dhcp dhcp-config dropbear dropbear-config nettle gnutls \
+  bash-profile iproute2 dhcp dhcp-config dropbear dropbear-config nettle \
+  libtasn1 gnutls \
   internal-ca-certificates wget rsync buildsystem linux-mountpoints busybox \
   initrd linux-firmware gigayak-installer stage2-certificate go-sget \
   buildsystem-config
