@@ -468,7 +468,13 @@ then
     export outputname_debug_exit_handler_needed=0
     exit 0
   fi
-  log_fatal "found disallowed dependency cycle"
+  # If we reach this point, then it means that no cycle was found, but a
+  # the package being built is already installed.  This can happen in one very
+  # specific case: if the package being built is one of the packages installed
+  # automatically by mkroot.sh, then we'll see the package pre-existing.  This
+  # is weird, but I don't see a way around it.
+  log_warn "$outputname is already installed, but is currently being built"
+  log_warn "(this can happen if it's installed by mkroot.sh)"
 fi
 
 
