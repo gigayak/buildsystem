@@ -7,6 +7,7 @@ source "$(DIR)/flag.sh"
 source "$(DIR)/log.sh"
 add_flag --boolean continue "Whether to avoid wiping state."
 add_flag --required domain "Domain to set up under."
+add_flag --default="192.168.122.0/24" subnet "Subnet to attach containers to."
 parse_flags "$@"
 
 # This script attempts to take over a clean host and use it to build the whole
@@ -52,6 +53,7 @@ then
   rm -f "$yakrc"
   echo "set_config DOMAIN $(sq "${F_domain}")" >> "$yakrc"
   echo "set_config REPO_URL $(sq "https://repo.${F_domain}")" >> "$yakrc"
+  echo "set_config CONTAINER_SUBNET $(sq "${F_subnet}")" >> "$yakrc"
 fi
 
 "$(DIR)/create_crypto.sh"
