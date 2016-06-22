@@ -48,9 +48,18 @@ then
   rm -rf /var/www/html/tgzrepo/
   mkdir -pv /var/www/html/tgzrepo/
 
-  echo "Recreating configuration."
+  # Wipe local configuration changes.
   yakrc="$HOME/.yakrc.sh"
   rm -f "$yakrc"
+
+  # Download upstream yak packages, as changing repo URL in the next step will
+  # make them unavailable
+  if [[ "$("$(DIR)/os_info.sh" --distribution)" == "yak" ]]
+  then
+    "$(DIR)/mirror_repository.sh"
+  fi
+
+  echo "Recreating configuration."
   echo "set_config DOMAIN $(sq "${F_domain}")" >> "$yakrc"
   echo "set_config REPO_URL $(sq "https://repo.${F_domain}")" >> "$yakrc"
   echo "set_config CONTAINER_SUBNET $(sq "${F_subnet}")" >> "$yakrc"

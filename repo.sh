@@ -133,6 +133,21 @@ repo_get()
   fi
 }
 
+repo_list()
+{
+  (
+    find "$_REPO_LOCAL_PATH" -iname '*.done' \
+      | xargs -I{} basename {} .done
+    "$_REPO_GET" \
+      -q -O- \
+      --retry-connrefused \
+      "${_REPO_URL}/" \
+      | sed -nre 's@^.*href="([^"]+)\.done".*$@\1@gp'
+  ) \
+  | sort \
+  | uniq
+}
+
 dependency_to_property()
 {
   arch="$1"
