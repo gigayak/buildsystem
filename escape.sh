@@ -31,3 +31,9 @@ grep_escape()
       -e 's@(\])@\\\1@g'
 }
 
+# sed probably differs from grep, so this interface exists in case sed escapes
+# need to all be updated simultaneously in the future.
+sed_escape()
+{
+  grep_escape "$@"
+}
