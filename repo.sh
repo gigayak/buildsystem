@@ -19,6 +19,9 @@ source "$(DIR)/log.sh"
 
 # _REPO_LOCAL_PATH gives us a local package cache where we can find packages.
 # This is likely faster than downloading them, but likely to be out of date.
+#
+# TODO: Figure out a sane cache invalidation story, so that this local cache
+# is not necessarily out of date!
 if [[ -z "$_REPO_LOCAL_PATH" ]]
 then
   if [[ -e "$(get_config REPO_LOCAL_PATH)" ]]

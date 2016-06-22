@@ -8,7 +8,6 @@ source "$(DIR)/escape.sh"
 source "$(DIR)/cleanup.sh"
 source "$(DIR)/log.sh"
 add_flag --required pkg_name "Name of the package to install."
-# TODO: Deprecate local cache until invalidation works.
 add_flag --default="" repo_path "Path to find packages."
 add_flag --default="" repo_url "URL to find packages."
 add_flag --required install_root "Directory to install package to."
