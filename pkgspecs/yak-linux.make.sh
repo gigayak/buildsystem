@@ -62,6 +62,24 @@ done
 # Bridges are required for LXC.
 kconfig_set NET y
 kconfig_set BRIDGE y
+# And virtual ethernet pairs, to connect to those bridges:
+kconfig_set VETH y
+# VLANs are used when VLAN networking is used in place of bridged networking:
+kconfig_set MACVLAN y
+kconfig_set VLAN_8021Q y
+# /dev/pts needs to be multiply-instantiated for LXC.
+kconfig_set DEVPTS_MULTIPLE_INSTANCES y
+# cgroups and namespacing are required for LXC.
+for flag in \
+  NAMESPACES PID_NS NET_NS USER_NS UTS_NS IPC_NS \
+  CGROUPS CGROUP_DEVICE CPUSETS CGROUP_FREEZER \
+  CGROUP_SCHED FAIR_GROUP_SCHED BLK_CGROUP CFQ_GROUP_IOSCHED \
+  CGROUP_CPUACCT
+do
+  # TODO: Likely not in current kernel version, uncomment when rebuilding 4.x?:
+  #CGROUP_MEM_RES_CTLR CGROUP_MEM_RES_CTLR_SWAP \
+  kconfig_set "$flag" y
+done
 
 kconfig_kernel_finalize_hack
 
