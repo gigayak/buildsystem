@@ -106,7 +106,7 @@ dec_to_ip()
 }
 
 
-parse_subnet_start()
+parse_subnet_identifier()
 {
   local subnet="$1"
   if (( "$#" != 1 )) || [[ -z "$subnet" ]]
@@ -127,11 +127,11 @@ parse_subnet_start()
   echo "$subnet_start"
 }
 
-parse_subnet_start_dec()
+parse_subnet_identifier_dec()
 {
   local retval=0
   local start
-  start="$(parse_subnet_start "$@")" || retval=$?
+  start="$(parse_subnet_identifier "$@")" || retval=$?
   if (( "$retval" )) || [[ -z "$start" ]]
   then
     log_error "failed to parse subnet $@"
@@ -151,6 +151,7 @@ parse_subnet_size()
     echo "For example, 24 for 192.168.122.0/24." >&2
     return 1
   fi
+  local subnet_size
   subnet_size="$(echo "$subnet" \
     | sed -nre 's@^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/([1-9][0-9]*)$@\1@gp')"
   if [[ -z "$subnet_size" ]]
@@ -177,6 +178,64 @@ parse_subnet_size_dec()
     log_error "failed to convert size $size to number of IPs"
     return 1
   fi
+}
+
+parse_subnet_end_dec()
+{
+  local subnet="$1"
+  if (( "$#" != 1 )) || [[ -z "$subnet" ]]
+  then
+    echo "Usage: ${FUNCNAME[0]} <subnet specification>" >&2
+    echo >&2
+    echo "Returns last IP (in decimal) belonging to subnet." >&2
+    echo "For example, 3232267007 for 192.168.122.0/24." >&2
+    return 1
+  fi
+  local subnet_start_dec
+  local subnet_size_dec
+  subnet_start_dec="$(parse_subnet_identifier_dec "$subnet")"
+  subnet_size_dec="$(parse_subnet_size_dec "$subnet")"
+  expr "$subnet_start_dec" + "$subnet_size_dec" - 2
+}
+
+parse_subnet_end()
+{
+  local end_dec
+  end_dec="$(parse_subnet_end_dec "$@")"
+  dec_to_ip "$end_dec"
+}
+
+parse_subnet_start_dec()
+{
+  local subnet_id_dec
+  subnet_id_dec="$(parse_subnet_identifier_dec "$@")"
+  # Advance by one to reach the first valid IP, as subnet ID is not a valid IP.
+  # Then, advance by one more to reserve the first IP for the gateway address.
+  # (This is just convention, and may wind up causing pain in the future...)
+  expr "$subnet_id_dec" + 2
+}
+
+parse_subnet_start()
+{
+  local subnet_start_dec
+  subnet_start_dec="$(parse_subnet_start_dec "$@")"
+  dec_to_ip "$subnet_start_dec"
+}
+
+parse_subnet_broadcast()
+{
+  local end_dec
+  end_dec="$(parse_subnet_end_dec "$@")"
+  end_dec="$(expr "$end_dec" + 1)"
+  dec_to_ip "$end_dec"
+}
+
+parse_subnet_gateway()
+{
+  local gateway_dec
+  gateway_dec="$(parse_subnet_identifier_dec "$@")"
+  gateway_dec="$(expr "$gateway_dec" + 1)"
+  dec_to_ip "$gateway_dec"
 }
 
 size_to_mask()
@@ -276,32 +335,22 @@ random_ip()
   # Determine range of valid IPs we can choose from.
   local subnet_start_dec
   subnet_start_dec="$(parse_subnet_start_dec "$_subnet")"
-  local subnet_size_dec
-  subnet_size_dec="$(parse_subnet_size_dec "$_subnet")"
-
-  # Advance by 2 reserved IPs: first IP is reserved as network identifier,
-  # second is reserved (by convention only) for a default gateway.
-  local valid_start_dec
-  valid_start_dec="$(echo "$subnet_start_dec + 2" | bc)"
-  # -1 here is because the size includes the IP at subnet_start
   local subnet_end_dec
-  subnet_end_dec="$(echo "$subnet_start_dec + $subnet_size_dec - 1" | bc)"
-  # Retreat by 1 reserved IP: last IP is reserved as broadcast address.
-  local valid_end_dec
-  valid_end_dec="$(echo "$subnet_end_dec - 1" | bc)"
-  if (( "$valid_end_dec" < "$valid_start_dec" ))
+  subnet_end_dec="$(parse_subnet_end_dec "$_subnet")"
+
+  if (( "$subnet_end_dec" < "$subnet_start_dec" ))
   then
     log_error "end of generation range precedes start of range"
-    log_rote "range was [$valid_start_dec, $valid_end_dec]"
+    log_rote "range was [$subnet_start_dec, $subnet_end_dec]"
     return 1
   fi
   local retval
   local ip
-  ip="$(random_ip_dec "$valid_start_dec" "$valid_end_dec")" || retval=$?
+  ip="$(random_ip_dec "$subnet_start_dec" "$subnet_end_dec")" || retval=$?
   if (( "$retval" ))
   then
     log_error "failed to generate a random IP"
-    log_rote "range was [$valid_start_dec, $valid_end_dec]"
+    log_rote "range was [$subnet_start_dec, $subnet_end_dec]"
     return 1
   fi
   dec_to_ip "$ip"

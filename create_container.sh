@@ -3,17 +3,26 @@ set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/arch.sh"
+source "$(DIR)/config.sh"
 source "$(DIR)/mkroot.sh"
 source "$(DIR)/escape.sh"
 source "$(DIR)/flag.sh"
 source "$(DIR)/log.sh"
+source "$(DIR)/net.sh"
 
 add_flag --array pkg "Package name to install."
 add_flag --default="" name "Name of container to create -- default is random."
 parse_flags "$@"
 
-ip="$("$(DIR)/create_ip.sh" --owner="lxc:$F_name")"
+subnet="$(get_config CONTAINER_SUBNET)"
+ip="$("$(DIR)/create_ip.sh" \
+  --owner="lxc:$F_name" \
+  --subnet="$subnet")"
 log_rote "will use IP address $(sq "$ip") for container"
+broadcast_ip="$(parse_subnet_broadcast "$subnet")"
+log_rote "it has broadcast IP $broadcast_ip"
+gateway_ip="$(parse_subnet_gateway "$subnet")"
+log_rote "it has gateway IP $gateway_ip"
 
 log_rote "will install: ${F_pkg[@]}"
 
@@ -67,12 +76,12 @@ lxc.network.hwaddr = $("$(DIR)/create_mac.sh")
 #lxc.network.hwaddr = 53:6C:79:2F:D3:0D # FAILS NEVER USE ODD NUMBER IN FIRST
 # OCTET FOR MORE INFORMATION:
 # http://comments.gmane.org/gmane.linux.kernel.containers.lxc.general/746
-lxc.network.ipv4 = ${ip}/24 192.168.122.255
-lxc.network.ipv4.gateway = 192.168.122.1
+lxc.network.ipv4 = ${ip}/24 ${broadcast_ip}
+lxc.network.ipv4.gateway = ${gateway_ip}
 #lxc.network.ipv4.gateway = auto # can't determine, probably due to no dhcp/etc
 
 lxc.autodev = 1
-lxc.mount.auto = proc sys
+lxc.mount.auto = proc sys cgroup
 lxc.rootfs = $root
 
 lxc.pts = 1024

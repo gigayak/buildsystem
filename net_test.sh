@@ -83,9 +83,10 @@ subnet_to_parse()
   expect "$(parse_subnet_size_dec "$subnet")" "$size_dec" \
     "parsing decimal size of validly-formatted subnet $subnet"
 }
-subnet_to_parse "192.168.122.0/24" "192.168.122.0" "24" "3232266752" "256"
-subnet_to_parse "10.0.0.0/8" "10.0.0.0" "8" "167772160" "16777216"
-subnet_to_parse "0.0.0.0/8" "0.0.0.0" "8" "0" "16777216"
+#               subnet             start           size start_dec    size_dec
+subnet_to_parse "192.168.122.0/24" "192.168.122.2" "24" "3232266754" "256"
+subnet_to_parse "10.0.0.0/8"       "10.0.0.2"      "8"  "167772162"  "16777216"
+subnet_to_parse "0.0.0.0/8"        "0.0.0.2"       "8"  "2"          "16777216"
 
 for invalid_subnet in "asdf/8" "1/1" "0.0.0.0.0/16"
 do
@@ -143,6 +144,27 @@ do
     fail "$desc (got unexpected output '$size')"
   fi
 done
+
+expect "$(parse_subnet_end "192.168.0.0/24")" "192.168.0.254" \
+  "last valid IP in 192.168.0.0/24"
+expect "$(parse_subnet_end "1.2.3.4/30")" "1.2.3.6" \
+  "last valid IP in 1.2.3.4/30"
+expect "$(parse_subnet_end "192.168.0.0/30")" "192.168.0.2" \
+  "last valid IP in 192.168.0.0/30"
+
+expect "$(parse_subnet_broadcast "192.168.0.0/24")" "192.168.0.255" \
+  "broadcast IP in 192.168.0.0/24"
+expect "$(parse_subnet_broadcast "1.2.3.4/30")" "1.2.3.7" \
+  "broadcast IP in 1.2.3.4/30"
+expect "$(parse_subnet_broadcast "192.168.0.0/30")" "192.168.0.3" \
+  "broadcast IP in 192.168.0.0/30"
+
+expect "$(parse_subnet_gateway "192.168.0.0/24")" "192.168.0.1" \
+  "gateway IP in 192.168.0.0/24"
+expect "$(parse_subnet_gateway "1.2.3.4/30")" "1.2.3.5" \
+  "gateway IP in 1.2.3.4/30"
+expect "$(parse_subnet_gateway "192.168.0.0/30")" "192.168.0.1" \
+  "gateway IP in 192.168.0.0/30"
 
 expect "$(random_ip "10.0.0.0/30")" "10.0.0.2" \
   "randomly generating IP in 10.0.0.0/30"
