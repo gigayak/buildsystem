@@ -166,3 +166,4 @@ build yak libmnl
 build yak libnftnl
 build yak iptables
 build yak bridge-utils
+build yak cgroupfs-mount
