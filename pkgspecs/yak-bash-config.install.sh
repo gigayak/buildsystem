@@ -15,7 +15,7 @@ EOF
 
 # TODO: make this work in a .d config directory...
 rm -f /etc/shells # in case it already exists as a symlink
-echo > /etc/shells <<'EOF'
+cat > /etc/shells <<'EOF'
 # valid login shells
 /bin/bash
 EOF
