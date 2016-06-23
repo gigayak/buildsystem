@@ -98,5 +98,6 @@ build tools3 filesystem-skeleton
 build yak ca-certificates
 build yak internal-ca-certificates
 build yak stage3-certificate
+build yak buildsystem-config
 
 echo "Everything finished!  Woo-hoo!"
