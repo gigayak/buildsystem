@@ -2,7 +2,12 @@
 set -Eeo pipefail
 source "$YAK_BUILDTOOLS/all.sh"
 dep --arch="$YAK_TARGET_ARCH" --distro=yak glibc
-dep --arch="$YAK_TARGET_ARCH" --distro=yak coreutils # depends on mkdir and install
+
+# depends on mkdir and install
+dep --arch="$YAK_TARGET_ARCH" --distro=yak coreutils
+
+# used to download python-distribute
+dep --arch="$YAK_TARGET_ARCH" --distro=yak openssl
 
 # TODO: An error message during build indicates that dependencies are wrong:
 #   Python build finished, but the necessary bits to build these modules were

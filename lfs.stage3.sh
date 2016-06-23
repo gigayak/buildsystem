@@ -126,7 +126,7 @@ build yak libee
 build yak debianutils
 build yak eventlog
 build yak libffi
-build yak python2
+build yak python
 build yak glib
 build yak pcre
 build yak openssl
