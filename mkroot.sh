@@ -105,6 +105,8 @@ create_bare_root()
     fi
     _pkgs+=("internal-ca-certificates")
     _pkgs+=("go-sget")
+    # Required to look up users.
+    _pkgs+=("linux-credentials")
     local _pkg
     for _pkg in "${_pkgs[@]}"
     do
