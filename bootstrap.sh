@@ -38,13 +38,21 @@ then
     echo "Removing $(DIR)/cache/baseroot/"
     rm -rf "$(DIR)/cache/baseroot"
   fi
+  localstorage="$("$(DIR)/find_localstorage.sh")"
+  if [[ -e "$localstorage" ]]
+  then
+    log_rote "removing localstorage"
+    "$(DIR)/recursive_umount.sh" "$localstorage"
+    rm -rf "$localstorage"
+  fi
   if [[ -e "/tmp/ip.gigayak.allocations" ]]
   then
-    echo "Removing /tmp/ip.gigayak.allocations"
+    log_rote "removing /tmp/ip.gigayak.allocations"
     rm -f /tmp/ip.gigayak.allocations
   fi
-
-  echo "Removing and recreating /var/www/html/tgzrepo"
+  log_rote "destroying bridges"
+  "$(DIR)/destroy_bridges.sh"
+  log_rote "removing and recreating /var/www/html/tgzrepo"
   rm -rf /var/www/html/tgzrepo/
   mkdir -pv /var/www/html/tgzrepo/
 
@@ -63,6 +71,9 @@ then
   echo "set_config DOMAIN $(sq "${F_domain}")" >> "$yakrc"
   echo "set_config REPO_URL $(sq "https://repo.${F_domain}")" >> "$yakrc"
   echo "set_config CONTAINER_SUBNET $(sq "${F_subnet}")" >> "$yakrc"
+
+  log_rote "recreating localstorage"
+  "$(DIR)/initialize_localstorage.sh"
 fi
 
 "$(DIR)/create_crypto.sh"

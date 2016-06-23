@@ -7,7 +7,9 @@ DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 # (This is a "quick hack" that will "hopefully only be around for a few
 # months" - meaning, I'll be eating these words in February 2020.)
 
+source "$(DIR)/config.sh"
 source "$(DIR)/log.sh"
+source "$(DIR)/net.sh"
 
 # TODO: Use a .gitignore-ed subdirectory if a global directory is not ready.
 tgt="$("$(DIR)/find_localstorage.sh")"
@@ -45,19 +47,17 @@ mkdir -pv www/{logs,ssl}
 
 # Hack to enable DNS:
 # TODO: Shouldn't this be in env-dns.install.sh?!
-cat > dns/dns/_base.conf <<'EOF'
+subnet="$(get_config CONTAINER_SUBNET)"
+start_ip="$(parse_subnet_start "$subnet")"
+end_ip="$(parse_subnet_end "$subnet")"
+cat > dns/dns/_base.conf <<EOF
 no-resolv
 server=8.8.8.8
 addn-hosts=/opt/dns/hosts.autogen
-dhcp-range=interface:virbr0,192.168.122.10,192.168.122.254,1h
+dhcp-range=interface:virbr0,${start_ip},${end_ip},1h
 EOF
 
 # Link to repository:
 # TODO: This should be configurable, not hard coded.
 ln -sv /var/www/html/tgzrepo repo/repo
 ln -sv /var/www/html/public_html www/www
-
-# Make sure to kick off certificate generation - these are inserted into the
-# empty directories we just created, and most services won't start without
-# certificates and keys.
-bash -x "$(DIR)/create_crypto.sh"
