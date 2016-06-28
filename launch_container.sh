@@ -22,16 +22,22 @@ do
   log_rote "mountinfo: $mountinfo"
   mountname="$(echo "$mountinfo" | awk '{print $1}')"
   mountpoint="${root}$(echo "$mountinfo" | awk '{print $2}')"
+  mountpoint_real="$(readlink -f "$mountpoint")"
   mountsource="$storage_root/$mountname"
+  mountsource_real="$(readlink -f "$mountsource")"
   if [[ ! -d "$mountsource" ]]
   then
+    # Make sure that if $mountsource is a broken symlink, that we create its
+    # target, as mkdir -p "$broken_symlink" yields errors.
     log_rote "creating persistent storage directory $mountsource"
-    mkdir -p "$mountsource"
+    mkdir -p "$mountsource_real"
   fi
   if [[ ! -d "$mountpoint" ]]
   then
+    # Make sure that if $mountpoint is a broken symlink, that we create its
+    # target, as mkdir -p "$broken_symlink" yields errors.
     log_rote "creating bind mount point $mountpoint"
-    mkdir -p "$mountpoint"
+    mkdir -p "$mountpoint_real"
   fi
   if ! findmnt "$mountpoint"
   then
