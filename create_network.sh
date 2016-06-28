@@ -178,6 +178,11 @@ if [[ -e /tmp/ip.gigayak.allocations ]]
 then
   proxy_ip="$(awk '/lxc:proxy-01/ {print $1}' /tmp/ip.gigayak.allocations)"
 fi
+
+# enable iptables
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+# firewall configuration
 make_temp_dir temp
 rules="$temp/iptables.rules.nat"
 cat > "$rules" <<EOF
