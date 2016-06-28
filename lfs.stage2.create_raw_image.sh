@@ -13,6 +13,7 @@ add_flag --required output_path "Where to store the image."
 add_flag --required mac_address "MAC address to assign to eth0."
 add_flag --required ip_address "IP address to assign to eth0."
 add_flag --required distro_name "Which distribution to load (tools2, yak, ???)"
+add_flag --default="16G" size "How large to make the image (16G, 10M, ...)"
 parse_flags "$@"
 
 pkgs=()
@@ -80,10 +81,12 @@ strip_prefix="$1"
 shift
 distro_name="$1"
 shift
+size="$1"
+shift
 pkgs=("$@")
 
 # Create image.
-qemu-img create -f raw /root/gigayak.raw.img 16G
+qemu-img create -f raw /root/gigayak.raw.img "$size"
 
 # Create partition table!
 # Per http://superuser.com/a/518556
@@ -265,7 +268,8 @@ then
   strip_prefix="/clfs-root"
 fi
 chroot "$dir" /bin/bash /root/generate_image.sh \
-  "$F_mac_address" "$F_ip_address" "$strip_prefix" "$F_distro_name" "${pkgs[@]}"
+  "$F_mac_address" "$F_ip_address" "$strip_prefix" \
+  "$F_distro_name" "$F_size" "${pkgs[@]}"
 log_rote "generate_image.sh complete"
 
 

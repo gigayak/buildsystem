@@ -97,4 +97,5 @@ image_path="/var/www/html/tgzrepo/stage3.raw"
   --ip_address="$ip" \
   --mac_address="$("$(DIR)/create_mac.sh")" \
   --output_path="$image_path" \
-  --distro_name=yak
+  --distro_name=yak \
+  --size="64G"
