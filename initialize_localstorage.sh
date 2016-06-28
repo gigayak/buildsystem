@@ -59,5 +59,7 @@ EOF
 
 # Link to repository:
 # TODO: This should be configurable, not hard coded.
+mkdir -pv /var/www/html/tgzrepo
 ln -sv /var/www/html/tgzrepo repo/repo
+mkdir -pv /var/www/html/public_html
 ln -sv /var/www/html/public_html www/www
