@@ -41,7 +41,7 @@ container()
 container dns     01
 
 # Infrastructure services:
-container gitzebo 01
+#container gitzebo 01 # temporarily removed while I figure out Python...
 container proxy   01
 container proxy   02
 
