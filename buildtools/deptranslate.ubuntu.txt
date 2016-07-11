@@ -59,6 +59,7 @@ linux linux-headers-generic
 libuuid uuid
 libuuid uuid-dev
 openssh openssh-client
+openssh openssh-server
 coreutils coreutils
 coreutils hostname
 linux-credentials .

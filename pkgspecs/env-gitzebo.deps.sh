@@ -9,4 +9,4 @@ dep filesystem-skeleton # .bashrc needed for HOME and the like
 
 dep go-https-fileserver # to serve repos over dumb HTTPS
 
-dep openssh-server # needed to accept pushes and serve pulls
+dep openssh # needed to accept pushes and serve pulls
