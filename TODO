@@ -1,14 +1,14 @@
 #!/bin/bash
 set -Eeo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 # TODO: This will only get the first line of a TODO.  Reimplement this sanely?
 grep \
   -R \
   -E \
   -e '^\s*[#;]\s*TODO:?\s*(\S.*)' \
-  "$DIR" \
-  --exclude-dir="$DIR/cache" \
+  "$(DIR)" \
+  --exclude-dir="cache" \
   --line-number \
 | sed -re 's@^([^:]+:[0-9]+:)[^:]+:\s+(.*)$@\1 \2@g'
 exit $?
