@@ -10,5 +10,4 @@ dep tar
 dep gcc
 
 # Headers.
-dep kernel-devel
-dep libuuid-devel
+dep linux

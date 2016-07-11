@@ -9,11 +9,11 @@ dep tar
 # To build the source.
 dep libtool
 dep gcc
-dep gcc-c++
 dep automake
 dep autoconf
+dep make
 dep python
-
-# Needed headers.
-dep zlib-devel
-dep glib2-devel
+dep pkg-config-lite
+dep flex
+dep bison
+dep diffutils

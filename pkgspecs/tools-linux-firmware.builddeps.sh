@@ -10,3 +10,5 @@ dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" git
 
 # Make required to install.
 dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" automake
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" autoconf
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" make

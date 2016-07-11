@@ -7,7 +7,7 @@ dep wget
 dep internal-ca-certificates
 
 # Used in flag parsing. (Provides /usr/bin/getopt.)
-dep util-linux-ng
+dep util-linux
 
 # Used for string transmogrification throughout.
 dep sed

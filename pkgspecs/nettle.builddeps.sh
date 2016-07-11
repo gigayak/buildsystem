@@ -12,4 +12,4 @@ dep automake
 dep autoconf
 
 # library deps
-dep gmp-devel
+dep gmp

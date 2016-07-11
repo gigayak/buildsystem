@@ -7,7 +7,6 @@ dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" curl
 dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" internal-ca-certificates
 
 # To build:
-dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" glibc-devel
 dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" go
 dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" go14
 dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" gcc

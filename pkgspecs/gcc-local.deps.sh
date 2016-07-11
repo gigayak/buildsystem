@@ -3,8 +3,6 @@ set -Eeo pipefail
 source "$YAK_BUILDTOOLS/all.sh"
 dep binutils
 dep glibc
-dep glibc-headers
-dep glibc-devel
 
 dep gmp
 dep mpfr

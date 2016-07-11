@@ -12,13 +12,12 @@ dep binutils
 dep bison
 dep flex
 dep gcc
-dep gcc-c++
 dep gettext
 dep libtool
 dep make
 dep patch
 dep pkgconfig
-dep python-devel
+dep python
 
 # NOTE: $YAK_WORKSPACE/deplist.txt will be exported in pip.builddeps.final.txt!
 

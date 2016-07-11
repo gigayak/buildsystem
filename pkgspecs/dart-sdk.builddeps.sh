@@ -35,4 +35,4 @@ else
 fi
 
 # Additional stuff needed to build dart
-dep glibc-devel
+dep glibc

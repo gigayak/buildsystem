@@ -5,5 +5,3 @@ dep wget
 dep tar
 dep gcc
 dep scons
-
-dep openssl-devel

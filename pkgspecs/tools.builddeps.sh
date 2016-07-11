@@ -9,7 +9,9 @@ dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" tar
 # Some packages require a native GCC to build utilities which are then used
 # during the package build process.
 dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" gcc
-dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" gcc-c++
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" automake
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" autoconf
+dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" make
 
 # binutils requires texinfo
 if [[ "$YAK_PKG_NAME" == "binutils" ]]
@@ -34,6 +36,22 @@ fi
 if [[ "$YAK_PKG_NAME" == "busybox" ]]
 then
   dep --arch="$YAK_TARGET_ARCH" --distro="$YAK_TARGET_OS" "glibc"
+fi
+
+# Several packages want diffutils for cmp
+if [[ \
+  "$YAK_PKG_NAME" == "gcc" \
+  || "$YAK_PKG_NAME" == "linux" \
+  || "$YAK_PKG_NAME" == "grub" \
+]]
+then
+  dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" "diffutils"
+fi
+
+# We use CLFS patches for some packages - so they should install patch.
+if [[ "$YAK_PKG_NAME" == "bootscripts" ]]
+then
+  dep --arch="$YAK_HOST_ARCH" --distro="$YAK_HOST_OS" "patch"
 fi
 
 # Add all cross-compilation toolchain packages in as build-time dependencies.

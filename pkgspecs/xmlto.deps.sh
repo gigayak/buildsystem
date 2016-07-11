@@ -1,4 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
 source "$YAK_BUILDTOOLS/all.sh"
-dep util-linux-ng # getopt
+dep util-linux # getopt

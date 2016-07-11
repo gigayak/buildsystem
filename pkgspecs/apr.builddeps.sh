@@ -5,4 +5,4 @@ dep wget
 dep tar
 dep gcc
 
-dep db4-devel
+dep db4

@@ -12,7 +12,6 @@ dep binutils
 dep bison
 dep flex
 dep gcc
-dep gcc-c++
 dep gettext
 dep libtool
 dep make

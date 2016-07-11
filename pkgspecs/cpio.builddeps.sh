@@ -8,4 +8,7 @@ dep tar
 
 # Build.
 dep gcc
+dep autoconf
+dep automake
+dep make
 

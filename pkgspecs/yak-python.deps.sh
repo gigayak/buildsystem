@@ -7,7 +7,7 @@ dep --arch="$YAK_TARGET_ARCH" --distro=yak glibc
 dep --arch="$YAK_TARGET_ARCH" --distro=yak coreutils
 
 # used to download python-distribute
-dep --arch="$YAK_TARGET_ARCH" --distro=yak openssl
+dep --arch="$YAK_TARGET_ARCH" --distro=yak curl
 
 # TODO: An error message during build indicates that dependencies are wrong:
 #   Python build finished, but the necessary bits to build these modules were

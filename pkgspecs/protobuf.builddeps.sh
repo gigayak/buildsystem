@@ -9,7 +9,6 @@ dep tar
 
 # Build tools.
 dep gcc
-dep gcc-c++
 dep libtool
 dep automake
 dep autoconf
