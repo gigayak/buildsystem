@@ -27,7 +27,8 @@ build()
   local arch="$target_arch"
   if (( "$waiting" )) \
     && [[ "$pkg" != "$start_from" \
-      && "${arch}-${distro}-${pkg}" != "$start_from" ]]
+      && "${arch}-${distro}-${pkg}" != "$start_from" \
+      && "${distro}-${pkg}" != "$start_from" ]]
   then
     echo "Ignoring package '$pkg'"
     return 0
