@@ -29,7 +29,7 @@ fi
 
 pkgs=()
 pkgs+=(qemu)
-pkgs+=(openssh-clients) # used to kick off install process
+pkgs+=(openssh) # used to kick off install process
 pkgs+=(parted) # used to set up loop device for package export
 pkgs+=(rsync) # for installation of buildsystem
 log_rote "will install: ${pkgs[@]}"
