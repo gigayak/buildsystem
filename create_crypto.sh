@@ -6,6 +6,7 @@ source "$(DIR)/config.sh"
 source "$(DIR)/cleanup.sh"
 source "$(DIR)/escape.sh"
 source "$(DIR)/log.sh"
+source "$(DIR)/repo.sh"
 
 log_rote "Regenerating all missing crypto files."
 log_rote "These should never be checked in."
@@ -197,6 +198,63 @@ ssl_client_cert()
     "$username" "$fqdn" "$domain" "$client_name"
 }
 
+maybe_rebuild_cert_package()
+{
+  add_flag --required "certificate_source" "File in \$ca_root to package."
+  add_flag --required "pkg_name" "Package cert should be in."
+  add_flag --required "certificate_target" "Name of file in package."
+  parse_flags "$@"
+
+  target_md5="$(md5sum "$ca_root/${F_certificate_source}" | awk '{print $1}')"
+  rm -rf "$root/tmp"
+  mkdir -p "$root/tmp"
+  #repo_list > "$root/tmp/repo.list"
+  ls -1 /var/www/html/tgzrepo > "$root/tmp/repo.list"
+  while read -r pkg
+  do
+    pkg_spec="$(basename "$pkg" .done)"
+    tarball_name="${pkg_spec}.tar.gz"
+    mkdir -p "$root/tmp"
+    tarball_path="$root/tmp/$tarball_name"
+    repo_get "$tarball_name" > "$tarball_path"
+    while read -r cert_name
+    do
+      candidate_md5="$(tar -zxf "$tarball_path" --to-stdout "$cert_name" \
+        | md5sum - \
+        | awk '{print $1}')"
+      if [[ "$candidate_md5" != "$target_md5" ]]
+      then
+        log_rote "$pkg_spec must be rebuilt"
+        build_from_dependency "$pkg_spec"
+      fi
+    done < <(tar -tzf "$tarball_path" | grep -E "${F_certificate_target}\$")
+  done < <(grep -E ":${F_pkg_name}.done\$" "$root/tmp/repo.list")
+}
+
+maybe_rebuild_internal_ca_certs()
+{
+  maybe_rebuild_cert_package \
+    --certificate_source="authority/ca.crt" \
+    --certificate_target="gigayak.pem" \
+    --pkg_name="internal-ca-certificates"
+}
+
+maybe_rebuild_stage2_client_certs()
+{
+  maybe_rebuild_cert_package \
+    --certificate_source="certificates/client.system@stage2.automation.${domain}.crt" \
+    --certificate_target="client.crt" \
+    --pkg_name="stage2-certificate"
+}
+
+maybe_rebuild_stage3_client_certs()
+{
+  maybe_rebuild_cert_package \
+    --certificate_source="certificates/client.system@stage3.automation.${domain}.crt" \
+    --certificate_target="client.crt" \
+    --pkg_name="stage3-certificate"
+}
+
 
 ssh_rsa_key godev
 ssh_rsa_key gitzebo
@@ -211,5 +269,8 @@ ssl_client_cert jgilik "hp11.home.$domain" "John Gilik / HP11 Chromebook"
 ssl_client_cert system "dl380.home.$domain" "System / DL380"
 ssl_client_cert system "stage2.automation.$domain" "System / stage2 build"
 ssl_client_cert system "stage3.automation.$domain" "System / stage3 build"
+maybe_rebuild_internal_ca_certs
+maybe_rebuild_stage2_client_certs
+maybe_rebuild_stage3_client_certs
 
 log_rote "successfully created all keys and certs"

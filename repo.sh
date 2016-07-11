@@ -51,7 +51,7 @@ set_repo_remote_url()
 
 # _REPO_GET dictates which binary is used to fetch from repositories.
 # It's expected to be similar to wget.
-if [[ -z "$_REPO_GET" ]]
+if (( ! "${#_REPO_GET[@]}" ))
 then
   # sget can use client certificates, but is built in-house.  As such,
   # we prefer it, but require wget to bootstrap (as some HTTP client is
@@ -60,9 +60,9 @@ then
   sget --help >/dev/null 2>&1 || retval=$?
   if (( "$retval" != "127" ))
   then
-    export _REPO_GET=sget
+    export _REPO_GET=(sget --proxy="proxy.$(get_config DOMAIN):443")
   else
-    export _REPO_GET=wget
+    export _REPO_GET=(wget)
   fi
 fi
 
@@ -108,7 +108,7 @@ repo_get()
     #   http://fischerlaender.de/webdev/redirecting-wget-to-stdout
     # --retry-connrefused should help in some of the worst network flakiness.
     local _url="${_REPO_URL}/$_path"
-    "$_REPO_GET" \
+    "${_REPO_GET[@]}" \
       -q -O- \
       --retry-connrefused \
       "$_url" \
@@ -125,7 +125,7 @@ repo_get()
     #   http://fischerlaender.de/webdev/redirecting-wget-to-stdout
     # --retry-connrefused should help in some of the worst network flakiness.
     local _url="${_REPO_URL}/$_path"
-    "$_REPO_GET" \
+    "${_REPO_GET[@]}" \
       -q -O- \
       --retry-connrefused \
       "$_url" \
@@ -141,7 +141,7 @@ repo_list()
   (
     find "$_REPO_LOCAL_PATH" -iname '*.done' \
       | xargs -I{} basename {} .done
-    "$_REPO_GET" \
+    "${_REPO_GET[@]}" \
       -q -O- \
       --retry-connrefused \
       "${_REPO_URL}/" \
@@ -244,6 +244,41 @@ qualify_dep()
   arch="$(dep2arch "$arch" "$distro" "$dep")"
   distro="$(dep2distro "$arch" "$distro" "$dep")"
   echo "${arch}-${distro}:${pkg_name}"
+}
+
+# Build from a fully-qualified dependency name.
+build_from_dependency()
+{
+  if (( "$#" != 1 ))
+  then
+    echo "Usage: ${FUNCNAME[0]} <fully qualified dependency>" >&2
+    echo >&2
+    echo "Builds package identified by fully qualified dependency." >&2
+    return 1
+  fi
+  dep="$1"
+  name="$(dep2name "" "" "$dep")"
+  if [[ -z "$name" ]]
+  then
+    log_error "failed to extract name from dependency $(sq "$dep")"
+    return 1
+  fi
+  arch="$(dep2arch "" "" "$dep")"
+  if [[ -z "$arch" ]]
+  then
+    log_error "failed to extract architecture from dependency $(sq "$dep")"
+    return 1
+  fi
+  distro="$(dep2distro "" "" "$dep")"
+  if [[ -z "$distro" ]]
+  then
+    log_error "failed to extract distribution from dependency $(sq "$dep")"
+    return 1
+  fi
+  "$(DIR)/pkg.from_name.sh" \
+    --target_architecture="$arch" \
+    --target_distribution="$distro" \
+    --pkg_name="$name"
 }
 
 resolve_deps()

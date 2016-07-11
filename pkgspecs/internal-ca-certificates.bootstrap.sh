@@ -28,7 +28,7 @@ elif [[ "$YAK_TARGET_OS" == "tools2" || "$YAK_TARGET_OS" == "yak" ]]
 then
   echo "Found Gigayak target" >&2
   cert_dir="etc/ssl/certs"
-  update_command=(echo "no update command")
+  update_command=()
 else
   echo "Unknown host OS '$YAK_TARGET_OS'" >&2
   exit 1
@@ -50,7 +50,11 @@ then
     "$cert_path/gigayak_as_pem.crt"
 fi
 
-chroot "$root" "${update_command[@]}" >&2
+if (( "${#update_command[@]}" ))
+then
+  chroot "$root" "${update_command[@]}" >&2
+fi
+
 new_root="$YAK_WORKSPACE/to_package"
 mkdir -p "$new_root"
 cd "$root"
