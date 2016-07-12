@@ -103,8 +103,6 @@ create_bare_root()
     else
       _pkgs+=("stage3-certificate")
     fi
-    _pkgs+=("internal-ca-certificates")
-    _pkgs+=("go-sget")
     # Required to look up users.
     _pkgs+=("linux-credentials")
     local _pkg
@@ -116,6 +114,33 @@ create_bare_root()
         --target_distribution="$os" \
         --pkg_name="$_pkg"
     done
+
+    # HACK SCALE: MINOR
+    #
+    # Install internal certificates and sget only if possible to do so without
+    # triggering a recursive build.  Without these being optional, building the
+    # certificate authority in create_crypto.sh fails, as the internal
+    # certificates package is required by all other packages, but can't be
+    # built without the internal certificate authority being initialized... in
+    # create_crypto.sh.  This is, of course, a cyclic dependency, so it is
+    # broken here.
+    #
+    # TODO: I'm sure this is a side effect of pkgspecs/*.deps.sh calling
+    # install_pkg.sh somewhere.  Removing that dependency should allow this to
+    # be removed.
+    if "$(DIR)/install_pkg.sh" \
+      --install_root="$_root" \
+      --target_architecture="$arch" \
+      --target_distribution="$os" \
+      --pkg_name="internal-ca-certificates" \
+      --no_build
+    then
+      "$(DIR)/install_pkg.sh" \
+        --install_root="$_root" \
+        --target_architecture="$arch" \
+        --target_distribution="$os" \
+        --pkg_name=sget
+    fi
   fi
 
   cd "$_original_dir"
