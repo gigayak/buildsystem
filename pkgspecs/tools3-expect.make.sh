@@ -1,15 +1,13 @@
 #!/bin/bash
 set -Eeo pipefail
 
+source "$YAK_BUILDTOOLS/download.sh"
+
 cd "$YAK_WORKSPACE"
 version=5.45
 echo "$version" > "$YAK_WORKSPACE/version"
-sfroot="http://sourceforge.net/projects/expect/files"
-url="$sfroot/Expect/$version/expect$version.tar.gz/download"
-wget "$url" \
-  -O expect.tar.gz \
-  --no-check-certificate
-tar -zxf expect.tar.gz
+download_sourceforge "expect/Expect/${version}/expect${version}.tar.gz"
+tar -xf *.tar.*
 
 cd expect*/
 ./configure \

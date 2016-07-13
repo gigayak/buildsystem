@@ -1,13 +1,11 @@
 #!/bin/bash
 set -Eeo pipefail
 
-version="2.5.39"
+source "$YAK_BUILDTOOLS/download.sh"
 cd "$YAK_WORKSPACE"
+version="2.5.39"
 echo "$version" > version
-wget \
-  --no-check-certificate \
-  "http://sourceforge.net/projects/flex/files/flex-$version.tar.gz/download" \
-  -O flex.tar.gz
+download_sourceforge "flex/flex-${version}.tar.gz"
 tar -zxf *.tar.*
 cd *-*/
 

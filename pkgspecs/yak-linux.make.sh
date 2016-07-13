@@ -80,6 +80,8 @@ do
   #CGROUP_MEM_RES_CTLR CGROUP_MEM_RES_CTLR_SWAP \
   kconfig_set "$flag" y
 done
+# qemu requires /dev/net/tun, provided by TUN:
+kconfig_set TUN y
 
 kconfig_kernel_finalize_hack
 
