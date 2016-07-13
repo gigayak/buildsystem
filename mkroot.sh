@@ -139,7 +139,7 @@ create_bare_root()
         --install_root="$_root" \
         --target_architecture="$arch" \
         --target_distribution="$os" \
-        --pkg_name=sget
+        --pkg_name=go-sget
     fi
   fi
 
