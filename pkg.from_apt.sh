@@ -3,6 +3,7 @@ set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/cleanup.sh"
+source "$(DIR)/escape.sh"
 source "$(DIR)/flag.sh"
 source "$(DIR)/log.sh"
 source "$(DIR)/buildtools/all.sh"
@@ -18,14 +19,37 @@ pkgname="$F_pkg_name"
 arch="$("$(DIR)/os_info.sh" --architecture)"
 os=ubuntu
 qual_name="$(qualify_dep "$arch" "$os" "$pkgname")"
-translation="$(dep --arch="$arch" --distro="$os" "$pkgname")"
-if [[ "$pkgname" != "$translation" && "$qual_name" != "$translation" ]]
+translated_deps=()
+while read -r translated_dep
+do
+  if [[ "$translated_dep" == "." || -z "$translated_dep" ]]
+  then
+    continue
+  fi
+  translated_deps+=("$translated_dep")
+done < <(dep --arch="$arch" --distro="$os" "$pkgname")
+if (( ! "${#translated_deps[@]}" ))
 then
-  log_rote "translated name '$qual_name' to '$translation'"
+  log_fatal "translated name $(sq "$qual_name") to nothing at all"
+fi
+
+is_translated=0
+if (( "${#translated_deps[@]}" != 1 )) \
+  || [[ \
+    "$(qualify_dep "$arch" "$os" "${translated_deps[0]}")" != "$qual_name" \
+    && "${translated_deps[0]}" != "$pkgname" \
+  ]]
+then
+  is_translated=1
+  log_rote "translated name '$qual_name' to:"
+  for translation in "${translated_deps[@]}"
+  do
+    log_rote " - $(sq "$translation")"
+  done
 fi
 
 built_original_name=0
-while read -r dep
+for dep in "${translated_deps[@]}"
 do
   # Don't dare to recurse into ./pkg.from_apt.sh --pkg_name=''.  That makes
   # apt-cache dotty '' yield a nice Perl error:
@@ -47,14 +71,18 @@ do
 
   # Do not attempt to build translated dependencies here, as it will break
   # cycle detection if you're not careful to preserve dependency history.
-done < <(echo "$translation")
+done
 
 # Do no more work if the originally requested package no longer exists after
 # translation.
-if [[ "$qual_name" != "$translation" && "$pkgname" != "$translation" ]] \
-  && (( ! "$built_original_name" ))
+if (( "$is_translated" && ! "$built_original_name" ))
 then
-  "$(DIR)/pkg.alias.sh" --target="$translation" --alias="$pkgname"
+  target_flags=()
+  for target in "${translated_deps[@]}"
+  do
+    target_flags+=("--target=$target")
+  done
+  "$(DIR)/pkg.alias.sh" --alias="$pkgname" "${target_flags[@]}"
   exit 0
 fi
 
@@ -67,7 +95,7 @@ args+=(--builddeps_script="$(DIR)/apt.builddeps.sh")
 args+=(--install_script="$(DIR)/apt.install.sh")
 args+=(--version_script="$(DIR)/apt.version.sh")
 args+=(--deps_script="$(DIR)/apt.deps.sh")
-if [[ "$qual_name" != "$translation" && "$pkgname" != "$translation" ]]
+if (( "$is_translated" ))
 then
   make_temp_file deps_script
   (

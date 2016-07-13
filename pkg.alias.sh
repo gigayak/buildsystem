@@ -10,7 +10,7 @@ add_flag --default="" alias_architecture \
   "Arch of alias; defaults to arch of actual package"
 add_flag --default="" alias_distribution \
   "Distro of alias; defaults to distro of actual package"
-add_flag --required target "Name of actual package to be installed"
+add_flag --required --array target "Name(s) of actual package to be installed"
 add_flag --default="" target_architecture \
   "Arch of actual package to install; defaults to host arch"
 add_flag --default="" target_distribution \
@@ -40,7 +40,11 @@ then
 fi
 
 alias="$(qualify_dep "$alias_arch" "$alias_distro" "$F_alias")"
-target="$(qualify_dep "$target_arch" "$target_distro" "$F_target")"
+targets=()
+for target in "${F_target[@]}"
+do
+  targets+=("$(qualify_dep "$target_arch" "$target_distro" "$target")")
+done
 
 if [[ -e "$_REPO_LOCAL_PATH/$alias.done" ]]
 then
@@ -50,8 +54,23 @@ fi
 
 tar -c -T /dev/null -z -f "$_REPO_LOCAL_PATH/$alias.tar.gz"
 echo "alias" > "$_REPO_LOCAL_PATH/$alias.version"
-echo "$target" > "$_REPO_LOCAL_PATH/$alias.dependencies"
+rm -f "$_REPO_LOCAL_PATH/$alias.dependencies"
+touch "$_REPO_LOCAL_PATH/$alias.dependencies"
+for target in "${targets[@]}"
+do
+  echo "$target" >> "$_REPO_LOCAL_PATH/$alias.dependencies"
+done
 touch "$_REPO_LOCAL_PATH/$alias.done"
 
-log_rote "aliased '$target' as '$alias'"
-log_rote "installing '$alias' will install '$target'"
+if (( "${#targets[@]}" == 1 ))
+then
+  target="$(sq "${targets[0]}")"
+else
+  target="${#targets[@]} targets"
+fi
+log_rote "aliased $target as '$alias'"
+log_rote "installing '$alias' will install:"
+for target in "${targets[@]}"
+do
+  log_rote " - $(sq "$target")"
+done
