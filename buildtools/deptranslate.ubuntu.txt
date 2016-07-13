@@ -54,7 +54,6 @@ python python-dev
 python libpython-dev
 glib libglib2.0-0
 glib libglib2.0-dev
-linux linux
 linux linux-headers-generic
 libuuid uuid
 libuuid uuid-dev
