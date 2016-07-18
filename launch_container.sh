@@ -8,6 +8,12 @@ source "$(DIR)/mkroot.sh"
 add_flag --required name "Name of container to launch"
 parse_flags "$@"
 
+# If cgroupfs is not mounted, mount it now...
+if ! grep -E '^cgroup\s' /proc/mounts >/dev/null 2>&1
+then
+  cgroupfs-mount
+fi
+
 root="$(lxc-info --name="${F_name}" -c lxc.rootfs \
   | sed -nre 's@^\S+\s*=\s*(\S+)$@\1@gp')"
 
