@@ -94,11 +94,26 @@ done
 # Needed by all tools3 packages - can't be built by tools3, though.
 # TODO: Can it?  It's .bootstrap.sh style, so it doesn't depend on itself.
 build tools3 filesystem-skeleton
+
 # Needed for sget to work, but must be built on system on which
 # create_crypto.sh was run (for now).
-build yak ca-certificates
 build yak internal-ca-certificates
 build yak stage3-certificate
+
+# And no joke, we generate the tools version of the Mozilla CA certificate
+# package from the final version, rather than the other way around.  Either
+# could go first, I suppose, but yak-ca-certificates existed first, and doing
+# a full rebuild (to test the inversion) would take a long time (~40 hours)
+# right now.  So you have this comment instead.
+# TODO: This could totally be cleaned up if someone has a few CPU-days to test.
+build yak ca-certificates
+build tools ca-certificates
+build tools2 ca-certificates
+
+# The buildsystem config is just copied over from the host system, so we copy
+# it as close to the source as possible.  This prevents weird automated config
+# overrides made by the buildsystem from accidentally propagating into the
+# final image.
 build yak buildsystem-config
 
 echo "Everything finished!  Woo-hoo!"
