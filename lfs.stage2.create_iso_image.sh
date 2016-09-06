@@ -11,15 +11,24 @@ log_error "Use lfs.stage2.sh to boot stage2 image and build stage3."
 exit 1
 
 source "$(DIR)/arch.sh"
-source "$(DIR)/flag.sh"
 source "$(DIR)/cleanup.sh"
-source "$(DIR)/mkroot.sh"
+source "$(DIR)/config.sh"
 source "$(DIR)/escape.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/mkroot.sh"
+source "$(DIR)/net.sh"
 
 add_flag --required output_path "Where to store the image."
 add_flag --required mac_address "MAC address to assign to eth0."
 add_flag --required ip_address "IP address to assign to eth0."
+add_flag --default="" gateway_ip "Gateway IP to route eth0 traffic through."
 parse_flags "$@"
+
+if [[ "$F_gateway_ip" == "" ]]
+then
+  container_subnet="$(get_config CONTAINER_SUBNET)"
+  F_gateway_ip="$(parse_subnet_gateway "$container_subnet")"
+fi
 
 pkgs=()
 pkgs+=(qemu) # qemu-img
@@ -65,6 +74,7 @@ set -Eeo pipefail
 # Pull in flags from next layer of execution above us.
 mac_address="$1"
 ip_address="$2"
+gateway_ip="$3"
 
 # Our new filesystem has no files!
 # Extract all of the packages into our guest filesystem.
@@ -122,10 +132,10 @@ cp -v "/usr/share/syslinux/ldlinux.c32" "$bootdir/"
 # HACK SCALE: EPIC
 #
 # Yeah, we should NOT be assigning an IP address like this!
-cat > "$extract_path/tools/i686/etc/rc.d/init.d/eth0" <<'EOF'
+cat > "$extract_path/tools/i686/etc/rc.d/init.d/eth0" <<EOF
 #!/bin/bash
 set -Eeo pipefail
-if [[ "$1" != "start" ]]
+if [[ "\$1" != "start" ]]
 then
   echo "This script is dumb and can only start."
   exit 0
@@ -135,24 +145,24 @@ for binary in ip dhclient
 do
   for bindir in /bin /usr/bin /sbin /usr/sbin /tools/i686/bin /tools/i686/sbin
   do
-    if [[ ! -e "$bindir/$binary" ]]
+    if [[ ! -e "\$bindir/\$binary" ]]
     then
       continue
     fi
-    export "$binary"="$bindir/$binary"
+    export "\$binary"="\$bindir/\$binary"
   done
-  if [[ -z "${!binary}" ]]
+  if [[ -z "\${!binary}" ]]
   then
-    echo "Failed to find binary $binary." >&2
+    echo "Failed to find binary \$binary." >&2
     exit 1
   fi
 done
 
 echo "Starting eth0"
-${ip} link set eth0 up
-#${dhclient} -v eth0
-${ip} addr add $(</tools/i686/etc/ip_address.conf)/24 dev eth0
-${ip} route add default via 192.168.122.1
+\${ip} link set eth0 up
+#\${dhclient} -v eth0
+\${ip} addr add \$(</tools/i686/etc/ip_address.conf)/24 dev eth0
+\${ip} route add default via ${gateway_ip}
 EOF
 echo "$ip_address" > "$extract_path/tools/i686/etc/ip_address.conf"
 
@@ -179,7 +189,7 @@ EOF_GEN_IMAGE
 chmod +x "$dir/root/generate_image.sh"
 
 chroot "$dir" /bin/bash /root/generate_image.sh \
-  "$F_mac_address" "$F_ip_address"
+  "$F_mac_address" "$F_ip_address" "$F_gateway_ip"
 
 # Break out of chroot and export the packages...
 log_rote "generate_image.sh complete.  Exporting image."

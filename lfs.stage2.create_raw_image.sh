@@ -2,19 +2,29 @@
 set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
+# TODO: Wow.  Can this script be refactored?  It sources the world here...
 source "$(DIR)/arch.sh"
 source "$(DIR)/cleanup.sh"
+source "$(DIR)/config.sh"
 source "$(DIR)/escape.sh"
 source "$(DIR)/flag.sh"
 source "$(DIR)/log.sh"
 source "$(DIR)/mkroot.sh"
+source "$(DIR)/net.sh"
 
 add_flag --required output_path "Where to store the image."
 add_flag --required mac_address "MAC address to assign to eth0."
 add_flag --required ip_address "IP address to assign to eth0."
+add_flag --default="" gateway_ip "Gateway IP to route eth0 traffic through."
 add_flag --required distro_name "Which distribution to load (tools2, yak, ???)"
 add_flag --default="16G" size "How large to make the image (16G, 10M, ...)"
 parse_flags "$@"
+
+if [[ "$F_gateway_ip" == "" ]]
+then
+  container_subnet="$(get_config CONTAINER_SUBNET)"
+  F_gateway_ip="$(parse_subnet_gateway "$container_subnet")"
+fi
 
 pkgs=()
 pkgs+=(qemu) # qemu-img
@@ -74,14 +84,41 @@ set -Eeo pipefail
 # Pull in flags from next layer of execution above us.
 # TODO: Subtle bugs are likely to result from not using flag.sh here.
 mac_address="$1"
+if [[ -z "$mac_address" ]]
+then
+  echo "Required parameter mac_address missing." >&2
+  exit 1
+fi
 shift
 ip_address="$1"
+if [[ -z "$ip_address" ]]
+then
+  echo "Required parameter ip_address missing." >&2
+  exit 1
+fi
+shift
+gateway_ip="$1"
+if [[ -z "$gateway_ip" ]]
+then
+  echo "Required parameter gateway_ip missing." >&2
+  exit 1
+fi
 shift
 strip_prefix="$1"
 shift
 distro_name="$1"
+if [[ -z "$distro_name" ]]
+then
+  echo "Required parameter distro_name missing." >&2
+  exit 1
+fi
 shift
 size="$1"
+if [[ -z "$size" ]]
+then
+  echo "Required parameter size missing." >&2
+  exit 1
+fi
 shift
 pkgs=("$@")
 
@@ -220,10 +257,10 @@ then
 # HACK SCALE: EPIC
 #
 # Yeah, we should NOT be assigning an IP address like this!
-cat > "/mnt/guest${strip_prefix}/tools/i686/etc/rc.d/init.d/eth0" <<'EOF'
+cat > "/mnt/guest${strip_prefix}/tools/i686/etc/rc.d/init.d/eth0" <<EOF
 #!/bin/bash
 set -Eeo pipefail
-if [[ "$1" != "start" ]]
+if [[ "\$1" != "start" ]]
 then
   echo "This script is dumb and can only start."
   exit 0
@@ -233,13 +270,13 @@ for binary in ip dhclient
 do
   for bindir in /bin /usr/bin /sbin /usr/sbin /tools/i686/bin /tools/i686/sbin
   do
-    if [[ ! -e "$bindir/$binary" ]]
+    if [[ ! -e "\$bindir/\$binary" ]]
     then
       continue
     fi
-    export "$binary"="$bindir/$binary"
+    export "\$binary"="\$bindir/\$binary"
   done
-  if [[ -z "${!binary}" ]]
+  if [[ -z "\${!binary}" ]]
   then
     echo "Failed to find binary $binary." >&2
     exit 1
@@ -247,10 +284,10 @@ do
 done
 
 echo "Starting eth0"
-${ip} link set eth0 up
-#${dhclient} -v eth0
-${ip} addr add $(</tools/i686/etc/ip_address.conf)/24 dev eth0
-${ip} route add default via 192.168.122.1
+\${ip} link set eth0 up
+#\${dhclient} -v eth0
+\${ip} addr add \$(</tools/i686/etc/ip_address.conf)/24 dev eth0
+\${ip} route add default via ${gateway_ip}
 EOF
 echo "$ip_address" > /mnt/guest${strip_prefix}/tools/i686/etc/ip_address.conf
 fi
@@ -282,7 +319,7 @@ then
   strip_prefix="/clfs-root"
 fi
 chroot "$dir" /bin/bash /root/generate_image.sh \
-  "$F_mac_address" "$F_ip_address" "$strip_prefix" \
+  "$F_mac_address" "$F_ip_address" "$F_gateway_ip" "$strip_prefix" \
   "$F_distro_name" "$F_size" "${pkgs[@]}"
 log_rote "generate_image.sh complete"
 
