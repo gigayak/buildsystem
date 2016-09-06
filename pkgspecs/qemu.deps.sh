@@ -9,6 +9,7 @@ dep gcc # for libstdc++ :[
 # ./configure asked for headers, so assume we link the following:
 dep zlib
 dep glib
+dep bzip2
 
 # Picked up passively if not explicitly declared:
 # qemu-system-i386: error while loading shared libraries: libgnutls.so.30:

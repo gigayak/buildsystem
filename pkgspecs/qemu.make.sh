@@ -2,7 +2,7 @@
 set -Eeo pipefail
 
 cd "$YAK_WORKSPACE"
-version=2.2.0
+version=2.6.0
 echo "$version" > "$YAK_WORKSPACE/version"
 url="http://wiki.qemu-project.org/download/qemu-$version.tar.bz2"
 wget "$url"
