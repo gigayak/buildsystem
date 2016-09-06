@@ -90,7 +90,7 @@ qemu-img create -f raw /root/gigayak.raw.img "$size"
 
 # Create partition table!
 # Per http://superuser.com/a/518556
-#parted /root/gigayak.raw.img mklabel msdos
+parted /root/gigayak.raw.img mklabel msdos
 losetup -f /root/gigayak.raw.img
 loop_dev="$(losetup -a | grep '/root/gigayak.raw.img' | awk -F':' '{print $1}')"
 trap 'losetup -d "$loop_dev"' EXIT ERR
@@ -153,7 +153,21 @@ losetup \
   /root/gigayak.raw.img
 loop_dev="$(losetup -a | grep '/root/gigayak.raw.img' | awk -F':' '{print $1}')"
 trap 'losetup -d "$loop_dev"' EXIT ERR
-mke2fs "$loop_dev"
+# Had to use ext4 as ext2/ext3 have bugs with latest versions of coreutils due
+# to the implementation of FIEMAP ioctl parameters.  This led to qemu image
+# files (which are normally sparse) being copied to destinations with no data
+# (they were being considered fully sparse, as extent mapping returned no
+# extents).  This may be due to the kernel ext4 driver not having an extent
+# mapping implementation for those filesystems, but failing to trigger an error
+# due to ext4's implementation being present.
+#
+# TODO: Attempt to fix large qemu images returning zero extents on ext2
+# filesystems, and attempt to send upstream.
+#
+# Realistically, attempting to use ext2 was a little silly - but supporting it
+# may improve ability to interface with old devices, so fixing this would be
+# nice to have...
+mkfs.ext4 "$loop_dev"
 # $strip_prefix allows us to mount the disk at /mnt/guest/clfs-root.
 # Mounting at /mnt/guest/clfs-root allows us to extract the temporary system
 # packages to /mnt/guest and results in /clfs-root/ becoming /.
@@ -238,7 +252,7 @@ ${ip} link set eth0 up
 ${ip} addr add $(</tools/i686/etc/ip_address.conf)/24 dev eth0
 ${ip} route add default via 192.168.122.1
 EOF
-echo "$ip_address" > /mnt/guest/clfs-root/tools/i686/etc/ip_address.conf
+echo "$ip_address" > /mnt/guest${strip_prefix}/tools/i686/etc/ip_address.conf
 fi
 
 
