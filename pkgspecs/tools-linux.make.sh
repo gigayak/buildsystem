@@ -4,9 +4,11 @@ source "$YAK_BUILDTOOLS/kconfig.sh"
 source /tools/env.sh
 
 cd "$YAK_WORKSPACE"
-version=3.18.3
+version=4.7
 echo "$version" > "$YAK_WORKSPACE/version"
-url="https://www.kernel.org/pub/linux/kernel/v3.x/linux-$version.tar.xz"
+major_version="$(echo "$version" | sed -nre 's@^([0-9]+\.).*$@v\1x@gp')"
+urldir="https://www.kernel.org/pub/linux/kernel/$major_version"
+url="$urldir/linux-$version.tar.xz"
 wget "$url"
 
 tar -Jxf "linux-$version.tar.xz"

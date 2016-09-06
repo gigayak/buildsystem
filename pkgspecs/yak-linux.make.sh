@@ -3,9 +3,11 @@ set -Eeo pipefail
 source "$YAK_BUILDTOOLS/kconfig.sh"
 
 cd "$YAK_WORKSPACE"
-version=3.18.3
+version=4.7
 echo "$version" > "$YAK_WORKSPACE/version"
-url="https://www.kernel.org/pub/linux/kernel/v3.x/linux-$version.tar.xz"
+major_version="$(echo "$version" | sed -nre 's@^([0-9]+\.).*$@v\1x@gp')"
+urldir="https://www.kernel.org/pub/linux/kernel/$major_version"
+url="$urldir/linux-$version.tar.xz"
 wget --no-check-certificate "$url"
 tar -xf *.tar.*
 
@@ -68,7 +70,9 @@ kconfig_set VETH y
 kconfig_set MACVLAN y
 kconfig_set VLAN_8021Q y
 # /dev/pts needs to be multiply-instantiated for LXC.
-kconfig_set DEVPTS_MULTIPLE_INSTANCES y
+# OBSOLETE as of this commit:
+# https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/tty/Kconfig?id=eedf265aa003b4781de24cfed40a655a664457e6
+#kconfig_set DEVPTS_MULTIPLE_INSTANCES y
 # cgroups and namespacing are required for LXC.
 for flag in \
   NAMESPACES PID_NS NET_NS USER_NS UTS_NS IPC_NS \
