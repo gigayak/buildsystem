@@ -2,17 +2,20 @@
 set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-echo "Starting stage 3 bootstrap"
-echo "This uses tools-buildsystem to build all native packages."
+source "$(DIR)/log.sh"
+source "$(DIR)/retry.sh"
+
+log_rote "starting stage 3 bootstrap"
+log_rote "this uses tools:buildsystem to build all native packages"
 
 if [[ ! -d "/var/www/html/tgzrepo" ]]
 then
-  echo "HACK TIME: creating repository directory"
+  log_warn "HACK TIME: creating repository directory"
   mkdir -pv "/var/www/html/tgzrepo"
 fi
 if grep ' /tmp ' /proc/mounts > /dev/null 2>&1
 then
-  echo "HACK TIME: unmounting /tmp, it isn't big enough"
+  log_warn "HACK TIME: unmounting /tmp, it isn't big enough"
   umount /tmp
 fi
 
@@ -36,20 +39,20 @@ build()
     && [[ "$pkg" != "$start_from" \
       && "${distro}-${pkg}" != "$start_from" ]]
   then
-    echo "Ignoring package '$pkg'"
+    log_warn "ignoring package '$pkg'"
     return 0
   fi
   export waiting=0
 
   p="${distro}-${pkg}"
-  echo "Building package '$p'"
   retval=0
-  "$(DIR)/pkg.from_name.sh" \
-    --pkg_name="$pkg" \
-    --target_distribution="$distro" \
-    2>&1 \
-    | tee "$logdir/$p.log" \
-    || retval=$?
+  build_cmd=("$(DIR)/pkg.from_name.sh")
+  build_cmd+=(--pkg_name="$pkg")
+  build_cmd+=(--target_distribution="$distro")
+  build_cmd+=("2>&1")
+  build_cmd+=('|' tee "$logdir/$p.log")
+  log_rote "building package '$p' with ${build_cmd[*]}"
+  retryable "${build_cmd[@]}"
   if (( "$retval" ))
   then
     echo "Building package '$p' failed with code $retval"
