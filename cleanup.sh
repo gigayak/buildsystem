@@ -163,6 +163,17 @@ run_exit_handlers()
   done
 }
 
+# Provide a nice error message for a common typo.
+#
+# By not just aliasing to the correct function, hopefully code will use just
+# one name for the correct function.  This just makes the error a little easier
+# to debug when its name is forgotten.
+recursive_unmount()
+{
+  log_error "did you mean 'recursive_umount' instead?"
+  return 1
+}
+
 recursive_umount()
 {
   local _tgt="$1"
