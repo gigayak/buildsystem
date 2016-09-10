@@ -32,9 +32,14 @@ pkgs+=(qemu)
 pkgs+=(openssh) # used to kick off install process
 pkgs+=(parted) # used to set up loop device for package export
 pkgs+=(rsync) # for installation of buildsystem
+pkgs+=(tar) # required by lfs.stage3.install_buildsystem.sh
 log_rote "will install: ${pkgs[@]}"
 
 mkroot dir
+if (( "$F_preserve_chroot" ))
+then
+  unregister_temp_file "$dir"
+fi
 
 for pkg in "${pkgs[@]}"
 do
@@ -46,6 +51,7 @@ do
 done
 
 image_name="$(basename "$F_image_path")"
+log_rote "copying $(sq "$image_name") into place"
 cp -v "$F_image_path" "$dir/root/$image_name"
 
 # Specially package up the latest buildsystem, as it's likely we have files open
@@ -74,6 +80,7 @@ start_at="$4"
 # Set up bridge config.  Without this, we get these errors:
 #   failed to parse default acl file `/etc/qemu/bridge.conf'
 #   failed to launch bridge helper
+mkdir -p /usr/etc/qemu
 cat > /usr/etc/qemu/bridge.conf <<EOF
 allow virbr0
 EOF
@@ -114,7 +121,9 @@ machine_type="$(qemu-system-i386 -machine help \
   | grep '(default)' \
   | awk '{print $1}')"
 machine_args+=("$machine_type")
-if [[ -e "/dev/kvm" ]]
+if [[ -e "/dev/kvm" ]] \
+  && grep -E -e '\svmx\s' -e '\ssvm\s' -e '\svmx$' -e '\ssvm$' /proc/cpuinfo \
+    >/dev/null 2>&1
 then
   machine_args+=("accel=kvm")
   # TODO: Add detection for iommu.  Right now, it's assumed that if KVM is
@@ -308,8 +317,7 @@ cp -r --no-target-directory "$dir/root/pkgs/" "/var/www/html/tgzrepo/"
 
 if (( "$F_preserve_chroot" ))
 then
-  log_rote "preserving chroot at $(sq "$dir") for inspection"
-  unregister_temp_file "$dir"
+  log_rote "preserved chroot at $(sq "$dir") for inspection"
 fi
 
 if (( "$retval" ))
