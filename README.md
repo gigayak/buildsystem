@@ -67,5 +67,8 @@ See [INSTALL.md](INSTALL.md).
 `git log` indicates that development began in February 2015.
 
 The first successful boot (i.e. made it into a userland shell) of the
-non-bootstrapped distribution was on Friday, January 15, 2016, at
-5:46PM Pacific Time.
+non-self-hosted distribution was on Friday, January 15, 2016, at 5:46PM
+Pacific Time.
+
+The first successful boot of the self-hosted distribution was on Saturday,
+September 10, 2016, at 12:33PM Pacific Time.
