@@ -62,7 +62,9 @@ then
   then
     export _REPO_GET=(sget --proxy="proxy.$(get_config DOMAIN):443")
   else
-    export _REPO_GET=(wget)
+    # --retry-connrefused should help in some of the worst network flakiness.
+    # --waitretry prevents indefinite hangs if repo server is down.
+    export _REPO_GET=(wget --retry-connrefused --waitretry="60")
   fi
 fi
 
@@ -106,11 +108,9 @@ repo_get()
     retval=0
     # -q0- redirects to stdout, per:
     #   http://fischerlaender.de/webdev/redirecting-wget-to-stdout
-    # --retry-connrefused should help in some of the worst network flakiness.
     local _url="${_REPO_URL}/$_path"
     "${_REPO_GET[@]}" \
       -q -O- \
-      --retry-connrefused \
       "$_url" \
     > "$_REPO_SCRATCH/$_path" \
     || {
@@ -123,11 +123,9 @@ repo_get()
     retval=0
     # -q0- redirects to stdout, per:
     #   http://fischerlaender.de/webdev/redirecting-wget-to-stdout
-    # --retry-connrefused should help in some of the worst network flakiness.
     local _url="${_REPO_URL}/$_path"
     "${_REPO_GET[@]}" \
       -q -O- \
-      --retry-connrefused \
       "$_url" \
     || {
       log_error "error code '$?' fetching '$_url'"
@@ -143,7 +141,6 @@ repo_list()
       | xargs -I{} basename {} .done
     "${_REPO_GET[@]}" \
       -q -O- \
-      --retry-connrefused \
       "${_REPO_URL}/" \
       | sed -nre 's@^.*href="([^"]+)\.done".*$@\1@gp'
   ) \
