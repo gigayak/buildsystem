@@ -19,6 +19,6 @@ while read -r path
 do
   sed \
     -r \
-    -e 's@(/tools)@\1/i686@g' \
+    -e 's@(/tools)@\1/'"${YAK_TARGET_ARCH}"'@g' \
     -i "$path"
 done < <(grep /tools . --recursive --files-with-matches)

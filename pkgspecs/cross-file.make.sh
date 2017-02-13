@@ -11,7 +11,7 @@ wget "$url"
 tar -zxf "file-$version.tar.gz"
 cd "file-$version"
 ./configure \
-  --prefix=/cross-tools/i686 \
+  --prefix="/cross-tools/${YAK_TARGET_ARCH}" \
   --disable-static
 # TODO: --disable-static disables static libraries "not needed" for cross-compilation.  Is this flag needed?
 

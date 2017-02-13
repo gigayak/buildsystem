@@ -16,8 +16,8 @@ cd glibc-*/
 #   does not specify the path to ld.so, and our toolchain is still configured
 #   to use the one in /tools. The following set of commands will force the
 #   script to use the complete path of the new ld.so that was just installed.
-LINKER="$(readelf -l /tools/i686/bin/bash \
-  | sed -n 's@.*interpret.*/tools/i686\(.*\)]$@\1@p')"
+LINKER="$(readelf -l "/tools/$YAK_TARGET_ARCH/bin/bash" \
+  | sed -n 's@.*interpret.*/tools/'"$YAK_TARGET_ARCH"'\(.*\)]$@\1@p')"
 sed -i "s|libs -o|libs -L/usr/lib -Wl,-dynamic-linker=${LINKER} -o|" \
   scripts/test-installation.pl
 unset LINKER
@@ -32,13 +32,25 @@ sed 's/\\$$(pwd)/`pwd`/' timezone/Makefile.orig > timezone/Makefile
 mkdir -v ../glibc-build
 cd ../glibc-build
 
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+# Cause ld-linux-x86_64-2.so to appear in /lib/ on 64-bit builds instead of
+# /lib64/, so that we're in line with the Pure64 GCC configuration.
+echo "slibdir=/$lib" >> configparms
 # TODO: --enable-kernel is hard coded to an incorrect version here and in tools.
 # TODO: Can any of these options be removed?
 ../glibc-*/configure \
   --prefix=/usr \
   --disable-profile \
   --enable-kernel=2.6.32 \
-  --libexecdir=/usr/lib/glibc \
+  --libdir="/usr/$lib" \
+  --libexecdir="/usr/$lib/glibc" \
   --enable-obsolete-rpc
 
 # --libexecdir=/usr/lib/glibc is explained by the CLFS book as:

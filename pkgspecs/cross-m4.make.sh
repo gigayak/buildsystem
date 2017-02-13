@@ -10,5 +10,5 @@ wget "$url"
 
 tar -zxf "m4-$version.tar.gz"
 cd "m4-$version"
-./configure --prefix=/cross-tools/i686
+./configure --prefix="/cross-tools/${YAK_TARGET_ARCH}"
 make

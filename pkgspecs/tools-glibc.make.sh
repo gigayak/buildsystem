@@ -26,19 +26,31 @@ cd ../glibc-build
 echo "libc_cv_ssp=no" > config.cache
 
 export BUILD_CC=gcc
-export CC="${CLFS_TARGET}-gcc"
+lib=lib
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  export CC="${CLFS_TARGET}-gcc -m64"
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  export CC="${CLFS_TARGET}-gcc"
+  ;;
+esac
+echo "slibdir=/tools/$YAK_TARGET_ARCH/$lib" >> configparms
 export AR="${CLFS_TARGET}-ar"
 export RANLIB="${CLFS_TARGET}-ranlib"
 pwd
 env
 ../glibc-*/configure \
-  --prefix=/tools/i686 \
+  --prefix="/tools/${YAK_TARGET_ARCH}" \
   --host="$CLFS_TARGET" \
   --build="$CLFS_TARGET" \
   --disable-profile \
   --enable-kernel=2.6.32 \
-  --with-binutils=/cross-tools/i686/bin \
-  --with-headers=/tools/i686/include \
+  --with-binutils="/cross-tools/${YAK_TARGET_ARCH}/bin" \
+  --with-headers="/tools/${YAK_TARGET_ARCH}/include" \
+  --libdir="/tools/${YAK_TARGET_ARCH}/$lib" \
+  --libexecdir="/tools/${YAK_TARGET_ARCH}/$lib/glibc" \
   --enable-obsolete-rpc \
   --cache-file=config.cache
 

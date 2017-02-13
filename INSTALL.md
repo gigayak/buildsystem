@@ -9,7 +9,5 @@
 * `git config --global user.name 'John Gilik'`
 * `git clone "https://github.com/gigayak/linux"`
 * `cd linux`
-* `./bootstrap.sh`
-* You now have a VM running with a stage2 image... No final image is produced
-  yet.
+* `./bootstrap.sh --domain="test.example.com" --architecture=x86_64`
 

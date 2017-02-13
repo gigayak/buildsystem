@@ -5,10 +5,10 @@ source /tools/env.sh
 # Build an initscript that ups the network interface.
 # TODO: Support rest of init interface (stop, status?).
 # TODO: Support all network interfaces.
-cat > "$CLFS/tools/i686/etc/rc.d/init.d/eth0" <<'EOF'
+cat > "$CLFS/tools/$YAK_TARGET_ARCH/etc/rc.d/init.d/eth0" <<EOF
 #!/bin/bash
 set -Eeo pipefail
-if [[ "$1" != "start" ]]
+if [[ "\$1" != "start" ]]
 then
   echo "This script is dumb and can only start."
   exit 0
@@ -16,34 +16,41 @@ fi
 
 for binary in ip dhclient
 do
-  for bindir in /bin /usr/bin /sbin /usr/sbin /tools/i686/bin /tools/i686/sbin
+  for bindir in \\
+    /bin \\
+    /usr/bin \\
+    /sbin \\
+    /usr/sbin \\
+    /tools/${YAK_TARGET_ARCH}/bin \\
+    /tools/${YAK_TARGET_ARCH}/sbin
   do
-    if [[ ! -e "$bindir/$binary" ]]
+    if [[ ! -e "\$bindir/\$binary" ]]
     then
       continue
     fi
-    export "$binary"="$bindir/$binary"
+    export "\$binary"="\$bindir/\$binary"
   done
-  if [[ -z "${!binary}" ]]
+  if [[ -z "\${!binary}" ]]
   then
-    echo "Failed to find binary $binary." >&2
+    echo "Failed to find binary \$binary." >&2
     exit 1
   fi
 done
 
 echo "Starting eth0"
-${ip} link set eth0 up
-${dhclient} -v eth0
+\${ip} link set eth0 up
+\${dhclient} -v eth0
 EOF
-chmod +x "$CLFS/tools/i686/etc/rc.d/init.d/eth0"
-ln -sv ../init.d/eth0 "$CLFS/tools/i686/etc/rc.d/rcsysinit.d/S70eth0"
+chmod +x "$CLFS/tools/$YAK_TARGET_ARCH/etc/rc.d/init.d/eth0"
+ln -sv ../init.d/eth0 \
+  "$CLFS/tools/$YAK_TARGET_ARCH/etc/rc.d/rcsysinit.d/S70eth0"
 
 # dhclient-script is required to get the connection working - it actually takes
 # the results of the lease and assigns them to the interface.
 #
 # The stock ISC dhclient-script still uses the ancient net-tools package for
 # things, so this is a modified version set up to avoid that.
-cat > "$CLFS/tools/i686/sbin/dhclient-script" <<'EOF'
+cat > "$CLFS/tools/$YAK_TARGET_ARCH/sbin/dhclient-script" <<EOF
 #!/bin/bash
 # dhclient-script for Linux. Dan Halbert, March, 1997.
 # Updated for Linux 2.[12] by Brian J. Murrell, January 1999.
@@ -61,24 +68,30 @@ cat > "$CLFS/tools/i686/sbin/dhclient-script" <<'EOF'
 #   /sbin/dhclient-script: line 172: route: command not found
 #   /sbin/dhclient-script: line 31: chmod: command not found
 #   /sbin/dhclient-script: line 44: mv: command not found
-bindirs=(/sbin /bin /usr/sbin /usr/bin /tools/i686/sbin /tools/i686/bin)
+bindirs=(\\
+  /sbin /bin /usr/sbin /usr/bin \\
+  "/tools/${YAK_TARGET_ARCH}/sbin" \\
+  "/tools/${YAK_TARGET_ARCH}/bin" \\
+)
 for binary in ip hostname chmod mv sleep
 do
-  for bindir in "${bindirs[@]}"
+  for bindir in "\${bindirs[@]}"
   do
-    if [[ ! -e "$bindir/$binary" ]]
+    if [[ ! -e "\$bindir/\$binary" ]]
     then
       continue
     fi
-    echo "dhclient-script: using $binary at $bindir/$binary" >&2
-    export "$binary"="$bindir/$binary"
+    echo "dhclient-script: using \$binary at \$bindir/\$binary" >&2
+    export "\$binary"="\$bindir/\$binary"
   done
-  if [[ -z "${!binary}" ]]
+  if [[ -z "\${!binary}" ]]
   then
-    echo "dhclient-script: failed to find $binary command" >&2
+    echo "dhclient-script: failed to find \$binary command" >&2
     exit 1
   fi
 done
+EOF
+cat >> "$CLFS/tools/$YAK_TARGET_ARCH/sbin/dhclient-script" <<'EOF'
 
 make_resolv_conf() {
   if [ x"$new_domain_name_servers" != x ]; then
@@ -372,5 +385,6 @@ fi
 
 exit_with_hooks 0
 EOF
-chmod +x "$CLFS/tools/i686/sbin/dhclient-script"
-ln -sv /tools/i686/sbin/dhclient-script "$CLFS/sbin/dhclient-script"
+chmod +x "$CLFS/tools/${YAK_TARGET_ARCH}/sbin/dhclient-script"
+ln -sv "/tools/${YAK_TARGET_ARCH}/sbin/dhclient-script" \
+  "$CLFS/sbin/dhclient-script"

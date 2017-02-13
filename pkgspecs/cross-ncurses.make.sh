@@ -15,7 +15,7 @@ cd "ncurses-$version"
 # --without-debug prevents debug symbols from being added
 # --without-shared prevents shared libraries from being added.
 ./configure \
-  --prefix=/cross-tools/i686 \
+  --prefix="/cross-tools/${YAK_TARGET_ARCH}" \
   --without-debug \
   --without-shared
 

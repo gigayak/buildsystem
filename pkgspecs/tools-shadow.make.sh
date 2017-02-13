@@ -32,13 +32,13 @@ sed -r \
   man/Makefile.in.orig > man/Makefile.in
 
 # Per the CLFS book:
-#   Tell Shadow to use passwd in /tools/i686/bin:
-cat > config.cache << "EOF"
-shadow_cv_passwd_dir=/tools/i686/bin
+#   Tell Shadow to use passwd in /tools/ARCH/bin:
+cat > config.cache <<EOF
+shadow_cv_passwd_dir=/tools/${YAK_TARGET_ARCH}/bin
 EOF
 
 ./configure \
-  --prefix=/tools/i686 \
+  --prefix="/tools/${YAK_TARGET_ARCH}" \
   --build="$CLFS_HOST" \
   --host="$CLFS_TARGET" \
   --cache-file=config.cache \

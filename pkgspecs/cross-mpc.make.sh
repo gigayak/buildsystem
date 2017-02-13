@@ -10,11 +10,11 @@ wget "$url"
 
 tar -zxf "mpc-$version.tar.gz"
 cd mpc-*/
-export LDFLAGS="-Wl,-rpath,/cross-tools/i686/lib"
+export LDFLAGS="-Wl,-rpath,/cross-tools/${YAK_TARGET_ARCH}/lib"
 ./configure \
-  --prefix=/cross-tools/i686 \
+  --prefix="/cross-tools/${YAK_TARGET_ARCH}" \
   --disable-static \
-  --with-gmp=/cross-tools/i686 \
-  --with-mpfr=/cross-tools/i686
+  --with-gmp="/cross-tools/${YAK_TARGET_ARCH}" \
+  --with-mpfr="/cross-tools/${YAK_TARGET_ARCH}"
 
 make

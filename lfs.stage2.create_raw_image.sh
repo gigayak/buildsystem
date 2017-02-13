@@ -16,6 +16,7 @@ add_flag --required output_path "Where to store the image."
 add_flag --required mac_address "MAC address to assign to eth0."
 add_flag --required ip_address "IP address to assign to eth0."
 add_flag --default="" gateway_ip "Gateway IP to route eth0 traffic through."
+add_flag --required architecture "Which arch to load (i686, x86_64, ???)"
 add_flag --required distro_name "Which distribution to load (tools2, yak, ???)"
 add_flag --default="16G" size "How large to make the image (16G, 10M, ...)"
 parse_flags "$@"
@@ -68,10 +69,11 @@ while read -r pkgpath
 do
   pkgspec="$(basename "$pkgpath" .tar.gz)"
   pkg="$(echo "$pkgspec" \
-    | sed -re 's@^i686-'"$F_distro_name"':@@g')"
+    | sed -re 's@^'"$F_architecture"'-'"$F_distro_name"':@@g')"
   pkgs+=("$pkg")
   cp -v "/var/www/html/tgzrepo/${pkgspec}."* "$target_pkgdir/"
-done < <(find /var/www/html/tgzrepo -iname "i686-${F_distro_name}:*.tar.gz")
+done < <(find /var/www/html/tgzrepo \
+  -iname "${F_architecture}-${F_distro_name}:*.tar.gz")
 
 # Ensure that internal DNS is available.
 log_rote "installing DNS config into chroot"
@@ -105,6 +107,13 @@ then
 fi
 shift
 strip_prefix="$1"
+shift
+architecture="$1"
+if [[ -z "$architecture" ]]
+then
+  echo "Required parameter architecture missing." >&2
+  exit 1
+fi
 shift
 distro_name="$1"
 if [[ -z "$distro_name" ]]
@@ -219,7 +228,7 @@ do
   echo "Installing $pkg"
   /buildsystem/install_pkg.sh \
     --install_root="/mnt/guest${strip_prefix}" \
-    --target_architecture=i686 \
+    --target_architecture="$architecture" \
     --target_distribution="$distro_name" \
     --pkg_name="$pkg" \
     --repo_path="/pkgs"
@@ -239,7 +248,7 @@ extlinux --install "$bootdir"
 # for logging the boot process, so this is useful for diagnosing init failures.
 if [[ "$distro_name" == "tools2" ]]
 then
-  kernel_path="/tools/i686/boot/vmlinuz"
+  kernel_path="/tools/${architecture}/boot/vmlinuz"
 else
   kernel_path="/boot/vmlinuz"
 fi
@@ -257,7 +266,9 @@ then
 # HACK SCALE: EPIC
 #
 # Yeah, we should NOT be assigning an IP address like this!
-cat > "/mnt/guest${strip_prefix}/tools/i686/etc/rc.d/init.d/eth0" <<EOF
+cat \
+  > "/mnt/guest${strip_prefix}/tools/${architecture}/etc/rc.d/init.d/eth0" \
+  <<EOF
 #!/bin/bash
 set -Eeo pipefail
 if [[ "\$1" != "start" ]]
@@ -268,7 +279,9 @@ fi
 
 for binary in ip dhclient
 do
-  for bindir in /bin /usr/bin /sbin /usr/sbin /tools/i686/bin /tools/i686/sbin
+  for bindir in \
+    /bin /usr/bin /sbin /usr/sbin \
+    /tools/${architecture}/bin /tools/${architecture}/sbin
   do
     if [[ ! -e "\$bindir/\$binary" ]]
     then
@@ -286,10 +299,10 @@ done
 echo "Starting eth0"
 \${ip} link set eth0 up
 #\${dhclient} -v eth0
-\${ip} addr add \$(</tools/i686/etc/ip_address.conf)/24 dev eth0
+\${ip} addr add \$(</tools/${architecture}/etc/ip_address.conf)/24 dev eth0
 \${ip} route add default via ${gateway_ip}
 EOF
-echo "$ip_address" > /mnt/guest${strip_prefix}/tools/i686/etc/ip_address.conf
+echo "$ip_address" > /mnt/guest${strip_prefix}/tools/${architecture}/etc/ip_address.conf
 fi
 
 
@@ -320,7 +333,7 @@ then
 fi
 chroot "$dir" /bin/bash /root/generate_image.sh \
   "$F_mac_address" "$F_ip_address" "$F_gateway_ip" "$strip_prefix" \
-  "$F_distro_name" "$F_size" "${pkgs[@]}"
+  "$F_architecture" "$F_distro_name" "$F_size" "${pkgs[@]}"
 log_rote "generate_image.sh complete"
 
 

@@ -18,7 +18,7 @@ ac_cv_func_fnmatch_gnu=yes
 EOF
 
 ./configure \
-  --prefix=/tools/i686 \
+  --prefix="/tools/${YAK_TARGET_ARCH}" \
   --build="$CLFS_HOST" \
   --host="$CLFS_TARGET" \
   --cache-file=config.cache

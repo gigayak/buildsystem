@@ -8,13 +8,23 @@ wget "http://ftp.gnu.org/gnu/gmp/gmp-$version.tar.xz"
 tar -xf *.tar.*
 cd *-*/
 
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+
 CC="gcc -isystem /usr/include" \
 CXX="g++ -isystem /usr/include" \
-LDFLAGS="-Wl,-rpath-link,/usr/lib:/lib" \
-  ./configure \
-     --prefix=/usr \
-    --enable-cxx \
-    --docdir="/usr/share/doc/gmp-$version"
+LDFLAGS="-Wl,-rpath-link,/usr/$lib:/$lib" \
+./configure \
+  --prefix="/usr" \
+  --libdir="/usr/$lib" \
+  --enable-cxx \
+  --docdir="/usr/share/doc/gmp-$version"
 
 # Prevent GMP from optimizing for build system's
 # CPU aggressively - instead, be generic.

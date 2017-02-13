@@ -11,4 +11,6 @@ wget "$url"
 tar -Jxf "linux-$version.tar.xz"
 cd "linux-$version"
 make mrproper
-make ARCH=i386 headers_check
+# TODO: ARCH=i386 originally - does using fully-specified ARCH cause problems?
+make ARCH="$YAK_TARGET_ARCH" headers_check
+

@@ -15,10 +15,10 @@ wget "$url"
 tar -zxf "isl-$version.tar.gz"
 cd isl-*/
 
-export LDFLAGS="-Wl,-rpath,/cross-tools/i686/lib"
+export LDFLAGS="-Wl,-rpath,/cross-tools/${YAK_TARGET_ARCH}/lib"
 ./configure \
-  --prefix=/cross-tools/i686 \
+  --prefix="/cross-tools/${YAK_TARGET_ARCH}" \
   --disable-static \
-  --with-gmp-prefix=/cross-tools/i686
+  --with-gmp-prefix="/cross-tools/${YAK_TARGET_ARCH}"
 
 make

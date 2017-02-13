@@ -15,7 +15,7 @@ wget "$url"
 cd sysvinit-*/
 # Per CLFS book:
 #   Apply a patch to prevent installation of unneeded programs, and allow
-#   sysvinit to be installed in /tools/i686:
+#   sysvinit to be installed in /tools/ARCH:
 #patch -Np1 -i "../sysvinit-$version-$patch"
 cp -v src/Makefile{,.orig}
 # TODO: The target-based sed deletions could be /.../d expressions.
@@ -34,7 +34,7 @@ sed -r \
   src/Makefile.orig > src/Makefile
 cp -v src/paths.h{,.orig}
 sed -r \
-  -e 's@^(\#define\s+INITTAB\s+")[^"]+(".*$)@\1/tools/i686/etc/inittab\2@g' \
+  -e 's@^(\#define\s+INITTAB\s+")[^"]+(".*$)@\1/tools/'"$YAK_TARGET_ARCH"'/etc/inittab\2@g' \
   src/paths.h.orig > src/paths.h
 
 # Non-standard make process...

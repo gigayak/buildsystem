@@ -35,7 +35,7 @@ EOF
 
 # The usual configure / make
 ./configure \
-  --prefix=/tools/i686 \
+  --prefix="/tools/${YAK_TARGET_ARCH}" \
   --build="$CLFS_HOST" \
   --host="$CLFS_TARGET" \
   --without-bash-malloc \

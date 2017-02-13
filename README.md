@@ -68,7 +68,13 @@ See [INSTALL.md](INSTALL.md).
 
 The first successful boot (i.e. made it into a userland shell) of the
 non-self-hosted distribution was on Friday, January 15, 2016, at 5:46PM
-Pacific Time.
+Pacific Time.  This was on i686, in a qemu VM.
 
 The first successful boot of the self-hosted distribution was on Saturday,
-September 10, 2016, at 12:33PM Pacific Time.
+September 10, 2016, at 12:33PM Pacific Time.  Again, on i686, and in a qemu VM.
+
+The first successful boot on a different architecture was on Sunday, February
+12, 2017, at 9:32PM Pacific Time.  The new architecture was x86_64, and the
+boot was again within a qemu VM.
+
+First successful boot on physical hardware is in the near future.

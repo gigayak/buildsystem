@@ -6,14 +6,28 @@ source "$(DIR)/flag.sh"
 source "$(DIR)/log.sh"
 add_flag --boolean distribution "Get name of distribution."
 add_flag --boolean architecture "Get name of architecture."
+add_flag --boolean libdir "Get name of library directory."
 parse_flags "$@"
-if (( "$F_distribution" && "$F_architecture" )) \
-  || (( ! "$F_distribution" && ! "$F_architecture" ))
+if (( "$F_distribution" + "$F_architecture" + "$F_libdir" > 1 )) \
+  || (( "$F_distribution" + "$F_architecture" + "$F_libdir" <= 0 ))
 then
-  log_rote "use only one of --distribution or --architecture"
+  log_rote "use only one of --distribution, --architecture, or --libdir"
   exit 1
 fi
 
+if (( "$F_libdir" ))
+then
+  case "$(uname -m)" in
+  x86_64|amd64)
+    echo lib64
+    exit 0
+    ;;
+  *)
+    echo lib
+    exit 0
+    ;;
+  esac
+fi
 
 if (( "$F_architecture" ))
 then

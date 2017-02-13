@@ -11,6 +11,15 @@ wget "$url"
 tar -zxf "util-linux-$version.tar.gz"
 cd util-linux-*/
 
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+
 # Options from latest LFS book:
 #
 # --without-python prevents make from failing due to Python when Python is
@@ -35,9 +44,10 @@ cd util-linux-*/
 # --disable-kill prevents kill from building, which overlaps with coreutils.
 # Not doing this causes both packages to conflict from claiming the same files.
 ./configure \
-  --prefix=/tools/i686 \
+  --prefix="/tools/${YAK_TARGET_ARCH}" \
   --build="$CLFS_HOST" \
   --host="$CLFS_TARGET" \
+  --libdir="/tools/${YAK_TARGET_ARCH}/$lib" \
   --disable-makeinstall-chown \
   --disable-makeinstall-setuid \
   --without-python \

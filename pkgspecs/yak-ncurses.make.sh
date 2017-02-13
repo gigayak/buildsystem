@@ -10,9 +10,18 @@ wget "$url"
 tar -zxf "ncurses-$version.tar.gz"
 cd "ncurses-$version"
 
-# I removed --libdir=/lib to see if it would fix autoconf not finding ncurses
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+
 ./configure \
-  --prefix=/usr \
+  --prefix="/usr" \
+  --libdir="/usr/$lib" \
   --with-shared \
   --enable-widec \
   --with-manpage-format=normal \

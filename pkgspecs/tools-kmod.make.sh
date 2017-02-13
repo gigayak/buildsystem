@@ -15,11 +15,21 @@ cd kmod-*/
 #   The following sed changes Kmod's default module search location to
 #   /tools/lib/modules:
 cp -v libkmod/libkmod.c{,.orig}
-sed '/dirname_default_prefix /s@/lib/modules@/tools/i686&@' \
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+libdir="/tools/$YAK_TARGET_ARCH/$lib"
+sed '/dirname_default_prefix /s@/lib/modules@'"$libdir/modules"'@' \
   libkmod/libkmod.c.orig > libkmod/libkmod.c
 
 ./configure \
-  --prefix=/tools/i686 \
+  --prefix="/tools/${YAK_TARGET_ARCH}" \
+  --libdir="$libdir" \
   --build="$CLFS_HOST" \
   --host="$CLFS_TARGET" \
   --with-xz \

@@ -2,7 +2,7 @@
 set -Eeo pipefail
 
 cd "$YAK_WORKSPACE"
-version=2.26
+version=2.29
 echo "$version" > "$YAK_WORKSPACE/version"
 # ftp is used here because kernel.org insists on HTTPS, and we don't have CA certs
 # installed during stage2.
@@ -14,10 +14,21 @@ wget "$url"
 tar -zxf "util-linux-$version.tar.gz"
 cd util-linux-*/
 
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+
+# --libdir here is /lib or /lib64 so that e2fsprogs, which installs to /bin,
+# can make use of them.
 ./configure \
   ADJTIME_PATH=/var/lib/hwclock/adjtime \
   --enable-write \
-  --prefix=/usr \
+  --libdir="/$lib" \
   --docdir="/usr/share/doc/util-linux-$version"
 
 make

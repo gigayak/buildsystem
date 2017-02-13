@@ -14,14 +14,23 @@ tar -zxf "binutils-$version.tar.gz"
 mkdir -pv binutils-build/
 cd binutils-build/
 
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+
 export AR=ar
 export AS=as
 ../binutils-*/configure \
-  --prefix=/cross-tools/i686 \
+  --prefix="/cross-tools/${YAK_TARGET_ARCH}" \
   --host="$CLFS_HOST" \
   --target="$CLFS_TARGET" \
   --with-sysroot="$CLFS" \
-  --with-lib-path="/tools/lib" \
+  --with-lib-path="/tools/$lib" \
   --disable-nls \
   --disable-static \
   --disable-multilib \

@@ -4,16 +4,18 @@ source /tools/env.sh
 cd "$YAK_WORKSPACE"/linux-*/
 
 # Install kernel modules (if any are needed by .config)
-make ARCH=i386 CROSS_COMPILE=${CLFS_TARGET}- \
-    INSTALL_MOD_PATH=/tools/i686 modules_install
+# TODO: ARCH=i386 originally - does using fully-specified ARCH cause problems?
+make ARCH="$YAK_TARGET_ARCH" CROSS_COMPILE=${CLFS_TARGET}- \
+    INSTALL_MOD_PATH="/tools/$YAK_TARGET_ARCH" modules_install
 
 # Install firmware (if any is needed by .config)
-make ARCH=i386 CROSS_COMPILE=${CLFS_TARGET}- \
-    INSTALL_MOD_PATH=/tools/i686 firmware_install
+# TODO: ARCH=i386 originally - does using fully-specified ARCH cause problems?
+make ARCH="$YAK_TARGET_ARCH" CROSS_COMPILE=${CLFS_TARGET}- \
+    INSTALL_MOD_PATH="/tools/$YAK_TARGET_ARCH" firmware_install
 
 # Create directory for kernel image
-# TODO: Does this belong in i686-tools-root?
-mkdir -pv /tools/i686/boot
+# TODO: Does this belong in tools-root?
+mkdir -pv "/tools/${YAK_TARGET_ARCH}/boot"
 
 # Install kernel image
 #
@@ -21,13 +23,16 @@ mkdir -pv /tools/i686/boot
 # the ISOLINUX bootloader.  Additionally, there seem to be heuristics about
 # compression based on the filename being "vmlinuz" or "vmlinux", so it's
 # probably good to avoid messing with this filename.
-cp -v arch/i386/boot/bzImage /tools/i686/boot/vmlinuz
+# TODO: arch/i386 originally - does using fully-specified ARCH cause problems?
+cp -v "arch/${YAK_TARGET_ARCH}/boot/bzImage" \
+  "/tools/${YAK_TARGET_ARCH}/boot/vmlinuz"
 
 # Install map of function entry points
 #
 # WARNING: MS-DOS 8.3 naming may be required here.
-cp -v System.map /tools/i686/boot/System.map
+cp -v System.map "/tools/${YAK_TARGET_ARCH}/boot/System.map"
 
 # Save off configuration files
-cp -v .config /tools/i686/boot/kernel.config
-cp -v "$YAK_WORKSPACE/kernel.config.default" /tools/i686/boot/kernel.config.default
+cp -v .config "/tools/$YAK_TARGET_ARCH/boot/kernel.config"
+cp -v "$YAK_WORKSPACE/kernel.config.default" \
+  "/tools/$YAK_TARGET_ARCH/boot/kernel.config.default"

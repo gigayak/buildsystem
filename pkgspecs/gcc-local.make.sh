@@ -19,9 +19,15 @@ sed 's@\./fixinc\.sh@-c true@' gcc/Makefile.in.orig > gcc/Makefile.in
 # GCC documentation also insists that you need a separate build directory.
 mkdir -pv ../gcc-build
 cd ../gcc-build
-SED=sed \
-CC="gcc -isystem /usr/include" \
-CXX="g++ -isystem /usr/include" \
+cc="gcc -isystem /usr/include"
+cxx="g++ -isystem /usr/include"
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  cc="$cc -m64"
+  cxx="$cxx -m64"
+  ;;
+esac
+SED="sed" CC="$cc" CXX="$cxx" \
 LDFLAGS="-Wl,-rpath-link,/usr/lib:/lib" \
 ../gcc-*/configure \
   --prefix=/usr \

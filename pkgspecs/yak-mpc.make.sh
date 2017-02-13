@@ -10,10 +10,20 @@ wget "$url"
 tar -zxf "mpc-$version.tar.gz"
 cd mpc-*/
 
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+
 CC="gcc -isystem /usr/include" \
-LDFLAGS="-Wl,-rpath-link,/usr/lib:/lib" \
+LDFLAGS="-Wl,-rpath-link,/usr/$lib:/$lib" \
 ./configure \
-  --prefix=/usr \
+  --prefix="/usr" \
+  --libdir="/usr/$lib" \
   --docdir="/usr/share/doc/mpc-$version"
 
 make

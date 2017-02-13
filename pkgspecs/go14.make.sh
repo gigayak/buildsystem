@@ -10,8 +10,7 @@ echo "$pkg_version" > "$YAK_WORKSPACE/version"
 pkg_ext="tar.gz"
 pkg_url="https://storage.googleapis.com/golang/${pkg_name}${pkg_version}.src.${pkg_ext}"
 pkg_path="$(DIR)/${pkg_name}-${pkg_version}-src.${pkg_ext}"
-pkg_archs=("x86_64" "i386") # valid architectures
-pkg_arch="i386" # selected architecture
+pkg_arch="$YAK_TARGET_ARCH"
 
 # Timing and logging handler. (Overengineering.)
 milestone()
@@ -53,7 +52,7 @@ arm7h)
   export GOARCH=arm
   export GOARM=7
   ;;
-i686|i586|i486|i386)
+i*86)
   export GOARCH=386
   ;;
 *)

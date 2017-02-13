@@ -8,12 +8,12 @@ source /tools/env.sh
 #   now:
 # TODO: Make this explicit in the stage3 build context: right now, this profile
 #   is inherited implicitly in stage3 build scripts, which makes them a bit
-#   more difficult to read (as it's unclear that /tools/i686/bin is in the
+#   more difficult to read (as it's unclear that /tools/ARCH/bin is in the
 #   PATH).
-cat > ${CLFS}/etc/profile << "EOF"
+cat > ${CLFS}/etc/profile <<EOF
 set +h
-PS1='\u:\w\$ '
+PS1='\\u:\\w\\\$ '
 LC_ALL=POSIX
-PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/i686/bin:/tools/i686/sbin
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/${YAK_TARGET_ARCH}/bin:/tools/${YAK_TARGET_ARCH}/sbin
 export LC_ALL PATH PS1
 EOF

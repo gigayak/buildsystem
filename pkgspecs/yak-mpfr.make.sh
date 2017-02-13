@@ -10,10 +10,20 @@ wget "$url"
 tar -zxf "mpfr-$version.tar.gz"
 cd mpfr-*/
 
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+
 CC="gcc -isystem /usr/include" \
 ./configure \
-  --prefix=/usr \
-  --with-gmp=/usr \
+  --prefix="/usr" \
+  --libdir="/usr/$lib" \
+  --with-gmp="/usr" \
   --docdir="/usr/share/doc/mpfr-$version"
 
 make

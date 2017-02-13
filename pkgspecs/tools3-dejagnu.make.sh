@@ -9,4 +9,4 @@ wget "$url"
 tar -zxf *.tar.gz
 
 cd *-*/
-./configure --prefix=/tools/i686
+./configure --prefix="/tools/${YAK_TARGET_ARCH}"

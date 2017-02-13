@@ -13,13 +13,26 @@ tar -zxf "binutils-$version.tar.gz"
 mkdir -pv binutils-build/
 cd binutils-build/
 
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  arch_flags=(--enable-64-bit-bfd)
+  ;;
+*)
+  lib=lib
+  arch_flags=()
+  ;;
+esac
+
 CC="gcc -isystem /usr/include" \
-LDFLAGS="-Wl,-rpath-link,/usr/lib:/lib" \
+LDFLAGS="-Wl,-rpath-link,/usr/$lib:/$lib" \
 ../binutils-*/configure \
-  --prefix=/usr \
-  --enable-shared
+  --prefix="/usr" \
+  --libdir="/usr/$lib" \
+  --enable-shared \
+  "${arch_flags[@]}"
 
 # tooldir=/usr ensures that binaries are named stuff like "gcc" instead of
-# "i686-gnu-linux-gcc" or something target-dependent like that.  It's used
+# "i386-gnu-linux-gcc" or something target-dependent like that.  It's used
 # when building a system gcc chain instead of a cross compiling chain.
 make tooldir=/usr

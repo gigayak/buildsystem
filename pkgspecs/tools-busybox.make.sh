@@ -14,5 +14,7 @@ cd *-*/
 
 kconfig_init CROSS_COMPILE="${CLFS_TARGET}-" allnoconfig
 # TODO: add initrd dependencies here
-sed -re 's@^(CONFIG_PREFIX=).*$@\1"'"$CLFS_ROOT"'/tools/i686"@g' -i .config
+sed -r \
+  -e 's@^(CONFIG_PREFIX=).*$@\1"'"$CLFS_ROOT"'/tools/'"$YAK_TARGET_ARCH"'"@g' \
+  -i .config
 make CROSS_COMPILE="${CLFS_TARGET}-"

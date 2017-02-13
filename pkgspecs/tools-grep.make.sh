@@ -12,7 +12,7 @@ tar -Jxf "grep-$version.tar.xz"
 cd grep-*/
 
 ./configure \
-  --prefix=/tools/i686 \
+  --prefix="/tools/${YAK_TARGET_ARCH}" \
   --build="$CLFS_HOST" \
   --host="$CLFS_TARGET" \
   --without-included-regex

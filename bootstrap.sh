@@ -7,6 +7,7 @@ source "$(DIR)/flag.sh"
 source "$(DIR)/log.sh"
 add_flag --boolean continue "Whether to avoid wiping state."
 add_flag --required domain "Domain to set up under."
+add_flag --default="" architecture "Architecture to build for.  Default: host"
 add_flag --default="192.168.122.0/24" subnet "Subnet to attach containers to."
 parse_flags "$@"
 
@@ -76,26 +77,40 @@ then
   "$(DIR)/initialize_localstorage.sh"
 fi
 
+if [[ -z "${F_architecture}" ]]
+then
+  arch="$("$(DIR)/os_info.sh" --arch)"
+else
+  arch="${F_architecture}"
+fi
+log_rote "building yak for architecture $(sq "$arch")"
+
+if false; then
 "$(DIR)/create_crypto.sh"
 "$(DIR)/create_all_containers.sh"
-"$(DIR)/lfs.stage1.sh"
+"$(DIR)/lfs.stage1.sh" --architecture="$arch"
 ip="$("$(DIR)/create_ip.sh" --owner="vm:stage2")"
 image_path="/var/www/html/tgzrepo/stage2.raw"
 "$(DIR)/lfs.stage2.create_raw_image.sh" \
   --ip_address="$ip" \
   --mac_address="$("$(DIR)/create_mac.sh")" \
   --output_path="$image_path" \
-  --distro_name=tools2
+  --architecture="$arch" \
+  --distro_name="tools2" \
+  --size="32G"
 "$(DIR)/lfs.stage2.sh" \
+  --architecture="$arch" \
   --ip_address="$ip" \
   --image_path="$image_path"
+fi
 
-"$(DIR)/lfs.stage3.test_input.sh"
+"$(DIR)/lfs.stage3.test_input.sh" --architecture="$arch"
 ip="$("$(DIR)/create_ip.sh" --owner="vm:stage3")"
 image_path="/var/www/html/tgzrepo/stage3.raw"
 "$(DIR)/lfs.stage2.create_raw_image.sh" \
   --ip_address="$ip" \
   --mac_address="$("$(DIR)/create_mac.sh")" \
   --output_path="$image_path" \
-  --distro_name=yak \
+  --architecture="$arch" \
+  --distro_name="yak" \
   --size="64G"

@@ -12,7 +12,7 @@ tar -Jxf "gzip-$version.tar.xz"
 cd gzip-*/
 
 ./configure \
-  --prefix=/tools/i686 \
+  --prefix="/tools/${YAK_TARGET_ARCH}" \
   --build="$CLFS_HOST" \
   --host="$CLFS_TARGET"
 

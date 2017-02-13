@@ -23,6 +23,11 @@ make_temp_dir root
   mkdir -pv "$root"/proc
   mkdir -pv "$root"/run/{lock,utmp,udev}
   mkdir -pv "$root"/sys
+  case $YAK_TARGET_ARCH in
+    x86_64|amd64)
+      echo "Creating 64-bit specific directories."
+      mkdir -pv "$root"{,/usr,/usr/local,/var}/lib64
+  esac
 } >&2
 
 tar -cz -C "$root" .

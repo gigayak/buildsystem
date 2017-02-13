@@ -10,6 +10,21 @@ tar -zxf *.tar.*
 
 cd *-*/
 
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+
+# /lib/ -> /lib64/ translation for 64-bit platforms.
+cp -v Makefile{,.orig}
+sed -r \
+  -e 's@/lib([|/ ]|$)@/'"$lib"'\1@g' \
+  -i Makefile
+
 # Per CLFS book:
 #   By default Bzip2 creates some symlinks that use absolute pathnames. The
 #   following sed will cause them to be created with relative paths

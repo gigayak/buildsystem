@@ -16,6 +16,7 @@ add_usage_note <<EOF
 running in qemu.  The IP should probably be managed by create_ip.sh, but that
 isn't supported yet...
 EOF
+add_flag --required architecture "Which architecture is being started."
 add_flag --required image_path "Path to output of lfs.stage2.create_image.sh"
 add_flag --boolean preserve_chroot "If set, does not clean up execution chroot"
 add_flag --default="" start_at "If set, name of package to start building at"
@@ -72,10 +73,24 @@ cat > "$dir/root/start_vm.sh" <<'EOF_START_VM'
 #!/bin/bash
 set -Eeo pipefail
 
+if (( "$#" != 5 ))
+then
+  echo "$(basename "$0") requires 5 positional arguments - got $#" >&2
+  echo "Got: $*" >&2
+  exit 1
+fi
+
 interactive="$1"
+echo "interactive=$interactive"
 ip_address="$2"
+echo "ip_address=$ip_address"
 image_name="$3"
+echo "image_name=$image_name"
 start_at="$4"
+echo "start_at=$start_at"
+architecture="$5"
+echo "architecture=$architecture"
+
 
 # Set up bridge config.  Without this, we get these errors:
 #   failed to parse default acl file `/etc/qemu/bridge.conf'
@@ -116,8 +131,15 @@ join_strings()
     echo -n "$arg"
   done
 }
+qemu_binary="qemu-system-$architecture"
+case $architecture in
+i*86)
+  qemu_binary="qemu-system-i386"
+  ;;
+esac
+
 machine_args=()
-machine_type="$(qemu-system-i386 -machine help \
+machine_type="$("$qemu_binary" -machine help \
   | grep '(default)' \
   | awk '{print $1}')"
 machine_args+=("$machine_type")
@@ -135,7 +157,7 @@ machine_args=(-machine "$machine_arg")
 
 # Boot the machine and wait for SSH to be available.
 sync # Ensure no dangling I/Os are waiting.
-qemu-system-i386 \
+"$qemu_binary" \
   "${machine_args[@]}" \
   -m 1024 \
   "${image_args[@]}" \
@@ -168,21 +190,30 @@ echo "qemu ready on PID $qemu_pid"
 echo "Installing this copy of the buildsystem to VM."
 "/root/buildsystem/lfs.stage3.install_buildsystem.sh" \
   --ip="$ip_address" \
-  --coreutils_prefix="/tools/i686" \
-  --target_directory="/tools/i686/bin/buildsystem"
+  --coreutils_prefix="/tools/$architecture" \
+  --target_directory="/tools/$architecture/bin/buildsystem"
 
 # Do all of our installs!
 retval=0
 cat > /root/installer.sh <<'EOF_INSTALLER'
 set -Eeo pipefail
+if (( "$#" != 2 ))
+then
+  echo "$(basename "$0") expects 2 positional arguments, got $#" >&2
+  echo "Got: $*" >&2
+  exit 1
+fi
 start_at="$1"
+echo "start_at=$start_at"
+architecture="$2"
+echo "architecture=$architecture"
 echo 'PATH is:'
 echo "$PATH"
 echo 'Leaving installation marker'
 mkdir -p /root # TODO: use different temp directory
 echo 'installer ran' > /root/installer_ran
 echo 'Running lfs.stage3.sh'
-/tools/i686/bin/buildsystem/lfs.stage3.sh \
+/tools/${architecture}/bin/buildsystem/lfs.stage3.sh \
   "$start_at" \
   2>&1 | tee /root/lfs.stage3.log \
   || retval=$?
@@ -205,7 +236,7 @@ cat /root/installer.sh \
   -o ServerAliveInterval=15 \
   -l root \
   "$ip_address" \
-  /bin/bash -l -s -- "$start_at" \
+  "/bin/bash -l -s -- '$start_at' '$architecture'" \
 || retval=$?
 if (( "$retval" ))
 then
@@ -240,7 +271,7 @@ ssh \
   -o ServerAliveInterval=15 \
   -l root \
   "$ip_address" \
-  /tools/i686/sbin/shutdown -h now
+  /tools/${architecture}/sbin/shutdown -h now
 echo "Waiting for qemu to die"
 while kill -0 "$qemu_pid" >/dev/null 2>&1
 do
@@ -308,7 +339,8 @@ chmod +x "$dir/root/start_vm.sh"
 
 retval=0
 chroot "$dir" /bin/bash /root/start_vm.sh \
-  "$F_interactive" "$F_ip_address" "$image_name" "$F_start_at" \
+  "$F_interactive" "$F_ip_address" "$image_name" \
+  "$F_start_at" "$F_architecture" \
   || retval="$?"
 
 # Break out of chroot and export the packages...

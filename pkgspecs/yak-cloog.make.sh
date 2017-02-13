@@ -10,10 +10,20 @@ wget "$url"
 tar -zxf "cloog-$version.tar.gz"
 cd cloog-*/
 
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+
 CC="gcc -isystem /usr/include" \
 LDFLAGS="-Wl,-rpath-link,/usr/lib:/lib" \
 ./configure \
-  --prefix=/usr \
+  --prefix="/usr" \
+  --libdir="/usr/$lib" \
   --with-isl=system
 
 # "prevent the attempted installation of an invalid file" --CLFS

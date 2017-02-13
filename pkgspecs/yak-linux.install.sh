@@ -15,7 +15,8 @@ make firmware_install
 # the ISOLINUX bootloader.  Additionally, there seem to be heuristics about
 # compression based on the filename being "vmlinuz" or "vmlinux", so it's
 # probably good to avoid messing with this filename.
-cp -v arch/i386/boot/bzImage /boot/vmlinuz
+# TODO: arch/i386 originally - does using fully-specified ARCH cause problems?
+cp -v "arch/$YAK_TARGET_ARCH/boot/bzImage" /boot/vmlinuz
 
 # Install map of function entry points
 #

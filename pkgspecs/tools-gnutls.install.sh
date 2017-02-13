@@ -6,8 +6,8 @@ cd "$YAK_WORKSPACE"/*-*/
 make install
 
 # See make.sh for the dirty details on this line.
-rm -rf /tools/i686/share/info
+rm -rf "/tools/${YAK_TARGET_ARCH}/share/info"
 
-# UGH - make install should really create all necessary config directories.
+# make install should really create all necessary config directories.
 # But... it doesn't.
-mkdir -pv /tools/i686/etc/ssl/certs
+mkdir -pv "/tools/$YAK_TARGET_ARCH/etc/ssl/certs"

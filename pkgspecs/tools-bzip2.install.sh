@@ -2,4 +2,4 @@
 set -Eeo pipefail
 source /tools/env.sh
 cd "$YAK_WORKSPACE"/bzip2-*/
-make PREFIX=/tools/i686 install
+make PREFIX="/tools/${YAK_TARGET_ARCH}" install

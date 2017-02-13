@@ -11,8 +11,17 @@ download_sourceforge \
 
 tar -xf *.tar.*
 cd *-*/
+
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
 ./configure \
-  --prefix=/cross-tools/i686 \
+  --prefix="/cross-tools/${YAK_TARGET_ARCH}" \
   --host="$CLFS_TARGET" \
-  --with-pc-path="/tools/i686/lib/pkgconfig:/tools/i686/share/pkgconfig"
+  --with-pc-path="/tools/${YAK_TARGET_ARCH}/$lib/pkgconfig:/tools/${YAK_TARGET_ARCH}/share/pkgconfig"
 make

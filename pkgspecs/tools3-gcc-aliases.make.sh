@@ -11,6 +11,6 @@ set -Eeo pipefail
 #
 # This package exists simply to prevent tools2 gcc from being
 # installed on top of tools3 gcc, which might cause major issues.
-cp -v "/.installed_pkgs/i686-tools2:gcc-aliases" \
+cp -v "/.installed_pkgs/${YAK_TARGET_ARCH}-tools2:gcc-aliases" \
   "$YAK_WORKSPACE/extra_installed_paths"
 

@@ -8,6 +8,6 @@ gcc \
   -dumpspecs \
 | perl \
   -p \
-  -e 's@/tools/i686/lib/ld@/lib/ld@g;' \
+  -e 's@/tools/'"${YAK_TARGET_ARCH}"'/lib/ld@/lib/ld@g;' \
   -e 's@\*startfile_prefix_spec:\n@$_/usr/lib/ @g;' \
   > "$(dirname "$(gcc --print-libgcc-file-name)")/specs"

@@ -14,8 +14,9 @@ wget "$url"
 tar -Jxf "linux-$version.tar.xz"
 cd linux-*/
 
+# TODO: ARCH=i386 originally - does using fully-specified ARCH cause problems?
 kconfig_init \
-  ARCH=i386 \
+  ARCH="$YAK_TARGET_ARCH" \
   CROSS_COMPILE=${CLFS_TARGET}- \
   defconfig
 
@@ -66,10 +67,13 @@ do
   kconfig_set "$flag" y
 done
 
+# TODO: ARCH=i386 originally - does using fully-specified ARCH cause problems?
 kconfig_kernel_finalize_hack \
-  ARCH=i386 \
+  ARCH="$YAK_TARGET_ARCH" \
   CROSS_COMPILE=${CLFS_TARGET}-
 
 # Build the kernel
 echo "Building the kernel"
-make ARCH=i386 CROSS_COMPILE=${CLFS_TARGET}-
+make \
+  ARCH="$YAK_TARGET_ARCH" \
+  CROSS_COMPILE=${CLFS_TARGET}-

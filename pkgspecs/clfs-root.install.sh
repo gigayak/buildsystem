@@ -15,3 +15,8 @@ mkdir -pv ${CLFS}/usr/{,local/}{bin,include,lib,sbin,src}
 mkdir -pv ${CLFS}/usr/{,local/}share/{doc,info,locale,man}
 mkdir -pv ${CLFS}/usr/{,local/}share/{misc,terminfo,zoneinfo}
 mkdir -pv ${CLFS}/usr/{,local/}share/man/man{1,2,3,4,5,6,7,8}
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  mkdir -pv ${CLFS}/{lib64,usr/lib64,usr/local/lib64}
+  ;;
+esac

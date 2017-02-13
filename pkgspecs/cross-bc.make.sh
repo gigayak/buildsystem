@@ -13,6 +13,6 @@ cd bc-*/
 
 export CC=gcc
 ./configure \
-  --prefix=/cross-tools/i686
+  --prefix="/cross-tools/${YAK_TARGET_ARCH}"
 
 make

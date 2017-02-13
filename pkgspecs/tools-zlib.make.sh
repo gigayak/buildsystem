@@ -1,17 +1,27 @@
 #!/bin/bash
 set -Eeo pipefail
 source /tools/env.sh
+source "$YAK_BUILDTOOLS/download.sh"
 
 cd "$YAK_WORKSPACE"
-version=1.2.8
+version=1.2.10
 echo "$version" > "$YAK_WORKSPACE/version"
-url="http://zlib.net/zlib-$version.tar.gz"
-wget "$url"
-tar -zxf "zlib-$version.tar.gz"
+download_sourceforge "libpng/zlib/$version/zlib-${version}.tar.gz"
+tar -zxf *.tar.*
 
 cd zlib-*/
 
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+
 ./configure \
-  --prefix=/tools/i686
+  --prefix="/tools/${YAK_TARGET_ARCH}" \
+  --libdir="/tools/${YAK_TARGET_ARCH}/$lib"
 
 make

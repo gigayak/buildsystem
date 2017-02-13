@@ -1,3 +1,3 @@
 #!/bin/bash
 set -Eeo pipefail
-cat "/.installed_pkgs/i686-tools2:gcc.version"
+cat "/.installed_pkgs/${YAK_TARGET_ARCH}-tools2:gcc.version"

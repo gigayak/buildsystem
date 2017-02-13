@@ -11,7 +11,7 @@ tar -Jxf "gmp-$version.tar.xz"
 
 cd gmp-*/
 ./configure \
-  --prefix=/cross-tools/i686 \
+  --prefix="/cross-tools/${YAK_TARGET_ARCH}" \
   --enable-cxx \
   --disable-static
 

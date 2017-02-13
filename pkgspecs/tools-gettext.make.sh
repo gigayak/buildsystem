@@ -21,7 +21,7 @@ cd gettext-tools/
 echo "gl_cv_func_wcwidth_works=yes" > config.cache
 
 ./configure \
-  --prefix=/tools/i686 \
+  --prefix="/tools/${YAK_TARGET_ARCH}" \
   --build="$CLFS_HOST" \
   --host="$CLFS_TARGET" \
   --disable-shared \

@@ -28,7 +28,7 @@ chmod +x "/etc/rc.d/init.d/dropbear"
 ln -sv ../init.d/dropbear "/etc/rc.d/rc3.d/S20dropbear"
 
 # HACK: Override old symlink from tools-dropbear-config
-# (This prevents accidentally packaging to /tools/i686/etc/shells.)
+# (This prevents accidentally packaging to /tools/ARCH/etc/shells.)
 rm -f /etc/shells
 
 # HACK: Need a valid shell for dropbear to use for root user...

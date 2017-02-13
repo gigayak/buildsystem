@@ -3,4 +3,8 @@ set -Eeo pipefail
 source /cross-tools/env.sh
 cd "$YAK_WORKSPACE"/*-*/
 
-make ARCH=i386 INSTALL_HDR_PATH=/tools/i686 headers_install
+# TODO: ARCH=i386 originally - does using fully-specified ARCH cause problems?
+make \
+  ARCH="$YAK_TARGET_ARCH" \
+  INSTALL_HDR_PATH="/tools/$YAK_TARGET_ARCH" \
+  headers_install

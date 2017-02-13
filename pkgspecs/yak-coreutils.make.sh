@@ -10,9 +10,19 @@ wget "$url"
 tar -Jxf "coreutils-$version.tar.xz"
 cd coreutils-*/
 
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+
 configure_flags=()
 configure_flags+=(--prefix="/usr")
-configure_flags+=(--libexecdir="/usr/lib")
+configure_flags+=(--libexecdir="/usr/$lib")
+configure_flags+=(--libdir="/usr/$lib")
 configure_flags+=(--enable-no-install-program="kill,uptime")
 configure_flags+=(--enable-install-program="hostname")
 

@@ -5,4 +5,4 @@ cd "$YAK_WORKSPACE"/gettext-*/
 
 # Bit of a weird install - we just want ONE binary.
 cd gettext-tools/
-cp -v src/msgfmt /tools/i686/bin
+cp -v "src/msgfmt" "/tools/${YAK_TARGET_ARCH}/bin"

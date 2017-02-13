@@ -12,10 +12,12 @@ tar -zxf *.tar.gz
 cd *-*/
 # Per the CLFS book:
 #   Change a hardcoded path from /usr/include to /tools/.../include
-sed -i 's@/usr/include@/tools/i686/include@g' ext/Errno/Errno_pm.PL
+sed -r \
+  -e 's@/usr/include@/tools/'"${YAK_TARGET_ARCH}"'/include@g' \
+  -i ext/Errno/Errno_pm.PL
 
 ./configure.gnu \
-  --prefix=/tools/i686 \
+  --prefix="/tools/${YAK_TARGET_ARCH}" \
   -Dcc="gcc"
 
 make

@@ -18,6 +18,9 @@ export DEBIAN_FRONTEND="noninteractive"
 
 cd "$YAK_WORKSPACE"
 
+# Make sure latest package lists are used...
+apt-get update
+
 # Don't use apt-get to install the package, as there's no way to get it to
 # avoid installing dependencies.  Since the Gigayak packager installed those
 # dependencies and did not update the dpkg database, it will try to re-install

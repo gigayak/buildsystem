@@ -11,14 +11,24 @@ wget "$url"
 tar -zxf "texinfo-$version.tar.gz"
 cd texinfo-*/
 
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+
 # Ensure we point at /usr/bin even if perl is installed to /bin
 # TODO: Why? This was suggested by CLFS...
 export PERL=/usr/bin/perl
 
 ./configure \
-  --prefix=/tools/i686 \
+  --prefix="/tools/${YAK_TARGET_ARCH}" \
   --build="$CLFS_HOST" \
-  --host="$CLFS_TARGET"
+  --host="$CLFS_TARGET" \
+  --libdir="/tools/${YAK_TARGET_ARCH}/$lib"
 
 make -C tools/gnulib/lib
 make -C tools/info/ makedoc # http://patchwork.openembedded.org/patch/72171/

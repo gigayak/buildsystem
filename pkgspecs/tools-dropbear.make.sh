@@ -12,7 +12,7 @@ tar -jxf dropbear-*
 cd dropbear-*/
 
 ./configure \
-  --prefix=/tools/i686 \
+  --prefix="/tools/${YAK_TARGET_ARCH}" \
   --build="${CLFS_HOST}" \
   --host="${CLFS_TARGET}"
 make

@@ -13,9 +13,19 @@ wget --no-check-certificate "$url"
 tar -Jxf "gnutls-$version.tar.xz"
 cd *-*/
 
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+
 # TODO: support polkit and remove --without-p11-kit flag
 ./configure \
-  --prefix=/usr \
+  --prefix="/usr" \
+  --libdir="/usr/$lib" \
   --without-p11-kit \
   --with-default-trust-store-dir=/etc/ssl/certs
 make

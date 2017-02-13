@@ -11,12 +11,12 @@ wget "$url"
 tar -zxf "cloog-$version.tar.gz"
 cd cloog-*/
 
-export LDFLAGS="-Wl,-rpath,/cross-tools/i686/lib"
+export LDFLAGS="-Wl,-rpath,/cross-tools/${YAK_TARGET_ARCH}/lib"
 ./configure \
-  --prefix=/cross-tools/i686 \
+  --prefix="/cross-tools/${YAK_TARGET_ARCH}" \
   --disable-static \
-  --with-gmp-prefix=/cross-tools/i686 \
-  --with-isl-prefix=/cross-tools/i686
+  --with-gmp-prefix="/cross-tools/${YAK_TARGET_ARCH}" \
+  --with-isl-prefix="/cross-tools/${YAK_TARGET_ARCH}"
 
 # "prevent the attempted installation of an invalid file" --CLFS
 # per http://www.clfs.org/view/CLFS-3.0.0-SYSVINIT/x86/cross-tools/cloog.html

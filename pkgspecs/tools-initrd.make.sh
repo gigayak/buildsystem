@@ -111,10 +111,10 @@ elif [ -x /lib/udev/udevd ]; then
   UDEVD=/lib/udev/udevd
 elif [ -x /lib/systemd/systemd-udevd ]; then
   UDEVD=/lib/systemd/systemd-udevd
-elif [ -x /tools/i686/sbin/udevd ]; then
-  UDEVD=/tools/i686/sbin/udevd
-elif [ -x /tools/i686/lib/udev/udevd ]; then
-  UDEVD=/tools/i686/lib/udev/udevd
+elif [ -x /tools/$YAK_TARGET_ARCH/sbin/udevd ]; then
+  UDEVD=/tools/$YAK_TARGET_ARCH/sbin/udevd
+elif [ -x /tools/$YAK_TARGET_ARCH/lib/udev/udevd ]; then
+  UDEVD=/tools/$YAK_TARGET_ARCH/lib/udev/udevd
 else
   echo "Cannot find udevd nor systemd-udevd"
   problem

@@ -10,6 +10,18 @@ download_sourceforge "tcl/Tcl/$version/tcl$version-src.tar.gz"
 tar -zxf *.tar.gz
 cd "$YAK_WORKSPACE"/tcl*/
 cd unix
-./configure --prefix=/tools/i686
+
+case $YAK_TARGET_ARCH in
+x86_64|amd64)
+  lib=lib # lib64 in multilib
+  ;;
+*)
+  lib=lib
+  ;;
+esac
+
+./configure \
+  --prefix="/tools/${YAK_TARGET_ARCH}" \
+  --libdir="/tools/${YAK_TARGET_ARCH}/$lib"
 make
 

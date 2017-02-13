@@ -11,12 +11,12 @@ wget "$url"
 tar -zxf "mpfr-$version.tar.gz"
 cd mpfr-*/
 
-# Tell configure to look only for i686-cross-* libraries (for GMP)
-export LDFLAGS="-Wl,-rpath,/cross-tools/i686/lib"
+# Tell configure to look only for cross-* libraries (for GMP)
+export LDFLAGS="-Wl,-rpath,/cross-tools/${YAK_TARGET_ARCH}/lib"
 
 ./configure \
-  --prefix=/cross-tools/i686 \
+  --prefix="/cross-tools/${YAK_TARGET_ARCH}" \
   --disable-static \
-  --with-gmp=/cross-tools/i686
+  --with-gmp="/cross-tools/${YAK_TARGET_ARCH}"
 
 make

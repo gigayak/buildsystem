@@ -12,6 +12,6 @@ cd *-*/
 # perl binary at /usr/bin/perl.  This hopefully points it at the
 # tools3-perl package's binary, instead.
 # TODO: Make tools3-texinfo play nice here?
-export PERL=/tools/i686/bin/perl
-./configure --prefix=/tools/i686
+export PERL="/tools/${YAK_TARGET_ARCH}/bin/perl"
+./configure --prefix="/tools/${YAK_TARGET_ARCH}"
 make

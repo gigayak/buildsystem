@@ -3,10 +3,10 @@ set -Eeo pipefail
 source /tools/env.sh
 
 # Ensure directory to hold keys exists.
-mkdir -pv "$CLFS/tools/i686/etc/dropbear"
+mkdir -pv "$CLFS/tools/$YAK_TARGET_ARCH/etc/dropbear"
 
 # Build an initscript that ups dropbear (and generates keys if needed).
-cat > "$CLFS/tools/i686/etc/rc.d/init.d/dropbear" <<'EOF'
+cat > "$CLFS/tools/$YAK_TARGET_ARCH/etc/rc.d/init.d/dropbear" <<EOF
 #!/bin/bash
 set -Eeo pipefail
 
@@ -20,50 +20,50 @@ set -Eeo pipefail
 # HACK SCALE: PUNY
 #
 # This feature exists solely to allow Dropbear to work when
-# booting from a live CD, where /tools/i686/etc/dropbear is not
+# booting from a live CD, where /tools/ARCH/etc/dropbear is not
 # writable.  We could avoid this if we used a union filesystem
 # which allows COW-to-memory writes to the read-only image, but
 # this would require kernel changes.  This hack works with a
 # stock kernel juuuust fine.
 key_dirs=()
-key_dirs+=("/tools/i686/etc/dropbear")
+key_dirs+=("/tools/$YAK_TARGET_ARCH/etc/dropbear")
 key_dirs+=("/tmp")
 
 keys=(rsa_host_key)
 
 found=0
-for key_dir in "${key_dirs[@]}"
+for key_dir in "\${key_dirs[@]}"
 do
-  for key in "${keys[@]}"
+  for key in "\${keys[@]}"
   do
-    if [[ -e "$key_dir/$key" ]]
+    if [[ -e "\$key_dir/\$key" ]]
     then
       found=1
       break
     fi
   done
 done
-if (( ! "$found" ))
+if (( ! "\$found" ))
 then
-  for key_dir in "${key_dirs[@]}"
+  for key_dir in "\${key_dirs[@]}"
   do
-    if [[ -w "$key_dir" ]]
+    if [[ -w "\$key_dir" ]]
     then
       found=1
       break
     fi
   done
 fi
-if (( ! "$found" ))
+if (( ! "\$found" ))
 then
   echo "Unable to find viable directory to store host keys in." >&2
   exit 1
 fi
 
-rsa_key="$key_dir/rsa_host_key"
-if [[ ! -e "$rsa_key" ]]
+rsa_key="\$key_dir/rsa_host_key"
+if [[ ! -e "\$rsa_key" ]]
 then
-  dropbearkey -t rsa -s 1024 -f "$rsa_key"
+  dropbearkey -t rsa -s 1024 -f "\$rsa_key"
 fi
 # -B: allow blank password to login (say, for root)
 # -K <arg>: keepalive every <arg> seconds
@@ -71,14 +71,15 @@ fi
 #   (0 disables both -K and -I)
 # -r <arg>: read RSA host key from <arg>
 # -E: log to stderr instead of syslog
-dropbear -B -K 60 -I 3600 -r "$rsa_key" -E
+dropbear -B -K 60 -I 3600 -r "\$rsa_key" -E
 EOF
-chmod +x "$CLFS/tools/i686/etc/rc.d/init.d/dropbear"
-ln -sv ../init.d/dropbear "$CLFS/tools/i686/etc/rc.d/rc3.d/S20dropbear"
+chmod +x "$CLFS/tools/${YAK_TARGET_ARCH}/etc/rc.d/init.d/dropbear"
+ln -sv ../init.d/dropbear \
+  "$CLFS/tools/${YAK_TARGET_ARCH}/etc/rc.d/rc3.d/S20dropbear"
 
 # HACK: Need a valid shell for dropbear to use for root user...
-cat > "$CLFS/tools/i686/etc/shells" <<'EOF'
+cat > "$CLFS/tools/${YAK_TARGET_ARCH}/etc/shells" <<'EOF'
 /bin/sh
 /bin/bash
 EOF
-ln -sv /tools/i686/etc/shells "$CLFS/etc/shells"
+ln -sv "/tools/${YAK_TARGET_ARCH}/etc/shells" "$CLFS/etc/shells"

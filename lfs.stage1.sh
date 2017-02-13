@@ -2,17 +2,31 @@
 set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
-echo "This script builds all of Linux."
-start_from="$1"
+source "$(DIR)/cleanup.sh"
+source "$(DIR)/escape.sh"
+source "$(DIR)/flag.sh"
+source "$(DIR)/log.sh"
+
+add_flag --default="" architecture "Architecture to build for.  Default: host"
+add_flag --default="" start_from "Package to start build with.  Default: first"
+parse_flags "$@"
+
+log_rote "this script builds all of Linux."
+start_from="$F_start_from"
 waiting=0
 if [[ ! -z "$start_from" ]]
 then
   waiting=1
 fi
 
-target_arch=i686
+target_arch="$arch"
+if [[ -z "$target_arch" ]]
+then
+  target_arch="$("$(DIR)/os_info.sh" --arch)"
+fi
 
-logdir="/mnt/vol_b/tmp/logs"
+logdir="$(select_temp_root)/yak_logs/stage1"
+log_rote "saving build logs to $(sq "$logdir")"
 mkdir -pv "$logdir"
 
 build()
