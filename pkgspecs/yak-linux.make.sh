@@ -86,6 +86,45 @@ do
 done
 # qemu requires /dev/net/tun, provided by TUN:
 kconfig_set TUN y
+# ACPI is required for using SD cards with ACPI.  Also for many other things...
+# (It was already set by default... this is insurance.)
+kconfig_set ACPI y
+# Booting from an SD card requires MMC.
+#
+# MMC enables the overall subsystem.  MMC_BLOCK enables device block drivers
+# on MMC/SD devices.
+#
+# The other options are all for MMC sub-drivers.
+# I may have used a shell script to scrape these:
+#   curl http://cateee.net/lkddb/web-lkddb/MMC.html \
+#     | sed -nre 's@^.*CONFIG_(MMC_[A-Za-z0-9_-]+).*$@\1@gp' \
+#     | sort | uniq | tr '\n' ' ' | sed -re 's@$@\n@g'
+# TODO: Support kconfig_set_recursively to allow all children to be set as well.
+# In this case, setting CONFIG_MMC and all of its children to y would be fine.
+#
+# Commented out these options because they have unmet dependencies:
+#   MMC_AT91 MMC_AT91RM9200 MMC_ATMELMCI MMC_AU1X MMC_DAVINCI MMC_DW MMC_IMX
+#   MMC_JZ4740 MMC_MSM MMC_MSM7X00A MMC_MVSDIO MMC_MXC MMC_MXS MMC_OMAP
+#   MMC_OMAP_HS MMC_PXA MMC_S3C MMC_SDHCI_CNS3XXX MMC_SDHCI_DOVE
+#   MMC_SDHCI_ESDHC_IMX MMC_SDHCI_OF MMC_SDHCI_OF_ESDHX MMC_SDHCI_OF_HLWD
+#   MMC_SDHCI_PXA MMC_SDHCI_PXAV2 MMC_SDHCI_PXAV3 MMC_SDHCI_S3C MMC_SDHCI_SPEAR
+#   MMC_SDHCI_TEGRA MMC_SDHI MMC_SH_MMCIF MMC_SPI MMC_TMIO
+#
+# Additionally, http://askubuntu.com/a/277626 tipped me off to a Texas
+# Instruments driver existing, which wasn't listed on cateee.net for some
+# reason.  Included TIFM_CORE and TIFM_7XX1 thanks to the documentation on
+# MMC_TIFM_SD implying it may be needed...
+#
+# SDIO_UART enables GPS-type devices, which will likely prove handy eventually.
+for flag in \
+  MMC MMC_BLOCK \
+  MMC_CB710 MMC_RICOH_MMC MMC_SDHCI MMC_SDHCI_ACPI MMC_SDHCI_PCI \
+  MMC_SDHCI_PLTFM MMC_SDRICOH_CS MMC_USHC MMC_VIA_SDMMC MMC_VUB300 MMC_WBSD \
+  MMC_TIFM_SD TIFM_CORE TIFM_7XX1 \
+  SDIO_UART
+do
+  kconfig_set "$flag" y
+done
 
 kconfig_kernel_finalize_hack
 

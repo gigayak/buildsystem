@@ -11,6 +11,7 @@ source "$(DIR)/flag.sh"
 source "$(DIR)/log.sh"
 source "$(DIR)/mkroot.sh"
 source "$(DIR)/net.sh"
+source "$(DIR)/repo.sh"
 
 add_flag --required output_path "Where to store the image."
 add_flag --required mac_address "MAC address to assign to eth0."
@@ -65,15 +66,15 @@ log_rote "copying $F_distro_name packages into chroot"
 target_pkgdir="$dir/pkgs"
 mkdir -pv "$target_pkgdir"
 pkgs=()
-while read -r pkgpath
+while read -r dep
 do
-  pkgspec="$(basename "$pkgpath" .tar.gz)"
-  pkg="$(echo "$pkgspec" \
-    | sed -re 's@^'"$F_architecture"'-'"$F_distro_name"':@@g')"
-  pkgs+=("$pkg")
-  cp -v "/var/www/html/tgzrepo/${pkgspec}."* "$target_pkgdir/"
-done < <(find /var/www/html/tgzrepo \
-  -iname "${F_architecture}-${F_distro_name}:*.tar.gz")
+  cp -v "/var/www/html/tgzrepo/$dep".* "$target_pkgdir/"
+  pkgs+=("$(dep2name "" "" "$dep")")
+done < <("$(DIR)/list_critical_packages.sh" \
+  --install \
+  --target_architecture="$F_architecture" \
+  --target_distribution="$F_distro_name" \
+)
 
 # Ensure that internal DNS is available.
 log_rote "installing DNS config into chroot"
@@ -223,6 +224,8 @@ mount "$loop_dev" "/mnt/guest${strip_prefix}"
 
 # Our new filesystem has no files!
 # Extract all of the packages into our guest filesystem.
+source /buildsystem/repo.sh
+mkdir -pv "/mnt/guest/var/www/html/tgzrepo"
 for pkg in "${pkgs[@]}"
 do
   echo "Installing $pkg"
@@ -232,6 +235,12 @@ do
     --target_distribution="$distro_name" \
     --pkg_name="$pkg" \
     --repo_path="/pkgs"
+  echo "Copying $pkg to tgzrepo"
+  src="/pkgs/$(qualify_dep "$architecture" "$distro_name" "$pkg")"
+  for ext in done tar.gz dependencies version
+  do
+    cp -v "$src.$ext" "/mnt/guest/var/www/html/tgzrepo/"
+  done
 done
 
 # Copy in dynamically generated resolv.conf to ensure internal DNS access.

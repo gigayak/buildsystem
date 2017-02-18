@@ -1,8 +1,26 @@
 #!/bin/bash
 set -Eeo pipefail
-source /tools/env.sh
 
-cat > "$CLFS/tools/$YAK_TARGET_ARCH/bin/install-gigayak" <<EOF_INSTALLED_SCRIPT
+source "$YAK_BUILDSYSTEM/repo.sh"
+
+case $YAK_TARGET_OS in
+tools|tools*)
+  source /tools/env.sh
+  prefix="$CLFS/tools/$YAK_TARGET_ARCH"
+  internal_prefix="/tools/$YAK_TARGET_ARCH"
+  ;;
+yak)
+  prefix="/usr"
+  internal_prefix=""
+  ;;
+*)
+  echo "unknown distribution '$YAK_TARGET_OS'" >&2
+  echo "comment following line and proceed at your own risk" >&2
+  exit 1
+esac
+
+script="$prefix/bin/install-gigayak"
+cat > "$script" <<EOF_INSTALLED_SCRIPT
 #!/bin/bash
 set -Eeo pipefail
 
@@ -32,6 +50,7 @@ fi
   echo 1 # make it the first partition
   echo # use default first sector (beginning of disk)
   echo # use default last sector (end of disk)
+  echo a # make partition bootable
   echo w # write changes to disk
 ) \
 | fdisk "\$hd"
@@ -44,60 +63,57 @@ mkfs.ext4 -F "\${hd}1"
 # Install packages.
 mkdir /tmp/mount
 mount "\${hd}1" /tmp/mount
-retval=0
-rsync \
-  --exclude=/tmp \
-  --exclude=/proc \
-  --exclude=/sys \
-  --exclude=/run \
-  --exclude=/rr_moved \
-  --recursive \
-  --devices \
-  --specials \
-  --perms \
-  --copy-links \
-  / /tmp/mount/ \
-|| retval=\$?
-if (( "\$retval" != 0 && "\$retval" != 23 ))
-then
-  echo "rsync failed with code \$retval" >&2
-  exit 1
-fi
 
-# Recreate directories murdered by rsync exclusions.
-for d in /tmp /proc /sys /run
+# Create repository to copy installed packages to.
+mkdir -pv /tmp/mount/var/www/html/tgzrepo
+
+EOF_INSTALLED_SCRIPT
+while read -r dep
 do
-  mkdir -v "/tmp/mount\${d}"
-done
+  arch="$(dep2arch "" "" "$dep")"
+  distro="$(dep2distro "" "" "$dep")"
+  pkg="$(dep2name "" "" "$dep")"
+  # Install each package.
+  echo "$prefix/bin/buildsystem/install_pkg.sh \\" >> "$script"
+  echo "  --target_architecture=$(sq "$arch") \\" >> "$script"
+  echo "  --target_distribution=$(sq "$distro") \\" >> "$script"
+  echo "  --pkg_name=$(sq "$pkg") \\" >> "$script"
+  echo "  --install_root=/tmp/mount" >> "$script"
+  # Populate target repository with each installed package.
+  src="$(sq "/var/www/html/tgzrepo/${arch}-$distro:$pkg").*"
+  echo "cp -v $src /tmp/mount/var/www/html/tgzrepo/" >> "$script"
+  echo "" >> "$script"
+done < <("$YAK_BUILDSYSTEM/list_critical_packages.sh" \
+  --install \
+  --target_architecture="$YAK_TARGET_ARCH" \
+  --target_distribution="$YAK_TARGET_OS" \
+)
+cat >> "$script" <<EOF_INSTALLED_SCRIPT
 
 # Install the bootloader.
-grub-install \
-  --boot-directory=/tmp/mount/tools/${YAK_TARGET_ARCH}/boot \
-  "\$hd"
-blkid -s UUID -o value "\${hd}1" \
-  > /tmp/mount/root/grub.blkid
-echo "\${hd}1" > /tmp/mount/root/grub.rootfs
-chroot /tmp/mount /tools/${YAK_TARGET_ARCH}/bin/bash <<'EOF_CHROOT_INSTALLER'
-cat > /tools/${YAK_TARGET_ARCH}/etc/grub.d/42_gigayak <<'EOF_HELPER'
-#!/bin/sh -e
-uuid=\`cat /root/grub.blkid\`
-export uuid
-rootfs=\`cat /root/grub.rootfs\`
-export rootfs
-cat <<EOF
-menuentry "Gigayak Linux" {
-search --set=root --fs-uuid \$uuid
-linux /tools/${YAK_TARGET_ARCH}/boot/vmlinuz root=\$rootfs console=ttyS0,115200n8
-}
+dd bs=440 count=1 conv=notrunc if=/usr/share/syslinux/mbr.bin of=\${hd}
+# Make sure bootloader is actually written and not just queued for write.
+sync
+
+# Write bootloader configuration.
+bootdir="/tmp/mount${internal_prefix}/boot/extlinux"
+mkdir -pv "\$bootdir"
+extlinux --install "\$bootdir"
+
+uuid="\$(lsblk --noheadings --output PARTUUID \${hd}1)"
+kernel_path="${internal_prefix}/boot/vmlinuz"
+cat > "\$bootdir/extlinux.conf" <<EOF
+SERIAL 0
+DEFAULT linux
+LABEL linux
+  SAY Now booting the kernel from SYSLINUX...
+  KERNEL \$kernel_path
+  APPEND rw root=PARTUUID=\$uuid console=tty0 console=ttyS0,115200n8 panic=60
 EOF
-EOF_HELPER
-chmod +x /tools/${YAK_TARGET_ARCH}/etc/grub.d/42_gigayak
-cat > /tools/${YAK_TARGET_ARCH}/etc/default/grub <<EOF
-GRUB_CMDLINE_LINUX_DEFAULT="console=ttyS0,115200n8"
-GRUB_TERMINAL="console serial"
-GRUB_SERIAL_COMMAND="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"
-EOF
-grub-mkconfig > /tools/${YAK_TARGET_ARCH}/boot/grub/grub.cfg
-EOF_CHROOT_INSTALLER
+
+umount /tmp/mount
+
+echo "Everything seems to have gone somewhat okay."
+echo "Try to boot from your new installation!"
 EOF_INSTALLED_SCRIPT
-chmod +x "$CLFS/tools/${YAK_TARGET_ARCH}/bin/install-gigayak"
+chmod +x "$prefix/bin/install-gigayak"

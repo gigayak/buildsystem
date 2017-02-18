@@ -77,4 +77,5 @@ The first successful boot on a different architecture was on Sunday, February
 12, 2017, at 9:32PM Pacific Time.  The new architecture was x86_64, and the
 boot was again within a qemu VM.
 
-First successful boot on physical hardware is in the near future.
+First successful boot on physical hardware was on February 18, 2017, at 12:17AM
+Pacific time.  This was on an Acer CB3-131 laptop (Chromebook), running x86_64.

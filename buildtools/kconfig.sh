@@ -40,19 +40,30 @@ kconfig_set()
   fi
 
 
-  echo "Setting 'CONFIG_$key' to '$val'"
   expected_values+=("CONFIG_$key=$val")
-
-  pattern='^(CONFIG_'"$key"'=).*$'
-  if grep -E "$pattern" .config >/dev/null 2>&1
+  pattern_positive='^(CONFIG_'"$key"'=).*$'
+  pattern_negative='^# (CONFIG_'"$key"') is not set.*$'
+  if grep -E "$pattern_positive" .config >/dev/null 2>&1
   then
+    echo "Overwriting 'CONFIG_$key' with '$val'"
     # TODO: Escape $val here!
     replace='\1'"$val"
-    expr="s@$pattern@$replace@g"
+    expr="s@$pattern_positive@$replace@g"
+    mv -f .config .config.tmp
+    sed -re "$expr" .config.tmp > .config
+    rm -f .config.tmp
+  # TODO: Perhaps refactor positive/negative branches together?
+  elif grep -E "$pattern_negative" .config >/dev/null 2>&1
+  then
+    echo "Overwriting 'CONFIG_$key' with '$val'"
+    # TODO: Escape $val here!
+    replace='\1='"$val"
+    expr="s@$pattern_negative@$replace@g"
     mv -f .config .config.tmp
     sed -re "$expr" .config.tmp > .config
     rm -f .config.tmp
   else
+    echo "Setting 'CONFIG_$key' to '$val'"
     echo "CONFIG_${key}=$val" >> .config
   fi
   return 0
