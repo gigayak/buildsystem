@@ -218,6 +218,7 @@ yak)
   add_pkg yak make
   add_pkg yak xz
   add_pkg yak kmod
+  add_pkg yak kmod-config
   add_pkg yak patch
   add_pkg yak psmisc
   add_pkg yak libestr

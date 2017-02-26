@@ -126,8 +126,52 @@ do
   kconfig_set "$flag" y
 done
 
+# And should you plug your SD card reader or flash drive into a USB3 port,
+# perhaps it should be recognized by the kernel...
+kconfig_set USB y
+kconfig_set USB_UHCI_HCD y
+kconfig_set USB_OHCI_HCD y
+kconfig_set USB_EHCI_HCD y
+kconfig_set USB_XHCI_HCD y
+
+# Other USB configuration...
+kconfig_set INPUT y
+kconfig_set INPUT_KEYBOARD y
+kconfig_set INPUT_MOUSE y
+kconfig_set INPUT_JOYSTICK y
+kconfig_set INPUT_JOYDEV y
+kconfig_set INPUT_EVDEV y
+kconfig_set USB_HID y
+kconfig_set USB_HIDDEV y
+kconfig_set HID y
+kconfig_set HID_GENERIC y
+kconfig_set HID_APPLE m
+kconfig_set HID_WACOM m
+kconfig_set HID_LOGITECH m
+kconfig_set HID_SENSOR_HUB m
+kconfig_set INTEL_ISH_HID m
+kconfig_set USB_XPAD m
+
+
+# Common network drivers.
+kconfig_set ETHERNET y
+# Realtek:
+kconfig_set NET_VENDOR_REALTEK y
+kconfig_set R8169 m
+kconfig_set 8139TOO m
+kconfig_set 8139CP m
+kconfig_set MII m # used by R8169 in working Ubuntu deployment...
+
+# CPU-specific flags
+kconfig_set HWMON m
+# AMD-specific stuff:
+# TODO: x86-only?
+kconfig_set HSA_AMD m
+kconfig_set RADEON m
+kconfig_set SENSORS_K10TEMP m
+
 kconfig_kernel_finalize_hack
 
 # Build the kernel
 echo "Building the kernel"
-make
+make -j 8
