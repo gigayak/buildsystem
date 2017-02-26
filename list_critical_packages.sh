@@ -257,8 +257,8 @@ yak)
   add_pkg yak tcl
   add_pkg yak git
   add_pkg yak go-sget
-  add_pkg yak dropbear
-  add_pkg yak dropbear-config
+  add_pkg yak openssh
+  add_pkg yak openssh-config
   add_pkg yak lxc
   add_pkg yak config-os-release-info
   add_pkg yak rsync
