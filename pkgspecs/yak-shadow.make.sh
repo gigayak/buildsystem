@@ -2,12 +2,13 @@
 set -Eeo pipefail
 
 cd "$YAK_WORKSPACE"
-version=4.2.1
+version=4.4
 echo "$version" > "$YAK_WORKSPACE/version"
-url="http://pkg-shadow.alioth.debian.org/releases/shadow-$version.tar.xz"
+urldir="https://github.com/shadow-maint/shadow/releases/download/$version"
+url="$urldir/shadow-${version}.tar.gz"
 wget "$url"
 
-tar -Jxf "shadow-$version.tar.xz"
+tar -xf shadow-*.tar.*
 cd shadow-*/
 
 # Per the CLFS book:

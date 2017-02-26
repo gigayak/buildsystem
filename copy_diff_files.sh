@@ -46,13 +46,16 @@ warn_on_permissions()
 copy_dir()
 {
   mkdir -pv "$tgt/$@"
-  # TODO: Worry about permissions.
+  perms="$(stat -c '%a' "$src/$@")"
+  chmod "$perms" "$tgt/$@"
 }
 
 copy_file()
 {
   copy_dir "$(dirname "$@")"
   cp -v "$src/$@" "$tgt/$@"
+  perms="$(stat -c '%a' "$src/$@")"
+  chmod "$perms" "$tgt/$@"
 }
 
 copy_link()
