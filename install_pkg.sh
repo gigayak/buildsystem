@@ -120,7 +120,9 @@ do
   then
     log_fatal "could not find package version '$dep.version'"
   fi
-  tar -zxf "$pkgpath" --directory "$F_install_root"
+  tar -zxf "$pkgpath" \
+    --directory "$F_install_root" \
+    --no-overwrite-dir
   tar -tzf "$pkgpath" | sed 's/^\.\///g' > "$pkglist/$dep"
   cp "$versionpath" "$pkglist/$dep.version"
 done < "$ordered_deps"
