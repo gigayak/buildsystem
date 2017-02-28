@@ -11,5 +11,4 @@ url="$urldir/unzip${nodot_version}.tar.gz"
 download_sourceforge "$url"
 tar -xf *.tar.*
 cd */
-unix/configure --prefix=/usr
-make
+make -f unix/Makefile generic
