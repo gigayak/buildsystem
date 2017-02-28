@@ -3,9 +3,11 @@ set -Eeo pipefail
 source "$YAK_BUILDTOOLS/all.sh"
 
 # For signing kernel modules:
-dep --arch="$YAK_TARGET_ARCH" --distro=yak openssl
-dep --arch="$YAK_TARGET_ARCH" --distro=tools2 wget
-dep --arch="$YAK_TARGET_ARCH" --distro=tools2 tar
-dep --arch="$YAK_TARGET_ARCH" --distro=yak gcc
-dep --arch="$YAK_TARGET_ARCH" --distro=yak bc
-dep --arch="$YAK_TARGET_ARCH" --distro=yak perl
+dep openssl
+dep wget || dep --distro=tools2 wget
+dep tar || dep --distro=tools2 tar
+dep make || dep --distro=tools2 make
+dep diffutils || dep --distro=tools2 diffutils
+dep gcc
+dep bc
+dep perl

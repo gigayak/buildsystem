@@ -170,6 +170,17 @@ kconfig_set HSA_AMD m
 kconfig_set RADEON m
 kconfig_set SENSORS_K10TEMP m
 
+# Enable everything we can possibly enable from the sound Kconfigs...
+while read -r config_name
+do
+  kconfig_set "$config_name" m
+done < <(find sound -iname Kconfig \
+  | xargs -I{} grep -E -e '^config SND' {} \
+  | sed -r -e 's@^config @@g' \
+  | sort \
+  | uniq \
+)
+
 kconfig_kernel_finalize_hack
 
 # Build the kernel
