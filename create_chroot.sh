@@ -7,7 +7,7 @@ source "$(DIR)/mkroot.sh"
 source "$(DIR)/escape.sh"
 
 pkgs=("$@")
-echo "Will install: ${pkgs[@]}"
+log_rote "will install: ${pkgs[@]}"
 
 mkroot dir
 
@@ -27,6 +27,5 @@ fi
 dont_depopulate_dynamic_fs_pieces "$dir"
 unregister_temp_file "$dir"
 
-echo
 # This line is parsed in some scripts.  Avoid changing it carelessly.
 echo "Environment available: $dir"
