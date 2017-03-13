@@ -32,5 +32,18 @@ do
     -i "$path"
 done < <(find . -name 'CMakeLists.txt')
 
-cmake -D CMAKE_INSTALL_PREFIX=/usr .
+# HACK SCALE: MINOR
+#
+# portmidi hard-codes /usr/local.  That means that -D CMAKE_INSTALL_PREFIX
+# has no effect - and instead, sed expressions must be used to change the
+# installation prefix.
+while read -r path
+do
+  echo "/usr/local -> /usr in $path"
+  sed -r \
+    -e 's@/usr/local@/usr@g' \
+    -i "$path"
+done < <(grep '\/usr\/local' -lR .)
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr .
 make
