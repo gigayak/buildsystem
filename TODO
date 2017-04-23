@@ -25,10 +25,6 @@ exit $?
 # TODO: need to figure out how to package git parameters (user.name and email)
 #       (/root/.gitconfig)
 
-# TODO: move Selenium bank info project into Git
-# TODO: move Selenium bank info project into buildsystem
-# TODO: move Selenium bank info project into container
-
 # TODO: move certificate authority project into buildsystem
 # TODO: move certificate authority project into container
 # TODO: add web interface to certificate authority project
