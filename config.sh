@@ -96,6 +96,8 @@ create_config --name=REPO_LOCAL_PATH \
   --description="Working copy of package repository; stores package output."
 create_config --name=REPO_URL \
   --description="Upstream URL of package repository; has reference packages."
+create_config --name=LOCAL_STORAGE_PATH \
+  --description="Location of persistent storage (container data, etc)."
 
 # config_paths contains a list of paths which will be searched for
 # configuration details in the order of search.  Later entries can override
