@@ -8,7 +8,7 @@ This is an [XKCD927-compliant](https://xkcd.com/927) Linux distribution.
 This is a Linux distribution.  It consists of:
 
 * a buildsystem
-* a package manager,
+* a package manager
 * some shell scripts to automate creation of LXC containers
 * build scripts for packages required to run Linux
 * shell scripts to create CD and HDD images containing built packages
