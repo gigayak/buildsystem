@@ -1,7 +1,6 @@
 # Gigayak Linux #
 
-This is an incomplete [XKCD927-compliant](https://xkcd.com/927) Linux
-distribution.
+This is an [XKCD927-compliant](https://xkcd.com/927) Linux distribution.
 
 
 ## What? ##
@@ -19,13 +18,23 @@ This is a Linux distribution.  It consists of:
 
 ## Does it run in production? ##
 
-No.  Don't expect to use it in production for some time.
+Depends on definitions.  It's more production-ready than an OS that only boots
+in VMs, but much less ready than familiar distributions (such as Ubuntu), which
+can be reasonably expected to run on just about anything with a reasonable level
+of stability.
 
+It runs on some physical hardware (as opposed to just VMs), but pretty much
+every new machine configuration thrown at it reveals missing kernel
+configuration flags at this point.  It works on specific physical hardware
+configurations, not necessarily all.
 
-## Why would you release an incomplete project? ##
+Integration of upstream software updates is a slow process today requiring
+manual code changes, no central package repository exists, and no automatic
+updater exists.  Running this on a public, internet-facing server would probably
+be a bad idea, as you can be reasonably certain to be behind on security
+updates.
 
-The shell scripts wrapping Linux containers (LXC) have proven to be
-somewhat useful.
+Consider it early alpha quality at this time.
 
 
 ## Why would you do this? ##
