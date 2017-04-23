@@ -1,5 +1,7 @@
 #!/bin/bash
 set -Eeo pipefail
+# This file is derivative of the LFS and CLFS books.  Additional licenses apply
+# to this file.  Please see LICENSE.md for details.
 source /tools/env.sh
 
 # Build an initscript that ups the network interface.
@@ -8,6 +10,8 @@ source /tools/env.sh
 cat > "$CLFS/tools/$YAK_TARGET_ARCH/etc/rc.d/init.d/eth0" <<EOF
 #!/bin/bash
 set -Eeo pipefail
+# This file is derivative of the LFS and CLFS books.  Additional licenses apply
+# to this file.  Please see LICENSE.md for details.
 if [[ "\$1" != "start" ]]
 then
   echo "This script is dumb and can only start."

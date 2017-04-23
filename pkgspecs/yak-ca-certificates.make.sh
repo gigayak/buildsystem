@@ -1,6 +1,25 @@
 #!/bin/bash
 set -Eeo pipefail
+# This file is derivative of cURL.  Additional licenses apply  to this file.
+# Please see LICENSE.md for details.
+#
+# You won't find the original script easily by grepping for pieces of this one.
+# This is actually a port to bash from Perl of the mk-ca-bundle script, whose
+# original can be found at:
+#   https://github.com/curl/curl/blob/master/lib/mk-ca-bundle.pl
+#
+# Why do something as silly as porting from Perl to bash (instead of, say, not
+# porting at all, or porting to Python)?
+#
+# Porting from Perl seemed necessary as getting CPAN set up was proving
+# troublesome at the time.
+#
+# Since the script largely manipulates subprocess calls to the openssl CLI
+# binary, it's well suited for a shell script rather than something higher
+# level.  Also: the rest of Gigayak's buildsystem is in bash already, so there's
+# the added benefit of consistency.
 cd "$YAK_WORKSPACE"
+
 
 # TODO: Figure out how to use HTTPS so that security-minded folks don't suffer
 # an aneurysm from this script...

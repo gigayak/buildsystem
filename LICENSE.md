@@ -1,15 +1,9 @@
-# Licenses
+# License
 
-Several licenses are in play for this distribution.
+Gigayak Linux is covered by the Apache Public License, version 2.0, as
+follows:
 
-## Gigayak Buildsystem
-
-The Gigayak buildsystem consists of all content outside of the `pkgspecs`
-directory, as well as some content within it.
-
-The Gigayak buildsystem is under the Apache license:
-
-> Copyright 2015 John Gilik
+> Copyright 2015-2017 John Gilik
 >
 > Licensed under the Apache License, Version 2.0 (the "License");
 > you may not use this file except in compliance with the License.
@@ -23,11 +17,23 @@ The Gigayak buildsystem is under the Apache license:
 > See the License for the specific language governing permissions and
 > limitations under the License.
 
-## Linux From Scratch instructions
+Files that do not contain any comment at the top indicating "Additional licenses
+apply to this file." are covered solely by the above license.
 
-LFS package specifications (build instructions) are:
 
-> Copyright   1999-2015 Gerard Beekmans
+# Attributions
+
+Many pieces of Gigayak Linux were based off of open-source work published under
+permissive licenses, which require attribution.  The following sections identify
+where these parts of Gigayak came from, as well as how to identify them.
+
+
+## (Cross) Linux From Scratch instructions
+
+Many of the base package instructions are derived from the Linux From Scratch
+family of books, subjecting them to the MIT license in that book:
+
+> Copyright 1999-2015 Gerard Beekmans
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy of
 > this software and associated documentation files (the "Software"), to deal in the
@@ -46,14 +52,18 @@ LFS package specifications (build instructions) are:
 > AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 > WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-## Cross Linux From Scratch instructions
-
-CLFS package specs are covered by the LFS license as well as:
+In most cases, both the Linux From Scratch book as well as the Cross Linux From
+Scratch books were consulted, meaning that these files are also covered under
+the CLFS license:
 
 > Copyright 2005-2014 by Joe Ciccone, Jim Gifford & Ryan Oliver. This material may be
 > distributed only subject to the terms and conditions set forth in the Open
 > Publication License, v1.0 or later (the latest version is presently available
 > at http://www.opencontent.org/openpub/).
+
+Files matching these license(s) have been labeled with a comment indicating that
+they are derivative works of LFS and CLFS.  Use `grep -R 'derivative of the LFS
+and CLFS books' <directory containing this file>` to find affected files.
 
 ## cURL / ca-certificates instructions
 
@@ -81,3 +91,7 @@ code, which is distributed under the MIT license:
 > Except as contained in this notice, the name of a copyright holder shall not
 > be used in advertising or otherwise to promote the sale, use or other dealings
 > in this Software without prior written authorization of the copyright holder.
+
+Files matching this license have been labeled with a comment indicating that
+they are derivative of cURL packaging scripts.  Use `grep -R 'derivative of
+cURL' <directory containing this file>` to find affected files.
