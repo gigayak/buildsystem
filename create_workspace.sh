@@ -39,6 +39,7 @@ then
 else
   log_rote "populating dynamic filesystem pieces at $F_path"
   populate_dynamic_fs_pieces "$F_path"
+  dont_depopulate_dynamic_fs_pieces "$F_path"
 fi
 
 for binding in "${F_bind[@]}"
