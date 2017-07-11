@@ -177,6 +177,7 @@ proxy_ip=""
 if [[ -e /tmp/ip.gigayak.allocations ]]
 then
   proxy_ip="$(awk '/lxc:proxy-01/ {print $1}' /tmp/ip.gigayak.allocations)"
+  samba_ip="$(awk '/lxc:samba-01/ {print $1}' /tmp/ip.gigayak.allocations)"
 fi
 
 # enable iptables
@@ -201,6 +202,21 @@ then
     "--state NEW,ESTABLISHED,RELATED -j DNAT --to $proxy_ip" \
     >> "$rules"
 fi
+if [[ ! -z "$samba_ip" ]]
+then
+  echo "-A PREROUTING -p udp -i $ext_if --dport 137" \
+    "-j DNAT --to $samba_ip" \
+    >> "$rules"
+  echo "-A PREROUTING -p udp -i $ext_if --dport 138" \
+    "-j DNAT --to $samba_ip" \
+    >> "$rules"
+  echo "-A PREROUTING -p tcp -i $ext_if --dport 139 -m state" \
+    "--state NEW,ESTABLISHED,RELATED -j DNAT --to $samba_ip" \
+    >> "$rules"
+  echo "-A PREROUTING -p tcp -i $ext_if --dport 445 -m state" \
+    "--state NEW,ESTABLISHED,RELATED -j DNAT --to $samba_ip" \
+    >> "$rules"
+fi
 echo "-A POSTROUTING -s $br_subnet -o $ext_if -j SNAT --to-source $ext_ip" \
   >> "$rules"
 echo "COMMIT" >> "$rules"
@@ -210,13 +226,29 @@ cat >> "$rules" <<EOF
 :INPUT ACCEPT
 :FORWARD ACCEPT
 :OUTPUT ACCEPT
--A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT 
--A INPUT -p icmp -j ACCEPT 
--A INPUT -i lo -j ACCEPT 
--A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT 
--A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT 
--A INPUT -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT 
--A INPUT -j REJECT --reject-with icmp-host-prohibited 
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+EOF
+# Accept SSH traffic.
+cat >> "$rules" <<EOF
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+EOF
+# Accept web traffic on both HTTP and HTTPS.
+cat >> "$rules" <<EOF
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
+EOF
+# Accept Samba (SMB) traffic.
+cat >> "$rules" <<EOF
+-A INPUT -p udp --dport 137 -j ACCEPT
+-A INPUT -p udp --dport 138 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 139 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 445 -j ACCEPT
+EOF
+# Finalization of the iptable backup format.
+cat >> "$rules" <<EOF
+-A INPUT -j REJECT --reject-with icmp-host-prohibited
 COMMIT
 EOF
 

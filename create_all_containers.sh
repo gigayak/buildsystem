@@ -54,6 +54,7 @@ container repo    02
 
 # Miscellaneous stuff not needed to build:
 container www     01
+container samba   01
 
 # Exit is somewhat ambiguous - make it clear.
 echo "All containers exist and are online."
