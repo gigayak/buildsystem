@@ -17,6 +17,8 @@ encrypt passwords = yes
 security = user
 encrypt passwords = yes
 smb passwd file = /opt/samba_private/private/smb.passwd
+state directory = /opt/samba_private/private
+private dir = /opt/samba_private/private
 log level = 1
 
 [Main]
