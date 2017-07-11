@@ -7,6 +7,15 @@ EOF
 
 # TODO: I really need to move this to LDAP, or some other login system.
 # Seriously: my user account shouldn't be hardcoded here.
+#
+# Perhaps "username map script" could help, per:
+#   https://www.samba.org/samba/docs/man/manpages-3/smb.conf.5.html#idp62402464
+# May allow us to at least force-map a bunch of usernames to one "samba" user,
+# however ill-advised.  That could be a short-term fix prior to implementation
+# of Kerberos + LDAP.
+#
+# Kerberos + LDAP then is somewhat detailed here:
+#   https://aput.net/~jheiss/krbldap/howto.html
 cat > /usr/bin/container.init <<'EOF_INIT'
 #!/bin/bash
 set -Eeo pipefail
