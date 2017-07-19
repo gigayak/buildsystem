@@ -165,7 +165,7 @@ populate_dynamic_fs_pieces()
 
   existing_dynamic_fs_roots+=("$_root")
 
-  # Copy in procfs and devfs -- this is a security hole, but so's building
+  # Copy in procfs, devfs, sysfs -- this is a security hole, but so's building
   # as root
   if [[ ! -d "$_root/proc" ]]
   then
@@ -179,6 +179,15 @@ populate_dynamic_fs_pieces()
     chmod 555 "$_root/dev"
   fi
   mount --bind /dev "$_root/dev"
+  if [[ -d /sys ]]
+  then
+    if [[ ! -d "$_root/sys" ]]
+    then
+      mkdir "$_root/sys"
+      chmod 555 "$_root/sys"
+    fi
+    mount --bind /sys "$_root/sys"
+  fi
 
   # Ubuntu keeps shared memory in /run/shm instead of /dev/shm.
   # /dev/shm winds up being a symlink to /run/shm.  Ugh.
@@ -239,6 +248,10 @@ depopulate_dynamic_fs_pieces()
   if [[ -d "$_root/run/shm" ]]
   then
     umount "$_root/run/shm"
+  fi
+  if [[ -d "$_root/sys" ]]
+  then
+    umount "$_root/sys"
   fi
 
   rm -f "$_root/etc/resolv.conf"
