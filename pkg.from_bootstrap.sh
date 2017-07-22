@@ -3,6 +3,7 @@ set -Eeo pipefail
 DIR(){(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)}
 
 source "$(DIR)/cleanup.sh"
+source "$(DIR)/config.sh"
 source "$(DIR)/flag.sh"
 source "$(DIR)/repo.sh"
 source "$(DIR)/log.sh"
@@ -29,18 +30,24 @@ then
 fi
 
 found=0
+possible_files=()
+possible_files+=("${arch}-${distro}-${F_pkg_name}.bootstrap.sh")
+possible_files+=("${distro}-${F_pkg_name}.bootstrap.sh")
+possible_files+=("${F_pkg_name}.bootstrap.sh")
 bootstrap_files=()
-bootstrap_files+=("$(DIR)/pkgspecs/${arch}-${distro}-${F_pkg_name}.bootstrap.sh")
-bootstrap_files+=("$(DIR)/pkgspecs/${distro}-${F_pkg_name}.bootstrap.sh")
-bootstrap_files+=("$(DIR)/pkgspecs/${F_pkg_name}.bootstrap.sh")
-for bootstrap in "${bootstrap_files[@]}"
+while read -r possible_pkgspec_dir
 do
-  if [[ -e "$bootstrap" ]]
-  then
-    found=1
-    break
-  fi
-done
+  for bootstrap in "${possible_files[@]}"
+  do
+    bootstrap_files+=("${possible_pkgspec_dir}/${bootstrap}")
+    if [[ -e "${possible_pkgspec_dir}/${bootstrap}" ]]
+    then
+      bootstrap="${possible_pkgspec_dir}/${bootstrap}"
+      found=1
+      break
+    fi
+  done
+done < <(get_config PKGSPEC_DIRS | tr ':' '\n')
 if (( ! "$found" ))
 then
   log_rote "bootstrap script not found"

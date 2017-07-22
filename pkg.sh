@@ -140,7 +140,6 @@ register_exit_handler_back outputname_debug_exit_handler
 
 
 # Check that the package actually exists!
-SPECS="$(DIR)/pkgspecs"
 for path in "$version"
 do
   if [[ ! -e "$path" ]]

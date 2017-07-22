@@ -12,3 +12,24 @@ set_config REPO_LOCAL_PATH "/var/www/html/tgzrepo"
 set_config REPO_URL "https://repo.example.com"
 set_config CONTAINER_SUBNET "192.168.122.0/24"
 set_config LOCAL_STORAGE_PATH "$(DIR)/../localstorage"
+
+# These bits ensure that we provide both the local development directory as
+# well as the overarching system install directory if we've got a local clone
+# checked out.
+#
+# Note that this may have the side effect of including a local development
+# directory in a production configuration if someone just uses ./dump_config.sh
+# to generate their production configuration... while in a locally-cloned
+# copy of the buildsystem.
+#
+# TODO: Look into automatically avoiding this in the git clone; build use case.
+pkgspec_dirs=()
+if [[ "$(DIR)" != "/usr/bin/buildsystem" ]]
+then
+  pkgspec_dirs+=("$(DIR)/pkgspecs")
+fi
+if [[ -d "/usr/bin/buildsystem" ]]
+then
+  pkgspec_dirs+=("/usr/bin/buildsystem/pkgspecs")
+fi
+set_config PKGSPEC_DIRS "$(export IFS=':'; echo "${pkgspec_dirs[*]}")"
