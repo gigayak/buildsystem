@@ -15,3 +15,10 @@ do
   source "$path"
 done < <(find /etc/profile.d -mindepth 1 -maxdepth 1 -iname '*.sh')
 EOF
+
+cat > /etc/profile.d/bash.sh <<"EOF"
+# Avoid having issues if the terminal is not 80 columns wide.
+# Found at StackOverflow here:
+#   https://unix.stackexchange.com/a/167911
+shopt -s checkwinsize
+EOF
