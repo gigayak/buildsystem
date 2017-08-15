@@ -1,4 +1,4 @@
 #!/bin/bash
 set -Eeo pipefail
 cd "$YAK_WORKSPACE"/*-*/
-nimble install
+cp -rv /.nimble/pkgs/c2nim-*/c2nim /usr/bin/
