@@ -2,7 +2,7 @@
 set -Eeo pipefail
 source "$YAK_BUILDTOOLS/download.sh"
 cd "$YAK_WORKSPACE"
-version="0.16.0"
+version="0.17.2"
 echo "$version" > version
 url="https://github.com/nim-lang/Nim/archive/v${version}.tar.gz"
 wget -O nim.tar.gz "$url"
